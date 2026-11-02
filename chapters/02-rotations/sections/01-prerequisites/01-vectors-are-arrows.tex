@@ -1,0 +1,8 @@
+\subsection{Vectors are arrows; coordinates are a choice}\label{sec:rot:vectors-are-arrows}
+A vector $v$ (a displacement, a velocity, a gravity direction) exists independently of any frame. Coordinates appear only once we pick an orthonormal, right-handed basis $\{a_x,a_y,a_z\}$:
+\[
+v = v_1 a_x + v_2 a_y + v_3 a_z,\qquad v_i = a_i\cdot v \quad(\text{because } a_i\cdot a_j=\delta_{ij}).
+\]
+So a coordinate is a \emph{projection} onto a basis direction. Hold onto this: every entry of a rotation matrix will turn out to be one of these projections. The same arrow has different coordinate triples $\pre{A}{v}$ and $\pre{B}{v}$ in different frames; most of this chapter is about converting between them.
+
+A \emph{point} is different from a vector: it has a location, so its coordinates depend on the frame's origin as well as its axes. Rotations act identically on both; translations move points but leave vectors (directions) untouched. This distinction becomes the ``1 vs.\ 0'' in homogeneous coordinates (\S\ref{sec:rot:homog}).

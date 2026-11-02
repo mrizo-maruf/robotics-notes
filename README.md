@@ -3,7 +3,7 @@
 My own textbook for the Graduate Introduction to Robotics course, built from first principles one lecture idea at a time.
 
 **Latest PDF** (rebuilt automatically on every push to `main`):
-`https://github.com/<owner>/<repo>/releases/download/latest/robotics-notes.pdf`
+https://github.com/mrizo-maruf/robotics-notes/releases/download/latest/robotics-notes.pdf
 
 ## How a new section gets written
 
@@ -19,14 +19,25 @@ Needs TeX Live (`latexmk`, `pdflatex`) and, for figures, Python with `requiremen
 
 ```bash
 make                         # whole book      -> build/notes.pdf
-make ch CH=01-rotations      # one chapter     -> build/ch-01-rotations.pdf
-make figs CH=01-rotations    # regenerate figures
-make check CH=01-rotations   # re-run the numeric examples
-make new CH=02-kinematics TITLE="Forward Kinematics" KEY=fk
+make ch CH=02-rotations      # one chapter     -> build/ch-02-rotations.pdf
+make figs CH=02-rotations    # regenerate figures
+make check CH=02-rotations   # re-run the numeric examples
+make new CH=03-kinematics TITLE="Forward Kinematics" KEY=fk
 ```
 
 VS Code: the LaTeX Workshop extension works if you build `notes.tex` from the repo root. Overleaf can also import the repo, but GitHub sync there is a paid feature.
 
 ## Structure
+
+The `.tex` is split so every piece is small and edited on its own:
+
+```
+chapters/NN-name/                one lecture (NN = lecture number)
+  chapter.tex                    intro + list of sections
+  sections/NN-idea/section.tex   one idea: heading + list of subsections
+  sections/NN-idea/MM-sub.tex    one sub-idea (~10-60 lines)
+```
+
+Chapter 1 is a placeholder (lecture 1 slides only); chapter 2 is rotations and rigid-body motion.
 
 See the "Layout" section of `CLAUDE.md`. Keep the repo **private**: `slides/` contains course material.

@@ -8,7 +8,12 @@ What he asked for, in his words: *extended notes on each idea; derive things, ex
 
 1. **Sync.** `git pull`. Read this file, `frontmatter/notation.tex`, and the target chapter's `chapter.tex` plus the section before the new one, so notation and story continue seamlessly.
 2. **Store the slides.** Copy the slide images he sent into `slides/<chapter>/`, named `NN-short-name.png` in lecture order. Update the chapter's `sourcebox` to list them.
-3. **Place the idea.** By default, one idea = one new section file `chapters/<ch>/sections/N-slug.tex`, `\input` in `chapter.tex`. For a new lecture topic, run `make new CH=NN-name TITLE="..." KEY=short`. If placement is unclear, ask in one short question before writing.
+3. **Place the idea.** The `.tex` is split finely so that work, edits and diffs happen one piece at a time. Never put a whole section in one file:
+   - one lecture = one chapter folder `chapters/NN-name/` (`make new CH=NN-name TITLE="..." KEY=short`; chapter numbers follow lecture numbers);
+   - one idea (a group of slides) = one **section folder** `sections/NN-slug/`, containing `section.tex` (heading, a short motivating paragraph, and the `\input` list) and is `\input` in `chapter.tex`;
+   - one sub-idea = one **subsection file** `sections/NN-slug/MM-slug.tex` (~10-60 lines), `\input` in that `section.tex`.
+
+   When asked to change something, edit only the files involved. If placement is unclear, ask in one short question before writing.
 4. **Write** the section (anatomy below).
 5. **Compute every number** in a worked example in `chapters/<ch>/code/examples.py`, using `code/rigid.py` (extend it when a new primitive is needed). Never hand-compute a number that appears in the text. Cross-check against an independent route (finite differences, `scipy`, a second formula).
 6. **Draw figures** in `chapters/<ch>/code/figs.py` (style from `code/style.py`), output PDF to `chapters/<ch>/figs/`. Render each figure to PNG and look at it before using it; fix clipping and overlapping labels.
@@ -30,16 +35,16 @@ Not every element is needed in every section. Most sections need most of them.
 6. **Pitfalls**: what goes wrong in real code or practice, and how to detect it.
 7. **Connections**: one or two sentences linking back to earlier chapters with `\S\ref{...}` (and forward, if the slides foreshadow something).
 
-Close each chapter with a summary section: a comparison table if relevant, a formula sheet, a self-assessment checklist, practice problems with answers, and "the essence in N lines". Chapter 1 (`chapters/01-rotations`) is the reference for tone, depth and layout.
+Close each chapter with a summary section: a comparison table if relevant, a formula sheet, a self-assessment checklist, practice problems with answers, and "the essence in N lines". Chapter 2 (`chapters/02-rotations`) is the reference for tone, depth and layout.
 
 ## Writing rules
 
-- **Prose first.** Lists only for genuinely parallel items. British spelling (parameterise, optimisation), as in chapter 1.
+- **Prose first.** Lists only for genuinely parallel items. British spelling (parameterise, optimisation), as in chapter 2.
 - **Honest.** If a slide's claim is wrong, imprecise, or uses a different convention, write the correct version and add a `noteb` box mapping the slide's notation or statement to ours. Mention it in the report. If something is uncertain (e.g. a library's current convention), say so or check it, never guess.
 - **Beyond the slides.** Sparse slides should be filled in from standard references (Lynch & Park, Siciliano et al., Barfoot, Murray-Li-Sastry, Corke, Thrun et al., Hartley & Zisserman), so each section stands alone.
 - **Notation.** Use the book's notation (`frontmatter/notation.tex`), even when the slides differ. New notation goes into `notation.tex` first. New macros used in more than one chapter go in `notes.sty`. Chapter-only macros go at the top of that chapter's `chapter.tex`.
 - **Boxes.** Use only `keyidea`, `deriv`, `example`, `pitfall`, `noteb`, plus one `sourcebox` per chapter.
-- **Labels.** Always `sec:<KEY>:<slug>`, `eq:<KEY>:<slug>`, `fig:<KEY>:<slug>`, where KEY is the chapter key (chapter 1 is `rot`). **Never hard-code a section, equation or figure number**: always `\ref`/`\eqref`/`\figref`.
+- **Labels.** Always `sec:<KEY>:<slug>`, `eq:<KEY>:<slug>`, `fig:<KEY>:<slug>`, where KEY is the chapter key (chapter 2 is `rot`). **Never hard-code a section, equation or figure number**: always `\ref`/`\eqref`/`\figref`.
 - **Font.** 10 pt Times (`mathptmx`), set in `notes.sty`. Do not change layout per chapter.
 
 ## Figures
@@ -55,7 +60,11 @@ Close each chapter with a summary section: a comparison table if relevant, a for
 notes.tex            book root: front matter + \subfile per chapter
 notes.sty            fonts, layout, boxes, global macros
 frontmatter/notation.tex
-chapters/NN-name/    chapter.tex (compiles alone), sections/, figs/, code/
+chapters/NN-name/    one lecture; NN = lecture number
+  chapter.tex        compiles alone; intro + \input of each section.tex
+  sections/NN-slug/  one idea: section.tex + MM-slug.tex per subsection
+  figs/  code/       generated figure PDFs; figs.py + examples.py
+chapters/01-lecture-1/  placeholder (lecture 1 slides only, no notes)
 chapters/_template/  copied by `make new`
 code/rigid.py        shared, tested numerics (SO3/SE3/quaternions/...)
 code/style.py        shared figure style

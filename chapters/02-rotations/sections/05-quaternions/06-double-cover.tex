@@ -1,0 +1,8 @@
+\subsection{Double cover: $q$ and $-q$}\label{sec:rot:double-cover}
+$R(q)$ is quadratic in $q$, so $R(-q)=R(q)$: every rotation has exactly two unit quaternions, at opposite points of $S^3$. Physically, $-q=(\cos\frac{\theta+2\pi}2,\sin\frac{\theta+2\pi}2\nh)$ is ``the same rotation plus one extra full turn''. \figref{fig:rot:quatcover} shows the consequence: as a body turns continuously about a fixed axis, its matrix returns to $I$ after $2\pi$ but its quaternion only after $4\pi$. The 3-sphere $S^3$ is the double cover of $\SO$, and unlike $\SO$ it has no ``glued boundary'', which is why quaternions have no singularity.
+\begin{figure}[h]
+\centering\includegraphics[width=\linewidth]{quat_cover.pdf}
+\caption{(a) Quaternion components for a rotation by $\theta$ about $z$, compared with a rotation-matrix entry. (b) In the $(q_w,q_z)$ plane, $q$ sits at angle $\theta/2$; $-q$ is diametrically opposite and encodes the same rotation.}
+\label{fig:rot:quatcover}
+\end{figure}
+\textbf{Practical rules.} (1) The angle between two orientations is $2\arccos|q_1\cdot q_2|$ (note the absolute value). (2) Before interpolating or blending, flip one quaternion if $q_1\cdot q_2<0$. (3) To average many quaternions, do not sum them; use the eigenvector of $\sum_iq_iq_i\T$ with the largest eigenvalue (Markley's method), which is insensitive to signs. (4) In a Kalman filter, a measured quaternion may arrive with the opposite sign to the state; compute the innovation as $\Log(q_{\text{state}}^*\otimes q_{\text{meas}})$ after enforcing a non-negative scalar part on the product.

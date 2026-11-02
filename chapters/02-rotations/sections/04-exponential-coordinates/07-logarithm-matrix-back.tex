@@ -1,0 +1,12 @@
+\subsection{The logarithm: from a matrix back to axis and angle}\label{sec:rot:log}\label{sec:rot:logarithm-matrix-back}
+\begin{deriv}{trace and skew part of Rodrigues}
+Take the trace of \eqref{eq:rot:rodrigues}: $\tr I=3$, $\tr\skw{\nh}=0$, $\tr\skw{\nh}^2=\tr(\nh\nh\T-I)=1-3=-2$. So $\tr R=1+2\cos\theta$. Take the skew part: $R-R\T=2\sin\theta\,\skw{\nh}$ (the $\skw{\nh}^2$ term is symmetric). Hence
+\[
+\theta=\arccos\frac{\tr R-1}{2}\in[0,\pi],\qquad \skw{\nh}=\frac{R-R\T}{2\sin\theta},\qquad \varphi=\Log(R)=\theta\nh .
+\]
+\end{deriv}
+\textbf{Numerical care.} (i) Near $\theta=0$, compute $\theta/\sin\theta$ with its Taylor series $1+\theta^2/6$ instead of dividing two tiny numbers; likewise $\sin\theta/\theta\approx1-\theta^2/6$ and $(1-\cos\theta)/\theta^2\approx\frac12-\theta^2/24$ in $\Exp$. (ii) Near $\theta=\pi$, $\sin\theta\to0$ and the skew part vanishes. Use the symmetric part instead: $\frac12(R+R\T)=\cos\theta\,I+(1-\cos\theta)\nh\nh\T$, so $\nh\nh\T=\big(\tfrac12(R+R\T)-\cos\theta I\big)/(1-\cos\theta)$; take the column with the largest diagonal entry and normalise. The sign of $\nh$ is genuinely ambiguous at exactly $\pi$. (iii) Clamp $(\tr R-1)/2$ to $[-1,1]$ before $\arccos$; floating point will occasionally give $1.0000000002$.
+
+\begin{example}{knee angle and hinge axis, part 2}
+From part 1 (\S\ref{sec:rot:orientation}), $\tr R_{12}=2.1450$, so $\theta=\arccos(0.5725)=55.08^\circ$, and $\Log$ gives axis $\nh=(0.050,\,0.998,\,-0.026)$. The joint turned $55.1^\circ$ about an axis within about $3^\circ$ of the shank's $y$-axis, which is the anatomical flexion axis. The small off-axis part is the $3^\circ$ ab/adduction. This single number is frame-independent: unlike ``difference of pitch angles'', it does not change if the person turns around or if the IMUs are mounted rolled. Gait-analysis toolkits report joint angles this way, or decompose $R_{12}$ with a joint-specific Euler sequence chosen so that the singularity is outside the physiological range.
+\end{example}

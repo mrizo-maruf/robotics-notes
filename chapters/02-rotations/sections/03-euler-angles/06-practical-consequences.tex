@@ -1,0 +1,27 @@
+\subsection{Practical consequences}\label{sec:rot:practical-consequences}
+\begin{itemize}
+\item \textbf{Discontinuities.} Yaw wraps at $\pm180^\circ$. Averaging two headings $179^\circ$ and $-179^\circ$ arithmetically gives $0^\circ$, which is $180^\circ$ wrong. Controllers and filters with Euler states need angle-wrapping everywhere.
+\item \textbf{Interpolation.} Interpolating the three angles linearly produces a path in $\SO$ that is neither shortest nor constant-speed (\figref{fig:rot:slerp}: $232^\circ$ of turning to achieve a $153^\circ$ reorientation).
+\item \textbf{Control and estimation.} Near the singularity, small attitude errors become huge angle errors, Jacobians blow up, and an EKF with Euler states diverges. Aircraft that hover nose-up (tail-sitters), aerobatic drones, and humanoid torsos all reach $\pm90^\circ$ pitch.
+\item \textbf{When Euler angles are fine:} human-readable display and logs, specifying set-points, and systems that never come near the singularity (ground vehicles, ships). Store and compute with something else; convert to Euler only at the edges.
+\end{itemize}
+
+\begin{example}{a tail-sitter VTOL in hover: tiny attitude change, huge angle change}
+A tail-sitter drone hovers nose-up, so its ZYX pitch is near $90^\circ$. True attitude $(\psi,\theta,\phi)=(10^\circ,\,89.5^\circ,\,20^\circ)$. The estimator's attitude is off by only $0.3^\circ$, a body-frame error $R_{\text{est}}=R_{\text{true}}\Exp(\delta)$. Extracted angles:
+\begin{center}\small
+\begin{tabular}{@{}lccc@{}}\toprule
+error $\delta$ ($0.3^\circ$ about body\dots) & $\psi$ & $\theta$ & $\phi$\\\midrule
+none & $10.00^\circ$ & $89.50^\circ$ & $20.00^\circ$\\
+$x$ (the nose) & $10.00^\circ$ & $89.50^\circ$ & $20.30^\circ$\\
+$z$ & $35.07^\circ$ & $89.33^\circ$ & $45.07^\circ$\\
+$y$ & $35.20^\circ$ & $89.76^\circ$ & $45.20^\circ$\\\bottomrule
+\end{tabular}
+\end{center}
+A $0.3^\circ$ attitude error moved yaw and roll by $25^\circ$ each, while $\phi-\psi=-10^\circ$ stayed put, exactly as the gimbal-lock derivation predicts. A yaw controller fed these numbers would command a violent correction for an error that does not exist. Fix used in practice: control on $\SO$ directly (error $=\Log(R_d\T R)$), or re-define the body frame so that hover corresponds to zero pitch.
+
+\emph{Rates.} At $\theta=80^\circ,\ \phi=0$, a gentle body yaw rate $\omega_b=(0,0,1)$\,rad/s corresponds to $\dot\psi=1/\cos80^\circ=5.76$\,rad/s and $\dot\phi=\tan80^\circ=5.67$\,rad/s (\figref{fig:rot:gimbal}c). An Euler-angle integrator needs a tiny time step here.
+\end{example}
+
+\begin{example}{the spherical wrist of a 6-DOF arm is a ZYZ gimbal}\label{sec:rot:wrist}
+Many industrial arms (e.g.\ most KUKA, ABB and Fanuc models) end in three revolute joints whose axes meet at one point. Their orientation is $R_{\text{wrist}}=R_z(\theta_4)R_y(\theta_5)R_z(\theta_6)$: a proper Euler ZYZ sequence. At $\theta_5=0$ joints 4 and 6 are coaxial: only $\theta_4+\theta_6$ matters, inverse kinematics has infinitely many solutions, and keeping the tool moving along certain directions requires $\dot\theta_4,\dot\theta_6\to\infty$. Robot programmers call this the \emph{wrist singularity}; it is gimbal lock in hardware, and motion planners avoid paths with $\theta_5\approx0$ for exactly the reason in \figref{fig:rot:gimbal}(c).
+\end{example}

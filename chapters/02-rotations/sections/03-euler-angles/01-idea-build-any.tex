@@ -1,0 +1,7 @@
+\subsection{The idea: build any rotation from three elementary turns}\label{sec:rot:idea-build-any}
+Since $\SO$ has three degrees of freedom, it is natural to try three numbers: perform three elementary rotations about coordinate axes. Consecutive axes must differ (two turns about the same axis merge into one), which leaves 12 sequences:
+\begin{itemize}
+\item \textbf{Tait--Bryan} (three distinct axes): $xyz, xzy, yxz, yzx, zxy, zyx$. Roll--pitch--yaw belongs here.
+\item \textbf{Proper Euler} (first axis repeated): $xyx, xzx, yxy, yzy, zxz, zyz$. Used for precession--nutation--spin and for robot wrists (\S\ref{sec:rot:wrist}).
+\end{itemize}
+On top of the sequence, each can be \emph{intrinsic} (about the moving body axes) or \emph{extrinsic} (about the fixed axes), giving 24 conventions in use. A list of three angles is meaningless until the convention is stated.

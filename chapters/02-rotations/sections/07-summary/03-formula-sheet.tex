@@ -1,0 +1,20 @@
+\subsection{Formula sheet}\label{sec:rot:formula-sheet}
+\begin{center}\small
+\renewcommand{\arraystretch}{1.35}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{3.4cm}X@{}}\toprule
+Skew matrix & $\skw{\omega}v=\omega\times v$;\ \ $\skw{\nh}^2=\nh\nh\T-I$;\ \ $\skw{\nh}^3=-\skw{\nh}$;\ \ $\skw{R\omega}=R\skw{\omega}R\T$\\
+Rodrigues / Exp & $R=I+\sin\theta\skw{\nh}+(1-\cos\theta)\skw{\nh}^2=e^{\skw{\nh}\theta}$\\
+Log & $\theta=\arccos\frac{\tr R-1}2$,\ \ $\skw{\nh}=\frac{R-R\T}{2\sin\theta}$;\ near $\pi$: $\nh\nh\T=\frac{(R+R\T)/2-\cos\theta I}{1-\cos\theta}$\\
+Angular velocity & $\dot R=\skw{\omega_s}R=R\skw{\omega_b}$,\ \ $\omega_s=R\omega_b$;\ \ exact step $R_{k+1}=R_k\Exp(\omega_b\Delta t)$\\
+ZYX Euler & $R=R_z(\psi)R_y(\theta)R_x(\phi)$;\ $\theta=\atantwo(-r_{31},\sqrt{r_{11}^2+r_{21}^2})$, $\psi=\atantwo(r_{21},r_{11})$, $\phi=\atantwo(r_{32},r_{33})$; $\det E=\cos\theta$\\
+Quaternion & $q=(\cos\frac\theta2,\sin\frac\theta2\nh)$;\ $(w_1,u_1)(w_2,u_2)=(w_1w_2-u_1\!\cdot\!u_2,\ w_1u_2+w_2u_1+u_1\!\times\!u_2)$;\ $v'=qvq^*$;\ $\dot q=\frac12q\otimes(0,\omega_b)$;\ angle $=2\arccos|q_1\!\cdot\!q_2|$\\
+SLERP & $q(t)=\frac{\sin((1-t)\Omega)q_0+\sin(t\Omega)q_1}{\sin\Omega}$, $\cos\Omega=q_0\cdot q_1\ge0$ (flip if negative)\\
+Pose & $T_{AB}=\bmat{R_{AB}&t_{AB}\\0&1}$;\ \ $T_{AB}^{-1}=\bmat{R\T&-R\T t\\0&1}$;\ \ $T_{AC}=T_{AB}T_{BC}$\\
+Twist & $[\xi]=\bmat{\skw{\omega}&v\\0&0}$; screw: $\omega=\nh$, $v=-\nh\times q+h\nh$; $T^{-1}\dot T=[\xi_b]$, $\dot TT^{-1}=[\xi_s]$\\
+SE(3) Exp & $e^{[\xi]\theta}=\bmat{e^{\skw{\omega}\theta}&(I\theta+(1-\cos\theta)\skw{\omega}+(\theta-\sin\theta)\skw{\omega}^2)v\\0&1}$\\
+Adjoint & $\Ad_T=\bmat{R&\skw{t}R\\0&R}$ for $\xi=(v,\omega)$;\ \ $\xi_A=\Ad_{T_{AB}}\xi_B$\\
+PoE kinematics & $T(\theta)=e^{[S_1]\theta_1}\cdots e^{[S_n]\theta_n}M$;\ \ $J_i=\Ad_{e^{[S_1]\theta_1}\cdots e^{[S_{i-1}]\theta_{i-1}}}S_i$\\
+Perturbation Jacobians & $\partial(R\Exp(\delta)p)/\partial\delta=-R\skw{p}$;\ \ $\partial(T\Exp(\delta)p)/\partial\delta=R\,[\,I\ |\ -\skw{p}\,]$\\
+Kabsch & $H=\sum p_i'(q_i')\T=USV\T$,\ $R=V\mathrm{diag}(1,1,\det VU\T)U\T$,\ $t=\bar q-R\bar p$\\\bottomrule
+\end{tabularx}
+\end{center}

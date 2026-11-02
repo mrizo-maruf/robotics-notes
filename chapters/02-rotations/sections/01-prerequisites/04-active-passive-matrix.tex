@@ -1,0 +1,11 @@
+\subsection{Active vs.\ passive: one matrix, two readings}\label{sec:rot:active-passive-matrix}
+\begin{figure}[h]
+\centering\includegraphics[width=\linewidth]{active_passive.pdf}
+\caption{(a) A rotation is fully determined by where it sends the basis vectors; those images are its columns. (b) Active reading: the vector moves, the frame is fixed, $p'=Rp$. (c) Passive reading: the vector is fixed, the frame turns by $\theta$; the same physical $p$ now has coordinates $R\T p$ in the new frame.}
+\label{fig:rot:activepassive}
+\end{figure}
+\begin{itemize}
+\item \textbf{Active (alibi):} the object moves. $p' = Rp$ are the new coordinates of the moved vector, in the same frame.
+\item \textbf{Passive (alias):} nothing moves; we re-describe the same vector in a rotated frame. If the frame is rotated by $R$, the coordinates change by $R\T$.
+\end{itemize}
+These are not two different physics; they are inverse readings of the same matrix. In these notes, $R_{AB}$ is read passively as ``convert $B$-coordinates to $A$-coordinates'', which is simultaneously the active rotation that carries $A$'s axes onto $B$'s axes. If you ever get a sign or transpose wrong, it is almost always because the code author used the other reading.

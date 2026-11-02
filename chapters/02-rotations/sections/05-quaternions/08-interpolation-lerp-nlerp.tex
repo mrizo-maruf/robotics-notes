@@ -1,0 +1,23 @@
+\subsection{Interpolation: LERP, NLERP and SLERP}\label{sec:rot:interpolation-lerp-nlerp}
+To move smoothly from $q_0$ to $q_1$ (camera keyframes, animation, trajectory set-points) we want the shortest rotation, traversed at constant angular speed. On $\SO$ that is $q(t)=q_0\otimes\Exp\big(t\Log(q_0^*\otimes q_1)\big)$: compute the relative rotation, take a fraction $t$ of its rotation vector, apply it.
+
+\begin{deriv}{the SLERP formula}
+On $S^3$ the shortest path is a great-circle arc. Let $\cos\Omega=q_0\cdot q_1$ (after flipping $q_1$ if negative). The unit vector in the plane of $q_0,q_1$ orthogonal to $q_0$ is $q_\perp=(q_1-\cos\Omega\,q_0)/\sin\Omega$. Walking an angle $t\Omega$ along the arc:
+\[
+q(t)=\cos(t\Omega)\,q_0+\sin(t\Omega)\,q_\perp=\frac{\sin((1-t)\Omega)\,q_0+\sin(t\Omega)\,q_1}{\sin\Omega}.
+\]
+The physical rotation angle between $q_0$ and $q_1$ is $2\Omega$ (half-angle once more). For $\Omega\to0$ switch to normalised linear interpolation to avoid $0/0$.
+\end{deriv}
+\begin{figure}[h]
+\centering\includegraphics[width=\linewidth]{slerp.pdf}
+\caption{Interpolating from identity to ZYX $(150^\circ,50^\circ,-120^\circ)$. (a) SLERP and NLERP follow the same great-circle path (they overlap); linear interpolation of Euler angles wanders. (b) SLERP has constant angular speed; NLERP (normalised linear interpolation of $q$) has the same path but speeds up in the middle; Euler-angle interpolation turns $232^\circ$ in total to achieve a $153^\circ$ reorientation.}
+\label{fig:rot:slerp}
+\end{figure}
+
+\begin{example}{the sign check matters: yaw across $\pm180^\circ$}
+A ship's heading goes from $170^\circ$ to $-170^\circ$ (a $20^\circ$ turn through south). $q_a=(0.0872,0,0,0.9962)$. Converting $R_z(-170^\circ)$ with a library that enforces $w\ge0$ gives $q_b=(0.0872,0,0,-0.9962)$, and $q_a\cdot q_b=-0.985$. SLERP without the sign check returns the midpoint $(1,0,0,0)$: heading $0^\circ$, i.e.\ it turned $340^\circ$ the long way. With the check ($q_b\to-q_b$) the midpoint is $(0,0,0,1)$: heading $180^\circ$, correct.
+\end{example}
+
+\begin{example}{rolling-shutter / timestamp interpolation}
+A camera's rows are exposed at different times; a row captured 40\% of the way between two IMU-propagated poses needs the orientation at $t=0.4$. Take $q_0$ = the quaternion of ZYX $(20^\circ,5^\circ,-3^\circ)$ $=(0.9833,-0.0333,0.0384,0.1745)$ and $q_1$ = that of ZYX $(32^\circ,2^\circ,1^\circ)$ $=(0.9611,0.0036,0.0192,0.2754)$. Then $\Omega=6.38^\circ$ (a $12.77^\circ$ rotation) and $q(0.4)=(0.9759,-0.0186,0.0308,0.2152)$, i.e.\ ZYX $(24.83^\circ,3.90^\circ,-1.32^\circ)$; its geodesic distance from $q_0$ is exactly $0.4$ of the total. Interpolating the Euler angles linearly would give $(24.8^\circ,3.8^\circ,-1.4^\circ)$: close here only because the rotation is small and far from the singularity, and wrong by degrees for fast motions.
+\end{example}

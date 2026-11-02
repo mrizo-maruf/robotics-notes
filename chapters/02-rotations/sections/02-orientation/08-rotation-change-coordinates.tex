@@ -1,0 +1,30 @@
+\subsection{Rotation vs.\ change of coordinates}\label{sec:rot:rotation-change-coordinates}
+The same matrix answers two questions. Let $R=R_z(90^\circ)$ and $p=(1,0,0)$. Active: rotating the vector $p$ by $90^\circ$ about $z$ gives $(0,1,0)$. Passive: if frame $\{B\}$ is $\{A\}$ turned $90^\circ$ about $z$, the point whose $B$-coordinates are $(1,0,0)$ has $A$-coordinates $(0,1,0)$. Same arithmetic, two stories. Write the frames as subscripts and you never need to remember which story a library intended: check that inner indices match.
+
+\begin{example}{camera mounted on a robot (frame conventions)}
+A mobile robot uses the ROS body convention ($x$ forward, $y$ left, $z$ up). Its camera uses the optical convention ($z_C$ forward along the optical axis, $x_C$ right in the image, $y_C$ down). The camera looks straight ahead. Find $R_{BC}$, then convert a detection $\pre{C}{p}=(0.2,\,-0.1,\,3.0)$\,m into the body frame.
+
+\emph{Columns = camera axes in body coordinates:} $x_C$ (right) $=-y_B\to(0,-1,0)$; $y_C$ (down) $=-z_B\to(0,0,-1)$; $z_C$ (forward) $=x_B\to(1,0,0)$:
+\[
+R_{BC}=\bmat{0&0&1\\-1&0&0\\0&-1&0},\qquad \det R_{BC}=+1\ \checkmark,\qquad
+\pre{B}{p}=R_{BC}\,\pre{C}{p}=(3.0,\,-0.2,\,0.1).
+\]
+Sanity check: 3\,m ahead, 0.2\,m to the right ($y_B<0$), 0.1\,m up (the detection was above the image centre, $y_C<0$). Writing this matrix by inspection of columns is far less error-prone than composing ``$-90^\circ$ about $z$ then $-90^\circ$ about $x$'', and it is the first thing to check when a perception pipeline produces mirrored or swapped detections.
+\end{example}
+
+\begin{example}{relative orientation of two IMUs (knee angle), part 1}
+Two IMUs are strapped to a thigh (1) and a shank (2). Each fusion filter reports its orientation relative to a common world frame. The physiotherapist wants the knee angle, which must not depend on which way the person is facing. With $R_{W1}=R_z(40^\circ)R_y(10^\circ)$ and $R_{W2}=R_{W1}R_y(55^\circ)R_x(3^\circ)$ (numerically, rounded):
+\[
+R_{W1}=\bmat{0.7544&-0.6428&0.1330\\0.6330&0.7660&0.1116\\-0.1736&0&0.9848},\quad
+R_{12}=R_{W1}\T R_{W2}=\bmat{0.5736&0.0429&0.8180\\0&0.9986&-0.0523\\-0.8192&0.0300&0.5728}.
+\]
+The heading $40^\circ$ has cancelled exactly, as it must: $R_{12}$ is a relation between the two segments only. We will extract the knee angle and hinge axis from $R_{12}$ in \S\ref{sec:rot:log} (Log map). Note the common mistake: subtracting Euler angles reported by the two filters. It works only by luck when the rotations share an axis.
+\end{example}
+
+\begin{pitfall}[s in practice]
+\begin{itemize}
+\item \textbf{Transpose confusion.} If an object appears to rotate the ``wrong way'' or a transform chain only works at zero angle, you used $R_{BA}$ where $R_{AB}$ was needed. Check: the columns should be the axes of the frame named \emph{second}.
+\item \textbf{Drift off $\SO$.} After many floating-point products, $R\T R\neq I$ slowly. Repair by projecting to the nearest rotation: with SVD $M=U\Sigma V\T$, use $U\,\mathrm{diag}(1,1,\det(UV\T))\,V\T$. Better: integrate in a way that never leaves $\SO$ (\S\ref{sec:rot:angvel}).
+\item \textbf{Mirrored mounts.} A matrix built from hand-measured axes with $\det=-1$ means one axis is flipped. Always check the determinant.
+\end{itemize}
+\end{pitfall}

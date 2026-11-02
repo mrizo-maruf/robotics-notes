@@ -1,0 +1,2 @@
+\subsection{World frame vs.\ body frame}\label{sec:rot:world-frame-body}
+The \emph{world} (spatial, fixed, inertial) frame is attached to the environment. The \emph{body} frame is glued to the robot and moves with it. Sensors report in body frames (an IMU measures angular rate and specific force in its own axes; a camera measures pixels in its own optical frame), while maps, goals and gravity live in the world frame. Converting between the two, at every time step, is the main job of rotations in practice.

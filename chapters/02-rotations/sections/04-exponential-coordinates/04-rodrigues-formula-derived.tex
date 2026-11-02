@@ -1,0 +1,17 @@
+\subsection{Rodrigues' formula, derived geometrically}\label{sec:rot:rodrigues-formula-derived}
+\begin{figure}[h]
+\centering\includegraphics[width=\linewidth]{rodrigues.pdf}
+\caption{Rodrigues' construction. (a) Split $v$ into the part along the axis (unchanged by the rotation) and the part perpendicular to it (which sweeps a circle). (b) In the perpendicular plane, $v_\perp$ and $\hat\omega\times v$ form an orthogonal pair of equal length, so turning by $\theta$ is ``$\cos\theta$ of one plus $\sin\theta$ of the other'', just as in 2-D.}
+\label{fig:rot:rodrigues}
+\end{figure}
+\begin{deriv}{rotation by $\theta$ about $\nh$}
+Decompose $v=v_\parallel+v_\perp$ with $v_\parallel=(\nh\cdot v)\nh=(I+\skw{\nh}^2)v$ and $v_\perp=-\skw{\nh}^2v$. The parallel part does not move. The perpendicular part lives in a plane where $\{v_\perp,\ \nh\times v\}$ is an orthogonal pair of equal length ($\nh\times v=\nh\times v_\perp$). A planar rotation by $\theta$ gives
+\[
+v'=v_\parallel+\cos\theta\,v_\perp+\sin\theta\,(\nh\times v)
+=(I+\skw{\nh}^2)v-\cos\theta\,\skw{\nh}^2v+\sin\theta\,\skw{\nh}v .
+\]
+Collecting terms gives Rodrigues' rotation formula:
+\begin{equation}
+\boxed{R(\nh,\theta)=I+\sin\theta\,\skw{\nh}+(1-\cos\theta)\,\skw{\nh}^2}\label{eq:rot:rodrigues}
+\end{equation}
+\end{deriv}

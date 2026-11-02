@@ -1,0 +1,10 @@
+\subsection{Composition}\label{sec:rot:composition}
+Since $q_1(q_2vq_2^*)q_1^*=(q_1q_2)v(q_1q_2)^*$, quaternions compose in the same order as matrices: $q_{AC}=q_{AB}\otimes q_{BC}$ and $R(q_1\otimes q_2)=R(q_1)R(q_2)$. Pre-multiplication = world axes, post-multiplication = body axes, exactly as in \S\ref{sec:rot:composition-order-multiplication}.
+
+\begin{example}{non-commutativity, computed exactly}
+$q_z=(\tfrac{\sqrt2}2,0,0,\tfrac{\sqrt2}2)$ is $90^\circ$ about $z$; $q_x=(\tfrac{\sqrt2}2,\tfrac{\sqrt2}2,0,0)$ is $90^\circ$ about $x$. With the product formula:
+\[
+q_z\otimes q_x=\big(\tfrac12,\ \underbrace{\tfrac12(1,0,0)+\tfrac12(0,0,1)+\tfrac12(0,1,0)}_{w_1u_2+w_2u_1+u_1\times u_2}\big)=\tfrac12(1,1,1,1),\qquad q_x\otimes q_z=\tfrac12(1,1,-1,1).
+\]
+Reading off $\cos(\theta/2)=\frac12$: both are $120^\circ$ rotations, about $(1,1,1)/\sqrt3$ and $(1,-1,1)/\sqrt3$ respectively; these are the two final boxes in \figref{fig:rot:noncommute}. Check by sandwich: $q_zq_x$ sends $e_y\mapsto e_z$ ($R_x$ takes $y\to z$, then $R_z$ leaves $z$ alone). Note the symmetric axis $(1,1,1)$: a $120^\circ$ turn about it cyclically permutes $x\to y\to z$.
+\end{example}

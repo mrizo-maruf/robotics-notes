@@ -1,0 +1,8 @@
+\subsection{Recovering the angles}\label{sec:rot:recovering-angles}
+From \eqref{eq:rot:zyxfull}: $r_{31}=-s_\theta$; $r_{21}/r_{11}=\tan\psi$; $r_{32}/r_{33}=\tan\phi$ (when $c_\theta\neq0$). Robust formulas use $\atantwo$, which knows the quadrant:
+\[
+\theta=\atantwo\!\big(-r_{31},\sqrt{r_{11}^2+r_{21}^2}\big),\qquad
+\psi=\atantwo(r_{21},r_{11}),\qquad
+\phi=\atantwo(r_{32},r_{33}).
+\]
+There are always two solutions, $(\psi,\theta,\phi)$ and $(\psi+\pi,\ \pi-\theta,\ \phi+\pi)$; restricting $\theta\in[-\pi/2,\pi/2]$ picks one. All three formulas divide by (or take the angle of a vector scaled by) $c_\theta$. When $c_\theta\to0$ both $\atantwo$ calls receive $(0,0)$ and become meaningless. That is the algebraic face of gimbal lock. Robust code detects $|r_{31}|\approx1$ and then fixes one angle by convention (say $\psi=0$) and recovers the other from the surviving combination: at $\theta=+90^\circ$, $\phi-\psi=\atantwo(r_{12},r_{22})$; at $\theta=-90^\circ$, $\phi+\psi=\atantwo(-r_{12},r_{22})$ (read off the matrix in \S\ref{sec:rot:gimbal-lock} and its $-90^\circ$ analogue). Without this branch, the generic formulas return $\atantwo(0,0)=0$ for both angles, which reconstructs a \emph{different} rotation (practice problem 6).

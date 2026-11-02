@@ -1,0 +1,22 @@
+\subsection{How a unit quaternion rotates a vector, and where the half-angle comes from}\label{sec:rot:unit-quaternion-rotates}
+Embed a vector $v$ as the pure quaternion $(0,v)$ and define $v'$ by the \emph{sandwich product} $(0,v')=q\otimes(0,v)\otimes q^*$.
+
+\begin{deriv}{the sandwich is a rotation, and why $\theta/2$}
+\emph{Step 1: it is a rotation.} The result is pure: $\mathrm{Re}(q\,v\,q^*)=\mathrm{Re}(v\,q^*q)=\mathrm{Re}(v)=0$ (using $\mathrm{Re}(ab)=\mathrm{Re}(ba)$). It preserves length: $\|qvq^*\|=\|v\|$. It is linear in $v$ and equals the identity at $q=1$. A length-preserving linear map connected to the identity is a rotation.
+
+\emph{Step 2: which rotation.} Write $q=(\cos\alpha,\ \sin\alpha\,\nh)=\cos\alpha+\sin\alpha\,\nh$ and split $v=v_\parallel+v_\perp$ relative to $\nh$. From \eqref{eq:rot:purequat}: $\nh\,v_\parallel=-\nh\cdot v_\parallel+0=v_\parallel\,\nh$ (they \emph{commute}), while $\nh\,v_\perp=\nh\times v_\perp=-v_\perp\,\nh$ (they \emph{anticommute}). Therefore
+\begin{align*}
+q\,v_\parallel\,q^*&=v_\parallel\,q\,q^*=v_\parallel &&\text{(the two factors cancel)},\\
+q\,v_\perp\,q^*&=q\,q\,v_\perp=q^2\,v_\perp &&\text{(the two factors add)},
+\end{align*}
+where $v_\perp q^*=v_\perp(\cos\alpha-\sin\alpha\,\nh)=(\cos\alpha+\sin\alpha\,\nh)v_\perp=q\,v_\perp$ was used. Now $q^2=\cos2\alpha+\sin2\alpha\,\nh$ (de Moivre, since $\nh^2=-1$), so
+\[
+q\,v_\perp\,q^*=\cos2\alpha\,v_\perp+\sin2\alpha\,(\nh\times v_\perp).
+\]
+This is Rodrigues' formula with rotation angle $\theta=2\alpha$. To rotate by $\theta$ we must take
+\[
+\boxed{q(\nh,\theta)=\Big(\cos\frac\theta2,\ \ \sin\frac\theta2\,\nh\Big)}
+\]
+\emph{The half angle is there because $q$ acts twice} (once from each side). On the perpendicular component the two half-turns add up to a full $\theta$; on the parallel component they cancel. A one-sided product $q\otimes(0,v)$ rotates $v_\perp$ by only $\theta/2$ and turns $v_\parallel$ into a quaternion with a non-zero scalar part, so the result is not even a vector in $\RR^3$.
+\end{deriv}
+Expanding the sandwich in components gives the explicit form $v'=(w^2-\|u\|^2)v+2(u\cdot v)u+2w\,(u\times v)$.

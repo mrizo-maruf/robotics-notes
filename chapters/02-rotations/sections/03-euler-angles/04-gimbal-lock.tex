@@ -1,0 +1,19 @@
+\subsection{Gimbal lock}\label{sec:rot:gimbal-lock}
+\begin{deriv}{at pitch $90^\circ$ only $\phi-\psi$ survives}
+Set $\theta=90^\circ$ ($s_\theta=1,\ c_\theta=0$) in \eqref{eq:rot:zyxfull} and use angle-difference identities:
+\[
+R(\psi,90^\circ,\phi)=\bmat{0 & c_\psi s_\phi - s_\psi c_\phi & c_\psi c_\phi + s_\psi s_\phi\\ 0 & s_\psi s_\phi + c_\psi c_\phi & s_\psi c_\phi - c_\psi s_\phi\\ -1&0&0}
+=\bmat{0&\sin(\phi-\psi)&\cos(\phi-\psi)\\0&\cos(\phi-\psi)&-\sin(\phi-\psi)\\-1&0&0}.
+\]
+The matrix depends on $\psi$ and $\phi$ only through $\phi-\psi$. Every pair with the same difference gives the \emph{same} orientation. For example $(\psi,\phi)=(30^\circ,50^\circ)$, $(0^\circ,20^\circ)$ and $(-40^\circ,-20^\circ)$ produce identical matrices (checked numerically). At $\theta=-90^\circ$ the same happens with $\phi+\psi$. The map from angles to rotations has collapsed a whole line of angle-triples onto one rotation, so it cannot be inverted there, and nearby it is badly conditioned.
+\end{deriv}
+
+\begin{figure}[h]
+\centering\includegraphics[width=\linewidth]{gimbal.pdf}
+\caption{A mechanical ZYX gimbal: blue ring turns about the world $z$ (yaw), green about the yaw-ring's $y$ (pitch), red about the pitch-ring's $x$ (roll), and the body (black ``nose'') is fixed in the red ring. (a) Generic pose: the three rotation axes are independent. (b) At $\theta=90^\circ$ the roll axis lines up with the yaw axis and the outer two rings become coplanar; turning either one produces the same motion of the nose, and there is no ring left that can move the nose sideways. (c) To produce a modest body yaw rate of 1\,rad/s, the required Euler rates diverge as $\theta\to90^\circ$.}
+\label{fig:rot:gimbal}
+\end{figure}
+
+\textbf{Geometric picture.} The three rotation axes of the parameterisation are: world $z$ (yaw), $R_z(\psi)e_y$ (pitch), and $R_z(\psi)R_y(\theta)e_x$ (roll). At $\theta=\pm90^\circ$, $R_y(\theta)e_x=\mp e_z$, so the roll axis becomes parallel to the yaw axis. Three ``knobs'' now span only a 2-D set of instantaneous rotations; one direction of angular velocity (perpendicular to both the yaw and pitch axes) cannot be produced by any finite angle rates (\figref{fig:rot:gimbal}).
+
+\textbf{What gimbal lock is not.} The body is not physically stuck: it can still rotate in any direction. What fails is the \emph{coordinate system} (and a mechanical gimbal that implements it). The same thing happens with latitude/longitude at the North Pole: you can walk in any direction, but longitude is undefined there, and small steps can change it by $180^\circ$. This is unavoidable: no 3-number parameterisation covers all of $\SO$ smoothly and one-to-one (a topological fact). You can only move the singularity, never remove it.

@@ -1,0 +1,37 @@
+\subsection{Perturbations, errors and optimisation on $\SO$}\label{sec:rot:perturb}\label{sec:rot:perturbations-errors-optimisation}
+\begin{figure}[h]
+\centering
+\begin{minipage}{0.37\linewidth}\centering\includegraphics[width=\linewidth]{manifold.pdf}\end{minipage}\hfill
+\begin{minipage}{0.6\linewidth}
+\caption{Adding a small vector to a point on a curved surface leaves the surface; walking along the surface in that direction (the exponential) does not. Estimators therefore keep the state $R$ on the group and represent \emph{corrections} as tangent vectors $\delta\in\RR^3$: $R\boxplus\delta=R\,\Exp(\delta)$ (body / right perturbation) or $\Exp(\delta)\,R$ (world / left perturbation). The difference between two rotations is the tangent vector $\delta=\Log(R_1\T R_2)$. Both conventions are valid; mixing them inside one Jacobian is a classic bug.}
+\label{fig:rot:manifold}
+\end{minipage}
+\end{figure}
+
+\begin{deriv}{the Jacobian behind every SLAM / VIO residual}
+How does a rotated point $Rp$ change under a small body-frame correction $\delta$? Use $\Exp(\delta)\approx I+\skw{\delta}$:
+\[
+R\Exp(\delta)p\approx Rp+R(\delta\times p)=Rp-R\skw{p}\,\delta\quad\Longrightarrow\quad\frac{\partial\,(R\Exp(\delta)p)}{\partial\delta}\Big|_{\delta=0}=-R\skw{p}.
+\]
+A Gauss--Newton step then solves for $\delta\in\RR^3$ (an ordinary vector), and updates $R\leftarrow R\,\Exp(\delta)$. No constraints, no singularities, and the state is always a valid rotation. This ``minimal tangent update, full group state'' pattern is the core of GTSAM, Ceres manifolds, Sophus/manif, and error-state Kalman filters.
+\end{deriv}
+
+\begin{example}{measuring rotation error correctly (trajectory evaluation)}
+Ground truth $R_g=\Exp(0.1,-0.2,0.3)$, estimate $R_e=\Exp(0.12,-0.18,0.29)$ (rotation vectors in rad). The geodesic error is
+\[
+e=\Log(R_g\T R_e)=(0.0214,\ 0.0162,\ -0.0130)\ \text{rad},\qquad \|e\|=1.711^\circ .
+\]
+Subtracting the rotation vectors gives $(0.02,0.02,-0.01)$: almost the same length ($1.719^\circ$) but pointing about $10^\circ$ away, since \eqref{eq:rot:bch} only holds to first order. For large rotations the naive difference is meaningless. Two useful identities: the angle can be read from $\tr(R_g\T R_e)=1+2\cos\|e\|$, and the Frobenius (``chordal'') distance is $\|R_g-R_e\|_F=2\sqrt2\sin(\|e\|/2)$ (here $0.04223$, matching). Benchmarks such as the TUM and KITTI odometry metrics compute rotation errors in exactly this geodesic way.
+\end{example}
+
+\begin{example}{averaging rotations (extrinsic calibration)}
+Three calibration runs estimate the camera-to-IMU rotation, nominally $R_0=R_z(90^\circ)R_x(-90^\circ)$, as $R_i=R_0\Exp(\delta_i)$ with $\delta_i=(2,-1,0.5)^\circ,\ (-1,1.5,1)^\circ,\ (0.5,-0.5,-2)^\circ$. What is ``the average''?
+
+\emph{Element-wise mean of matrices:} $M=\frac13\sum R_i$ has $\det M=0.99866$ and $\|M\T M-I\|_F=1.7\times10^{-3}$. It is not a rotation (it shrinks vectors), and for widely spread inputs it degrades badly.
+
+\emph{Intrinsic (Karcher) mean:} find $\bar R$ with $\sum_i\Log(\bar R\T R_i)=0$, i.e.\ the tangent-space errors balance. Iterate
+\[
+\delta\leftarrow\tfrac1N\textstyle\sum_i\Log(\bar R\T R_i),\qquad \bar R\leftarrow\bar R\,\Exp(\delta).
+\]
+Starting from $\bar R=R_1$, the step sizes were $1.92^\circ$, $1.2\times10^{-4}{}^\circ$, $8\times10^{-9}{}^\circ$: converged in two iterations, to $\bar R=R_0\Exp\big((0.500,\,0,\,-0.167)^\circ\big)$. For tightly clustered data this equals the mean of the $\delta_i$, and also the SVD projection of $M$ onto $\SO$ (``chordal mean''). The pattern ``map to tangent space, do Euclidean arithmetic, map back'' is how every statistic (mean, covariance, interpolation, filtering) is done on $\SO$.
+\end{example}

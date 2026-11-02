@@ -1,0 +1,11 @@
+\subsection{Dot product, cross product, and the right-hand rule}\label{sec:rot:dot-product-cross}
+\textbf{Dot product} $a\cdot b=\|a\|\|b\|\cos\angle(a,b)$: defined purely by lengths and angles, so any map that preserves lengths and angles preserves dot products. \textbf{Cross product} $a\times b$: the vector perpendicular to both, of length $\|a\|\|b\|\sin\angle(a,b)$, direction given by the right-hand rule. Two facts are used constantly:
+\begin{align}
+a\times(b\times c) &= b\,(a\cdot c) - c\,(a\cdot b) \qquad\text{(``BAC--CAB'')},\label{eq:rot:bac}\\
+R(a\times b) &= (Ra)\times(Rb)\quad\text{for every proper rotation } R. \label{eq:rot:crossrot}
+\end{align}
+Eq.~\eqref{eq:rot:crossrot} holds because the cross product is built from lengths, angles and handedness, and a proper rotation preserves all three. (A mirror reflection preserves lengths and angles but flips handedness, and \eqref{eq:rot:crossrot} then fails by a sign.) It has a useful matrix form. Since $a\times b$ is linear in $b$, there is a matrix $\skw{a}$ with $\skw{a}b=a\times b$ (written out in \S\ref{sec:rot:skew}). Then \eqref{eq:rot:crossrot} gives
+\begin{equation}
+\skw{Ra}\,b=(Ra)\times b = R\big(a\times R\T b\big)=R\skw{a}R\T b\quad\Longrightarrow\quad \boxed{\skw{Ra}=R\skw{a}R\T}. \label{eq:rot:conj}
+\end{equation}
+In words: rotating the axis of a cross product is the same as conjugating its matrix. This identity will reappear in Euler-rate derivations, angular velocity, and the adjoint map.

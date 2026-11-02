@@ -1,0 +1,17 @@
+\subsection{Euler-angle rates are not angular velocity}\label{sec:rot:euler-angle-rates}
+\begin{deriv}{the map $(\dot\phi,\dot\theta,\dot\psi)\mapsto\omega_b$ and its determinant}
+The body angular velocity is defined by $\skw{\omega_b}=R\T\dot R$ (derived in \S\ref{sec:rot:angvel}). Differentiate $R=R_zR_yR_x$ with the product rule, using $\dot R_z=R_z\skw{\dot\psi e_z}$ etc.:
+\[
+R\T\dot R = R_x\T R_y\T\skw{\dot\psi e_z}R_yR_x + R_x\T\skw{\dot\theta e_y}R_x + \skw{\dot\phi e_x}.
+\]
+By \eqref{eq:rot:conj}, $R\T\skw{a}R=\skw{R\T a}$, so
+$\omega_b=\dot\phi\,e_x+\dot\theta\,R_x\T e_y+\dot\psi\,R_x\T R_y\T e_z$. Evaluating the two rotated unit vectors:
+\[
+\omega_b=\underbrace{\bmat{1&0&-s_\theta\\0&c_\phi&s_\phi c_\theta\\0&-s_\phi&c_\phi c_\theta}}_{E(\phi,\theta)}\bmat{\dot\phi\\\dot\theta\\\dot\psi},\qquad \det E=c_\theta .
+\]
+$E$ is singular exactly at $\theta=\pm90^\circ$. Away from it,
+\[
+\dot\phi=\omega_x+(s_\phi\omega_y+c_\phi\omega_z)\tan\theta,\qquad \dot\theta=c_\phi\omega_y-s_\phi\omega_z,\qquad \dot\psi=\frac{s_\phi\omega_y+c_\phi\omega_z}{\cos\theta}.
+\]
+(Checked against finite differences.) The angle rates are the components of $\omega$ along three \emph{non-orthogonal} axes. Only when the angles are all small is $E\approx I$, so that angle rates $\approx$ gyro readings.
+\end{deriv}

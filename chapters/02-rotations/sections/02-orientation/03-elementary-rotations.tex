@@ -1,0 +1,10 @@
+\subsection{Elementary rotations}\label{sec:rot:elementary-rotations}
+\begin{deriv}{$R_z(\theta)$, $R_x(\theta)$, $R_y(\theta)$}
+Rotate by $\theta$ about $z$ (counter-clockwise looking down $+z$). From \figref{fig:rot:activepassive}(a), $e_1\mapsto(\cos\theta,\sin\theta,0)$, $e_2\mapsto(-\sin\theta,\cos\theta,0)$, and $e_3$ is on the axis so it stays. Those images are the columns:
+\[
+R_z(\theta)=\bmat{c_\theta&-s_\theta&0\\ s_\theta&c_\theta&0\\0&0&1},\quad
+R_x(\theta)=\bmat{1&0&0\\0&c_\theta&-s_\theta\\0&s_\theta&c_\theta},\quad
+R_y(\theta)=\bmat{c_\theta&0&s_\theta\\0&1&0\\-s_\theta&0&c_\theta}.
+\]
+$R_x$ follows from $R_z$ by the cyclic relabelling $x\to y\to z\to x$ (which preserves handedness). For $R_y$ the cyclic pair is $(z,x)$, not $(x,z)$, because $z\times x=+y$. Writing the block in the order $(x,z)$ therefore moves the minus sign to the lower-left. This is not a typo to memorise; it is the right-hand rule.
+\end{deriv}

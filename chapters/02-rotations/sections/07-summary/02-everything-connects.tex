@@ -1,0 +1,35 @@
+\subsection{How everything connects}\label{sec:rot:everything-connects}
+\begin{center}
+\begin{tikzpicture}[
+  box/.style={draw,rounded corners=2pt,align=center,font=\small,minimum width=2.9cm,minimum height=0.9cm,fill=#1},
+  box/.default=white,
+  lab/.style={font=\scriptsize,align=center,inner sep=1.5pt},
+  ar/.style={-{Stealth[length=2mm]},thick,draw=black!70}]
+\node[box=blue!8] (R) at (0,0) {Rotation matrix\\$R\in\SO$};
+\node[box=green!8] (eul) at (-3.4,2.9) {Euler angles\\$(\psi,\theta,\phi)$};
+\node[box=green!8] (q) at (3.4,2.9) {Unit quaternion\\$q\in S^3$};
+\node[box=green!8] (phi) at (-5.6,0) {Rotation vector\\$\varphi=\theta\nh\in\so\cong\RR^3$};
+\node[box=orange!10] (T) at (0,-2.6) {Pose\\$T=(R,t)\in\SE$};
+\node[box=orange!10] (xi) at (-5.6,-2.6) {Twist\\$\xi\theta=(\rho,\varphi)\in\se\cong\RR^6$};
+\node[box=black!4] (p) at (4.6,-2.6) {points / directions\\$(p,1)$, $(d,0)$};
+% Euler <-> R
+\draw[ar] (eul.south) -- node[lab,anchor=north east,pos=0.45]{$R_z(\psi)R_y(\theta)R_x(\phi)$} ([xshift=-26pt]R.north);
+\draw[ar] ([xshift=-6pt]R.north) -- node[lab,anchor=west,pos=0.72]{atan2\\(singular at $\theta=\pm90^\circ$)} (eul.east);
+% q <-> R
+\draw[ar] ([xshift=6pt]R.north) -- node[lab,anchor=east,pos=0.28]{Shepperd} (q.west);
+\draw[ar] (q.south) -- node[lab,anchor=north west,pos=0.45]{quadratic in $q$\\(sandwich product)} ([xshift=26pt]R.north);
+% phi <-> R
+\draw[ar] ([yshift=5pt]phi.east) -- node[lab,above]{Exp (Rodrigues)} ([yshift=5pt]R.west);
+\draw[ar] ([yshift=-5pt]R.west) -- node[lab,below]{Log (trace, skew part)} ([yshift=-5pt]phi.east);
+% phi -> q
+\draw[ar] (phi.north) .. controls (-6.2,5.6) and (2.6,5.0) .. node[lab,above,pos=0.5]{$q=(\cos\frac\theta2,\ \sin\frac\theta2\,\nh)$} (q.north);
+\draw[ar,dashed] (q.east) to[out=0,in=0,looseness=1.6] node[lab,right]{$q\equiv-q$} ([yshift=-14pt]q.east);
+% pose level
+\draw[ar] (R.south) -- node[lab,right]{add $t$} (T.north);
+\draw[ar] ([yshift=5pt]xi.east) -- node[lab,above]{Exp (with $V$)} ([yshift=5pt]T.west);
+\draw[ar] ([yshift=-5pt]T.west) -- node[lab,below]{Log} ([yshift=-5pt]xi.east);
+\draw[ar] (phi.south) -- node[lab,left]{angular part} (xi.north);
+\draw[ar] (T.east) -- node[lab,above]{acts on} (p.west);
+\end{tikzpicture}
+\end{center}
+Green: parameterisations of $\SO$. Blue: the group itself (what actually acts on vectors). Orange: the same story one level up, for poses. Horizontal arrows on the left are $\Exp/\Log$ between the flat tangent spaces and the curved groups; this is the bridge every estimator, controller and planner crosses.

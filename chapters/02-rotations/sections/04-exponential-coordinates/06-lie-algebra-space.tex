@@ -1,0 +1,12 @@
+\subsection{The Lie algebra $\so$: the space of infinitesimal rotations}\label{sec:rot:lie}\label{sec:rot:lie-algebra-space}
+\begin{deriv}{tangent vectors to $\SO$ are skew-symmetric}
+Let $R(t)$ be any smooth path of rotations. Differentiate $R\T R=I$: $\dot R\T R+R\T\dot R=0$, i.e.\ $R\T\dot R=-(R\T\dot R)\T$. So $R\T\dot R$ is always skew-symmetric. At $R(0)=I$ the velocity $\dot R(0)$ itself is skew. The tangent space at the identity is therefore
+\[
+\so=\{\Omega\in\RR^{3\times3}:\Omega\T=-\Omega\}=\{\skw{\omega}:\omega\in\RR^3\}\cong\RR^3 .
+\]
+\end{deriv}
+$\so$ is a genuine vector space: you can add, scale and average elements of it. The exponential maps it onto the group; the logarithm maps (a neighbourhood of) the group back. Non-commutativity survives only infinitesimally through the bracket $[\skw{a},\skw{b}]=\skw{a}\skw{b}-\skw{b}\skw{a}=\skw{a\times b}$. That is why rotation vectors add only to first order:
+\begin{equation}
+\Log\big(\Exp(a)\Exp(b)\big)=a+b+\tfrac12\,a\times b+O(\|a\|,\|b\|)^3\qquad\text{(BCH formula).}\label{eq:rot:bch}
+\end{equation}
+Example: $a=(0.3,0,0)$, $b=(0,0.4,0)$ gives $\Log(\Exp a\,\Exp b)=(0.296,\,0.397,\,0.060)$, while $a+b=(0.3,0.4,0)$ and $a+b+\tfrac12a\times b=(0.3,0.4,0.06)$.

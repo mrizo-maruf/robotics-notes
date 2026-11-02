@@ -1,0 +1,20 @@
+\subsection{Angular velocity and the kinematics of rotation}\label{sec:rot:angvel}\label{sec:rot:angular-velocity-kinematics}
+For a moving body $R(t)=R_{WB}(t)$, both $\dot RR\T$ and $R\T\dot R$ are skew (\S\ref{sec:rot:lie}), so define
+\[
+\dot R=\skw{\omega_s}R\quad\text{(spatial / world angular velocity)},\qquad \dot R=R\skw{\omega_b}\quad\text{(body angular velocity)}.
+\]
+They are the same physical spin expressed in two frames: by \eqref{eq:rot:conj}, $\skw{\omega_s}=R\skw{\omega_b}R\T=\skw{R\omega_b}$, so $\omega_s=R\,\omega_b$. \emph{Physical meaning:} a body point with fixed body coordinates $\pre{B}{p}$ is at $p(t)=R(t)\pre{B}{p}$ in the world, and $\dot p=\dot R\,\pre{B}{p}=\skw{\omega_s}p=\omega_s\times p$: the familiar ``$v=\omega\times r$''. A gyroscope bolted to the body measures $\omega_b$.
+
+\textbf{Exact integration.} If $\omega_b$ is constant over a step $\Delta t$, then $\dot R=R\skw{\omega_b}$ has the exact solution
+\[
+R_{k+1}=R_k\,\Exp(\omega_b\,\Delta t).
+\]
+Each factor is exactly a rotation, so the product stays on $\SO$ forever, up to round-off.
+
+\begin{figure}[h]
+\centering\includegraphics[width=\linewidth]{gyro.pdf}
+\caption{Integrating a 100\,Hz gyro signal for two minutes. (a) The naive Euler step $R\leftarrow R(I+\skw{\omega}\Delta t)$ leaves $\SO$: each factor has singular values $\sqrt{1+\|\omega\|^2\Delta t^2}>1$, so errors compound geometrically. The exponential update stays orthogonal to machine precision. (b) Why it matters: an IMU must subtract gravity rotated into the body frame. With the naive matrix the rotated gravity vector has the wrong length, so the navigation filter sees phantom accelerations: about $0.01$\,m/s$^2$ after 1\,s and $\approx 10$\,m/s$^2$ after 2 minutes.}
+\label{fig:rot:gyro}
+\end{figure}
+
+\textbf{An honest caveat} from the same simulation: the \emph{attitude} errors (after re-projecting the naive estimate onto $\SO$) were about $0.3$--$0.5^\circ$ for all three methods after 120\,s. That error is dominated by treating $\omega$ as constant during each step, not by the parameterisation. The exponential map removes the structural error (leaving the group). It does not fix sampling or sensor errors; for those, use higher-order schemes (e.g.\ midpoint $\omega$, or pre-integration with coning correction) and a filter.

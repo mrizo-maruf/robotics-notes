@@ -1,0 +1,14 @@
+\subsection{Quaternion algebra from one rule}\label{sec:rot:quaternion-algebra-rule}
+Hamilton's rule $i^2=j^2=k^2=ijk=-1$ defines everything. Right-multiplying $ijk=-1$ by $k$ gives $ij(-1)=-k$, so $ij=k$; similarly $jk=i$, $ki=j$, and reversing the order flips the sign ($ji=-k$, etc.). These are exactly the cross-product rules for $e_x,e_y,e_z$, with an extra $-1$ for squares.
+
+Write $q=w+xi+yj+zk=(w,u)$ with scalar part $w$ and vector part $u=(x,y,z)$. For two \emph{pure} quaternions (zero scalar part), expanding with the rules above gives the key identity
+\begin{equation}
+(0,a)(0,b)=(-a\cdot b,\ a\times b).\label{eq:rot:purequat}
+\end{equation}
+The quaternion product packages the dot and cross products into one operation. By bilinearity, the general product is
+\[
+\boxed{(w_1,u_1)\otimes(w_2,u_2)=\big(w_1w_2-u_1\cdot u_2,\ \ w_1u_2+w_2u_1+u_1\times u_2\big)}
+\]
+It is associative but not commutative (because of the $u_1\times u_2$ term), just like rotations.
+
+\textbf{Conjugate, norm, inverse.} $q^*=(w,-u)$; $\ q\otimes q^*=(w^2+\|u\|^2,0)=\|q\|^2$; $\ q^{-1}=q^*/\|q\|^2$. The norm is multiplicative: $\|p\otimes q\|^2=p\,q\,q^*p^*=\|q\|^2\|p\|^2$. So unit quaternions (the 3-sphere $S^3\subset\RR^4$) are closed under multiplication, and for them $q^{-1}=q^*$. The analogy to $\SO$ is exact: unit norm $\leftrightarrow$ orthogonality, conjugate $\leftrightarrow$ transpose.

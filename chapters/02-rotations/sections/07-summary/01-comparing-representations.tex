@@ -1,0 +1,14 @@
+\subsection{Comparing the representations}\label{sec:rot:comparing-representations}
+\begin{center}\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{@{}l c >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}\toprule
+Representation & Numbers & Strength & Limitation & Use it for\\\midrule
+Rotation matrix $R$ & 9 (6 constr.) & transforms vectors directly; composition $=$ product; no ambiguity & redundant; drifts off $\SO$ numerically & applying rotations, transform chains, final computations\\
+Euler / RPY angles & 3 & human-readable, minimal & singular at $\theta=\pm90^\circ$; wrap-around; convention zoo & display, logs, set-points, vehicles far from singularity\\
+Axis--angle $(\nh,\theta)$ & 4 (1 constr.) & clearest geometry; Euler's theorem & axis undefined at $\theta=0$; $\pm$ at $\pi$ & reasoning, joint axes, describing a relative rotation\\
+Rotation vector $\varphi$ & 3 & minimal; a vector space (tangent space) & Log ambiguous near $\pi$; does not add (BCH) & small corrections, errors, optimisation, filtering, averaging\\
+Unit quaternion $q$ & 4 (1 constr.) & singularity-free; cheap composition; SLERP & $q\equiv-q$; not minimal; convention mix-ups & storing and propagating attitude, interpolation\\
+Homogeneous $T$ & 16 (12 used) & composes poses by products; points and directions & redundant; inverse needs $R\T$, $-R\T t$ & frame chains, kinematics, projection\\
+Twist $\xi=(v,\omega)$ & 6 & minimal; velocity and screw axis; vector space & Log ambiguities; frame (body/spatial) must be tracked & velocities, joint axes, PoE, pose optimisation\\\bottomrule
+\end{tabularx}
+\end{center}

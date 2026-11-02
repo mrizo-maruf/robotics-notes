@@ -1,0 +1,10 @@
+\subsection{Quaternion kinematics and IMU integration}\label{sec:rot:quaternion-kinematics-imu}
+With $\dot R=R\skw{\omega_b}$ and $q(t+\Delta t)=q(t)\otimes\Exp(\omega_b\Delta t)\approx q\otimes(1,\tfrac12\omega_b\Delta t)$:
+\[
+\dot q=\tfrac12\,q\otimes(0,\omega_b)=\tfrac12\,(0,\omega_s)\otimes q,\qquad q_{k+1}=q_k\otimes\Big(\cos\frac{\|\omega\|\Delta t}2,\ \sin\frac{\|\omega\|\Delta t}2\,\frac{\omega}{\|\omega\|}\Big).
+\]
+The $\frac12$ is the half-angle again. Renormalise $q$ occasionally to remove round-off (cheap and harmless, unlike orthonormalising a matrix).
+
+\begin{example}{integrating a gyro with quaternions}
+A gyro reports constant $\omega_b=(0.4,-0.2,1.0)$\,rad/s at 200\,Hz. After 200 steps (1\,s) of the update above, $q=(0.8537,\ 0.1901,\ -0.0951,\ 0.4754)$, identical to $\Exp(\omega_b\cdot1\,\text{s})$ to all printed digits: for constant rate the exponential update is exact, regardless of step size. Sanity check: $\|\omega_b\|=1.095$\,rad, and $\cos(1.095/2)=0.8537$.
+\end{example}

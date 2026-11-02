@@ -1,0 +1,28 @@
+\subsection{The exponential of a twist}\label{sec:rot:exponential-twist}
+\begin{deriv}{$e^{[\xi]\theta}$ generates the screw motion}
+Let $\|\omega\|=1$. Powers of the $4\times4$ matrix: $[\xi]^k=\bmat{\skw{\omega}^k&\skw{\omega}^{k-1}v\\0&0}$ for $k\ge1$. Summing the series block-wise:
+\[
+e^{[\xi]\theta}=\bmat{e^{\skw{\omega}\theta}&G(\theta)v\\0&1},\qquad
+G(\theta)=\sum_{k\ge1}\frac{\theta^k}{k!}\skw{\omega}^{k-1}=I\theta+(1-\cos\theta)\skw{\omega}+(\theta-\sin\theta)\skw{\omega}^2,
+\]
+where \eqref{eq:rot:skewpow} collapses the series exactly as for Rodrigues. Now insert the screw twist $v=-\omega\times q+h\omega$:
+\begin{itemize}
+\item $G(\theta)(h\omega)=h\theta\,\omega$, because $\skw{\omega}\omega=0$: the slide along the axis is $h\theta$.
+\item $G(\theta)(-\skw{\omega}q)=-\theta\skw{\omega}q-(1-\cos\theta)\skw{\omega}^2q-(\theta-\sin\theta)\skw{\omega}^3q=-\sin\theta\skw{\omega}q-(1-\cos\theta)\skw{\omega}^2q=(I-e^{\skw{\omega}\theta})q.$
+\end{itemize}
+So $e^{[\xi]\theta}=\bmat{R&(I-R)q+h\theta\,\omega\\0&1}$, precisely the screw of Chasles' theorem: rotate about the line through $q$, slide $h\theta$ along it. Special cases: $h=0$ (pure rotation about an off-origin axis, translation $(I-R)q$); $\omega=0,\ \|v\|=1$ (pure translation, $e^{[\xi]\theta}=\bmat{I&v\theta\\0&1}$).
+\end{deriv}
+
+For a general rotation vector $\varphi=\omega\theta$ and $\rho=v\theta$, the same result reads $\Exp(\rho,\varphi)=\bmat{\Exp(\varphi)&V(\varphi)\rho\\0&1}$ with $V=I+\frac{1-\cos\|\varphi\|}{\|\varphi\|^2}\skw{\varphi}+\frac{\|\varphi\|-\sin\|\varphi\|}{\|\varphi\|^3}\skw{\varphi}^2$. Note the coupling matrix $V$: \emph{the translation of $\Exp$ is not $\rho$}. Exponentiating rotation and translation separately (a common shortcut) gives a different, frame-dependent motion. \textbf{Log map:} $\theta,\omega$ from $\Log(R)$, then $v=G(\theta)^{-1}t$ with
+$G^{-1}=\frac1\theta I-\frac12\skw{\omega}+\big(\frac1\theta-\frac12\cot\frac\theta2\big)\skw{\omega}^2$ (or $v=t/\|t\|,\ \theta=\|t\|$ if $R=I$).
+
+\begin{example}{screw parameters of a gripper motion, and how to interpolate it}
+A gripper moves from the identity pose to $T=\bmat{R_z(90^\circ)&(1,1,0.5)\T\\0&1}$. By hand: the axis is along $z$; $d=\nh\cdot t=0.5$; solve $(I-R)q=(1,1,0)$ with $I-R_z(90^\circ)=\bmat{1&1\\-1&1}$ on the $xy$-block, giving $q=(0,1)$. So the motion is a $90^\circ$ turn about the vertical line through $(0,1)$ plus a $0.5$\,m rise along it: pitch $h=0.5/(\pi/2)=0.318$\,m/rad. The $\Log$ formula agrees: $\xi\theta=(1.571,\,0,\,0.5;\ 0,0,1.571)$, i.e.\ $\theta=\pi/2$, $\omega=e_z$, $v=(1,0,0.318)$, $\omega\cdot v=0.318=h$, $\omega\times v=(0,1,0)=q$.
+
+\emph{Interpolation.} $T(s)=\exp(s\,[\xi\theta])$ moves at constant twist along a helix. At $s=0.5$: $R=R_z(45^\circ)$, $t=(0.707,0.293,0.25)$, which is the origin rotated $45^\circ$ about $(0,1)$ and lifted $0.25$. \figref{fig:rot:screw} compares this with the usual ``lerp translation + slerp rotation''. Both are valid paths with the same endpoints, but the screw path does not depend on which point of the gripper you call the origin: changing the tool frame by $X$ gives exactly $T(s)X$. The decoupled path changes shape when the tool frame is moved, because it moves the chosen origin in a straight line and swings every other point around it.
+\end{example}
+\begin{figure}[h]
+\centering\includegraphics[width=\linewidth]{screw.pdf}
+\caption{Interpolating the same displacement two ways. (a) Constant twist: every point follows a helix about one screw axis (dashed). (b) Decoupled: the frame origin moves on a straight line while the orientation slerps, so the gripper tip (orange) takes a different, origin-dependent path.}
+\label{fig:rot:screw}
+\end{figure}

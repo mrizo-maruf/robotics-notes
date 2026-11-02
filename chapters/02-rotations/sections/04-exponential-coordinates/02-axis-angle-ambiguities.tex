@@ -1,0 +1,7 @@
+\subsection{Axis--angle and its ambiguities}\label{sec:rot:axis-angle-ambiguities}
+The pair $(\nh,\theta)$ with $\|\nh\|=1$ is the most geometric description possible: \emph{which} line stays fixed, and \emph{how much} everything turns around it. It uses four numbers with one constraint. Its ambiguities are exactly the places where it stops being one-to-one:
+\begin{itemize}
+\item $(\nh,\theta)$, $(-\nh,-\theta)$ and $(\nh,\theta+2\pi k)$ are the same rotation; restrict to $\theta\in[0,\pi]$.
+\item $\theta=0$: the axis is undefined (every axis works for ``no rotation'').
+\item $\theta=\pi$: $(\nh,\pi)$ and $(-\nh,\pi)$ coincide (turning half a turn either way lands at the same place).
+\end{itemize}

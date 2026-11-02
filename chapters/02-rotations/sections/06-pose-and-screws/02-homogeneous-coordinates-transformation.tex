@@ -1,0 +1,40 @@
+\subsection{Homogeneous coordinates and the transformation matrix}\label{sec:rot:homog}\label{sec:rot:homogeneous-coordinates-transformation}
+The map above is affine, not linear, so it does not compose by plain matrix products. Append one coordinate: $1$ for points, $0$ for directions. Then
+\[
+\bmat{\pre{A}{p}\\1}=\underbrace{\bmat{R_{AB}&t_{AB}\\0&1}}_{T_{AB}}\bmat{\pre{B}{p}\\1},\qquad
+\bmat{\pre{A}{d}\\0}=T_{AB}\bmat{\pre{B}{d}\\0}.
+\]
+The trailing $0$ makes directions immune to translation automatically, which is the point/vector distinction of \S\ref{sec:rot:vectors-are-arrows} built into the arithmetic. The set
+\[
+\SE=\Big\{T=\bmat{R&t\\0&1}:\ R\in\SO,\ t\in\RR^3\Big\}
+\]
+is a group (the special Euclidean group): every rigid motion preserves distances and handedness, and every such map of space has this form.
+
+\begin{deriv}{composition and inverse}
+Multiplying blocks: $T_{AB}T_{BC}=\bmat{R_{AB}R_{BC}&R_{AB}t_{BC}+t_{AB}\\0&1}=T_{AC}$. Read the translation part: ``$C$'s origin in $B$, rotated into $A$, plus $B$'s origin in $A$''. For the inverse, solve $\pre{A}{p}=R\pre{B}{p}+t$ for $\pre{B}{p}$:
+\[
+T_{AB}^{-1}=T_{BA}=\bmat{R\T&-R\T t\\0&1}.
+\]
+The term $-R\T t$ is $A$'s origin written in $B$. A common bug is to write $-t$ instead of $-R\T t$, which is correct only when $R=I$.
+\end{deriv}
+
+\textbf{Frame-notation rules.} (1) $T_{AB}$ maps $B$-coordinates to $A$-coordinates \emph{and} is the pose of $B$ in $A$. (2) Adjacent indices must match and cancel: $T_{WC}=T_{WB}T_{BC}$; a product like $T_{WB}T_{CB}$ is a type error. (3) Relative pose between two keyframes: $T_{12}=T_{W1}^{-1}T_{W2}$. (4) If a motion $\Delta$ is known in frame $C$ but you need it in frame $B$, conjugate: $\Delta_B=T_{BC}\Delta_CT_{BC}^{-1}$. Hand--eye calibration $AX=XB$ is exactly this equation with the unknown mount $X=T_{BC}$.
+
+\begin{figure}[h]
+\centering
+\begin{minipage}{0.56\linewidth}\includegraphics[width=\linewidth]{chain.pdf}\end{minipage}\hfill
+\begin{minipage}{0.42\linewidth}
+\caption{A chain of frames: the robot base $\{B\}$ in the world, a camera $\{C\}$ on the robot (pitched down $20^\circ$), and an object seen by the camera. Composing the transforms along the chain maps the camera measurement into world coordinates.}
+\label{fig:rot:chain}
+\end{minipage}
+\end{figure}
+
+\begin{example}{camera detection to world map, and back to pixels}
+\emph{Given.} Robot at $(2.0,1.0,0)$\,m, yaw $30^\circ$: $T_{WB}=\bmat{R_z(30^\circ)&(2,1,0)\T\\0&1}$. Camera at $(0.25,0,0.6)$ in the base frame, optical convention, pitched down $20^\circ$: $R_{BC}=R_y(20^\circ)\,R_{BC}^{0}$ with $R_{BC}^0$ from the example in \S\ref{sec:rot:orientation}, giving
+\[
+R_{BC}=\bmat{0&-0.342&0.940\\-1&0&0\\0&-0.940&-0.342},\qquad T_{WC}=T_{WB}T_{BC}=\bmat{0.500&-0.296&0.814&2.217\\-0.866&-0.171&0.470&1.125\\0&-0.940&-0.342&0.600\\0&0&0&1}.
+\]
+\emph{Forward.} A detection at $\pre{C}{p}=(0.3,-0.1,1.5)$ gives $\pre{B}{p}=T_{BC}\pre{C}{p}=(1.694,-0.300,0.181)$ and $\pre{W}{p}=(3.617,\,1.587,\,0.181)$: 18\,cm above the floor, as it should be for an object seen slightly above the optical axis by a down-tilted camera.
+
+\emph{Backward (map landmark $\to$ pixel).} $T_{CW}=T_{WC}^{-1}$ (use the $R\T,-R\T t$ formula). A mapped landmark $\pre{W}{l}=(4.0,2.5,0.3)$ is at $\pre{C}{l}=(-0.299,-0.482,2.200)$. With pinhole intrinsics $f=600$\,px, $(c_u,c_v)=(320,240)$: $u=320+600\cdot(-0.299/2.2)=238.4$, $v=240+600\cdot(-0.482/2.2)=108.7$. This ``transform, then project'' is the forward model inside every visual localisation and bundle-adjustment residual.
+\end{example}

@@ -1,0 +1,21 @@
+\subsection{The rotation matrix from first principles}\label{sec:rot:rotation-matrix-first}
+\begin{figure}[h]
+\centering\includegraphics[width=0.95\linewidth]{frames.pdf}
+\caption{(a) Reference frame $\{A\}$ (grey) and body frame $\{B\}$ (colour) sharing an origin. (b) The first column of $R_{AB}$ is the arrow $b_x$ decomposed along $a_x,a_y,a_z$; each component is a projection $r_{i1}=a_i\cdot b_x$.}
+\label{fig:rot:frames}
+\end{figure}
+Write each body axis in $A$-coordinates and stack them as columns:
+\begin{equation}
+R_{AB}=\Big[\ \pre{A}{b_x}\ \ \pre{A}{b_y}\ \ \pre{A}{b_z}\ \Big]
+=\bmat{a_x\!\cdot b_x & a_x\!\cdot b_y & a_x\!\cdot b_z\\ a_y\!\cdot b_x & a_y\!\cdot b_y & a_y\!\cdot b_z\\ a_z\!\cdot b_x & a_z\!\cdot b_y & a_z\!\cdot b_z},\qquad r_{ij}=a_i\cdot b_j=\cos\angle(a_i,b_j).
+\label{eq:rot:dcm}
+\end{equation}
+This is why rotation matrices are also called \emph{direction-cosine matrices}. Why does it convert coordinates? Take any vector with body coordinates $\pre{B}{p}=(p_1,p_2,p_3)$, meaning $p=p_1b_x+p_2b_y+p_3b_z$. Writing each $b_j$ in $A$-coordinates and summing:
+\[
+\pre{A}{p}=p_1\,\pre{A}{b_x}+p_2\,\pre{A}{b_y}+p_3\,\pre{A}{b_z}=R_{AB}\,\pre{B}{p}.
+\]
+That is literally the definition of matrix--vector multiplication (a weighted sum of columns). Nothing else is needed.
+
+\begin{keyidea}
+\emph{Column $j$ of $R_{AB}$ is axis $j$ of $\{B\}$ seen from $\{A\}$; row $i$ of $R_{AB}$ is axis $i$ of $\{A\}$ seen from $\{B\}$.} If you can say which frame's axes are in the columns, you will never confuse $R_{AB}$ with $R_{BA}$.
+\end{keyidea}

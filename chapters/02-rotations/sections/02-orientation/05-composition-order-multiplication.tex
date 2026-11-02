@@ -1,0 +1,7 @@
+\subsection{Composition, and the order of multiplication}\label{sec:rot:composition-order-multiplication}
+Chaining frames is cancellation of inner indices: $\pre{A}{p}=R_{AB}\pre{B}{p}=R_{AB}R_{BC}\pre{C}{p}\Rightarrow R_{AC}=R_{AB}R_{BC}$. When you instead \emph{apply an extra rotation} $\Delta$ to a body with current orientation $R$, it matters which frame $\Delta$ is described in:
+\begin{deriv}{pre-multiply = fixed axes, post-multiply = body axes}
+\emph{World axes.} Rotating the body by $\Delta$ about world-fixed axes rotates each column (each body axis): $R_{\text{new}}=\Delta R$.
+\emph{Body axes.} ``Rotate by $\Delta$ about the body's own axes'' means: the axis vector $k$ given in body coordinates is $Rk$ in world coordinates. By \eqref{eq:rot:conj}, rotation about $Rk$ is the conjugate $R\,\Delta\,R\T$. Applying that on the left: $R_{\text{new}}=(R\Delta R\T)R=R\Delta$.
+\end{deriv}
+\textbf{Rule:} pre-multiplication rotates about the fixed (world) axes; post-multiplication rotates about the current (body) axes. This single fact explains intrinsic vs.\ extrinsic Euler angles in \S\ref{sec:rot:euler-angles} and left vs.\ right perturbations in \S\ref{sec:rot:exponential-coordinates}.

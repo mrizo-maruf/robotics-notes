@@ -1,0 +1,7 @@
+\subsection{Strengths, limitations and conventions}\label{sec:rot:strengths-limitations-conventions}
+\begin{itemize}
+\item[$+$] Singularity-free, compact, cheap to compose and renormalise; smooth interpolation and averaging; exact integration for constant rates.
+\item[$-$] Not minimal (4 numbers, 1 constraint): an EKF must not put $q$ directly in its error state (the $4\times4$ covariance would be singular). Error-state filters keep $q$ as the nominal state and a 3-vector $\delta\theta$ as the error, $q=\hat q\otimes\Exp(\delta\theta)$.
+\item[$-$] Double cover: sign ambiguity in comparisons, interpolation, averaging and filtering.
+\item[$!$] \textbf{Conventions.} Hamilton ($ij=k$, used here, ROS, Eigen, most of robotics) vs.\ JPL ($ij=-k$, common in older aerospace and some VIO papers): the product formulas differ in the sign of the cross term. Storage order $(w,x,y,z)$ vs.\ $(x,y,z,w)$ differs between libraries, and mixing them silently produces wrong rotations without crashing.
+\end{itemize}

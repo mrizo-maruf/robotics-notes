@@ -1,0 +1,23 @@
+\subsection{Practice problems (answers below)}\label{sec:rot:practice-problems-answers}
+\begin{enumerate}[label=\textbf{P\arabic*.},itemsep=2pt]
+\item Compute $R_x(90^\circ)R_y(90^\circ)$ and $R_y(90^\circ)R_x(90^\circ)$. Where does each send $e_x$?
+\item Orientation 1 is $45^\circ$ about $z$; orientation 2 is $45^\circ$ about $x$. What single rotation angle separates them? (Use quaternions.)
+\item A revolute joint has axis $\nh=e_z$ passing through $(1,2,0)$. Write its unit twist $(v,\omega)$.
+\item Find the axis and angle of $R=\bmat{0&-1&0\\0&0&-1\\1&0&0}$.
+\item Find the quaternion of the same $R$, and identify it as a product of two $90^\circ$ elementary rotations.
+\item Extract ZYX Euler angles from the same $R$. What goes wrong with the generic formulas, and what is the correct answer?
+\item Invert $T=\bmat{R_z(90^\circ)&(1,0,0)\T\\0&1}$.
+\item An IMU is mounted at $r=(0.1,0,0)$\,m from the body origin. The body spins in place at $\omega=(0,0,2)$\,rad/s. What velocity and acceleration does the IMU's location experience, and why does this matter for VIO?
+\end{enumerate}
+
+\textbf{Answers.}
+\begin{enumerate}[label=\textbf{P\arabic*.},itemsep=2pt]
+\item $R_xR_y=\bmat{0&0&1\\1&0&0\\0&1&0}$ sends $e_x\mapsto e_y$; $R_yR_x=\bmat{0&1&0\\0&0&-1\\-1&0&0}$ sends $e_x\mapsto-e_z$. Different, as expected.
+\item $q_1\cdot q_2=\cos^2 22.5^\circ=0.8536$, so the angle is $2\arccos(0.8536)=62.8^\circ$ (same as $\|\Log(R_1\T R_2)\|$). Not $45^\circ+45^\circ$, not $45^\circ\sqrt2$.
+\item $v=-\nh\times q=-(e_z\times(1,2,0))=-(-2,1,0)=(2,-1,0)$, $\omega=(0,0,1)$. Check: the origin, at distance $\sqrt5$ from the axis, moves perpendicular to the lever arm with speed $\sqrt5$.
+\item $\tr R=0\Rightarrow\theta=\arccos(-\tfrac12)=120^\circ$. Skew part: $(r_{32}-r_{23},\,r_{13}-r_{31},\,r_{21}-r_{12})=(1,-1,1)$, divided by $2\sin120^\circ=\sqrt3$: axis $(1,-1,1)/\sqrt3$.
+\item $w=\tfrac12\sqrt{1+\tr R}=\tfrac12$ and $(x,y,z)=(r_{32}-r_{23},\,r_{13}-r_{31},\,r_{21}-r_{12})/(4w)=\tfrac12(1,-1,1)$, so $q=\tfrac12(1,1,-1,1)=q_x\otimes q_z$, i.e.\ $R=R_x(90^\circ)R_z(90^\circ)$, the second box sequence of \figref{fig:rot:noncommute}.
+\item $r_{31}=1\Rightarrow\theta=-90^\circ$: gimbal lock. The generic formulas give $\atantwo(0,0)$ for $\psi$ and $\phi$; most libraries return $0$, i.e.\ $(0,-90^\circ,0)$, which reconstructs a \emph{different} matrix. Correct: only $\phi+\psi=\atantwo(-r_{12},r_{22})=90^\circ$ is determined, e.g.\ $(\psi,\theta,\phi)=(0,-90^\circ,90^\circ)$ or $(30^\circ,-90^\circ,60^\circ)$; both reproduce $R$ exactly.
+\item $R\T=R_z(-90^\circ)$, $-R\T t=-(0,-1,0)=(0,1,0)$: $T^{-1}=\bmat{R_z(-90^\circ)&(0,1,0)\T\\0&1}$. Check: $T^{-1}$ maps $T$'s origin $(1,0,0)$ to $0$.
+\item $v=\omega\times r=(0,0.2,0)$\,m/s and centripetal acceleration $\omega\times(\omega\times r)=(-0.4,0,0)$\,m/s$^2$, even though the body origin is stationary. An accelerometer that is not at the body origin measures these lever-arm terms; a VIO filter must include the IMU--body extrinsic $T_{BI}$ (and, through the adjoint, these $\omega\times r$ terms) or it will interpret rotation as translation.
+\end{enumerate}

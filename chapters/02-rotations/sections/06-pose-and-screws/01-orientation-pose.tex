@@ -1,0 +1,10 @@
+\subsection{From orientation to pose}\label{sec:rot:orientation-pose}
+A rigid body has 6 degrees of freedom: 3 for where its frame's origin is, 3 for how the frame is turned. The pose of $\{B\}$ in $\{A\}$ is the pair $(R_{AB},t_{AB})$, where $t_{AB}$ is the origin of $B$ written in $A$-coordinates.
+
+\begin{deriv}{how a point's coordinates change between frames}
+The arrow from $A$'s origin to a point $p$ equals (arrow from $A$'s origin to $B$'s origin) $+$ (arrow from $B$'s origin to $p$). In $A$-coordinates the first is $t_{AB}$; the second is known in $B$-coordinates and converted with $R_{AB}$:
+\[
+\pre{A}{p}=R_{AB}\,\pre{B}{p}+t_{AB}.
+\]
+Directions (differences of two points) lose the $t_{AB}$: $\pre{A}{d}=R_{AB}\,\pre{B}{d}$.
+\end{deriv}

@@ -1,0 +1,10 @@
+\subsection{The cross product as a matrix}\label{sec:rot:skew}\label{sec:rot:cross-product-matrix}
+Because $\omega\times v$ is linear in $v$:
+\[
+\omega\times v=\skw{\omega}v,\qquad \skw{\omega}=\bmat{0&-\omega_z&\omega_y\\ \omega_z&0&-\omega_x\\ -\omega_y&\omega_x&0},\qquad \skw{\omega}\T=-\skw{\omega}.
+\]
+The algebra of rotations follows from \eqref{eq:rot:bac}. For unit $\nh$: $\skw{\nh}^2v=\nh\times(\nh\times v)=\nh(\nh\cdot v)-v$, so
+\begin{equation}
+\skw{\nh}^2=\nh\nh\T-I,\qquad \skw{\nh}^3=-\skw{\nh},\qquad \skw{\nh}^4=-\skw{\nh}^2,\ \dots\label{eq:rot:skewpow}
+\end{equation}
+Geometrically: $\nh\nh\T v$ is the component of $v$ along the axis, $-\skw{\nh}^2v$ is the perpendicular component, and $\skw{\nh}v$ is the perpendicular component turned $90^\circ$. Applying $\skw{\nh}$ twice turns it $180^\circ$ (a minus sign), which is why the powers cycle exactly like those of the imaginary unit $i$.

@@ -1,0 +1,17 @@
+\subsection{Changing the frame of a twist: the adjoint}\label{sec:rot:changing-frame-twist}
+\begin{deriv}{$\xi_s=\Ad_T\,\xi_b$}
+From the two definitions, $[\xi_s]=\dot TT^{-1}=T(T^{-1}\dot T)T^{-1}=T[\xi_b]T^{-1}$. Multiply out with \eqref{eq:rot:conj}:
+\[
+T[\xi]T^{-1}=\bmat{R\skw{\omega}R\T&-R\skw{\omega}R\T t+Rv\\0&0}=\bmat{\skw{R\omega}&Rv+t\times R\omega\\0&0}
+\ \Rightarrow\
+\Ad_T=\bmat{R&\skw{t}R\\0&R}\ \ (\text{ordering }(v,\omega)).
+\]
+The angular part simply rotates. The linear part rotates \emph{and} picks up $t\times R\omega$: the lever-arm effect. The same rule moves a twist between any two frames: $\xi_A=\Ad_{T_{AB}}\xi_B$.
+\end{deriv}
+\begin{example}{what does the camera feel when the robot turns?}
+The base drives forward at $1$\,m/s while turning left at $0.5$\,rad/s: $\xi_B=(1,0,0;\ 0,0,0.5)$ (body twist). The forward-looking optical camera is mounted $0.3$\,m ahead and $0.5$\,m up ($T_{BC}$ with $R_{BC}^0$ from \S\ref{sec:rot:orientation}). Since $T_{WC}=T_{WB}T_{BC}$ with $T_{BC}$ constant, the camera's body twist is $\xi_C=\Ad_{T_{CB}}\xi_B$, which gives
+\[
+\xi_C=(-0.15,\ 0,\ 1.0;\ \ 0,\ -0.5,\ 0).
+\]
+Reading it in camera axes: moving forward along the optical axis at $1$\,m/s, sliding \emph{left} in the image at $0.15$\,m/s (lever arm $0.3$\,m $\times\,0.5$\,rad/s, because the camera is ahead of the turning centre), and rotating about $-y_C$ (image ``up'') at $0.5$\,rad/s. A visual-odometry or motion-blur model that ignored the lever arm would attribute that sideways slip to a nonexistent lateral velocity.
+\end{example}

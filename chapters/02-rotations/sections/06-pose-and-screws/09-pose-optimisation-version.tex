@@ -1,0 +1,6 @@
+\subsection{Pose optimisation: the $\SE$ version of ``tangent update, group state''}\label{sec:rot:pose-optimisation-version}
+Exactly as in \S\ref{sec:rot:perturb}, estimators keep $T\in\SE$ and solve for a 6-vector correction $\delta=(\rho,\varphi)$, updating $T\leftarrow T\,\Exp(\delta)$. Using $\Exp(\delta)p\approx p+\rho+\varphi\times p$:
+\[
+\frac{\partial\,\big(T\Exp(\delta)\,p\big)}{\partial\delta}\Big|_{\delta=0}=R\,\big[\ I\ \ \big|\ -\skw{p}\ \big]\in\RR^{3\times6}.
+\]
+Chain this with the pinhole projection derivative and you have the analytic Jacobian of a reprojection error (bundle adjustment, PnP refinement); with a point-to-plane residual you have ICP. Twists, the adjoint and these Jacobians are the whole mathematical toolkit of modern SLAM, VIO, and robot calibration.

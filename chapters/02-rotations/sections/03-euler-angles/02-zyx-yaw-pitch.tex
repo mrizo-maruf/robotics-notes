@@ -1,0 +1,25 @@
+\subsection{ZYX yaw--pitch--roll, intrinsic and extrinsic}\label{sec:rot:zyx-yaw-pitch}
+\begin{figure}[h]
+\centering\includegraphics[width=\linewidth]{zyx_seq.pdf}
+\caption{Intrinsic $z$--$y'$--$x''$: yaw about the world $z$, then pitch about the \emph{new} $y'$, then roll about the \emph{newest} $x''$. Dashed: previous frame; purple: the axis used in that step.}
+\label{fig:rot:zyxseq}
+\end{figure}
+Start aligned with the world. Yaw by $\psi$ about $z$: orientation $R_z(\psi)$. Pitch by $\theta$ about the \emph{current} $y$ axis: by the post-multiplication rule (\S\ref{sec:rot:composition-order-multiplication}), $R_z(\psi)R_y(\theta)$. Roll by $\phi$ about the current $x$ axis:
+\begin{equation}
+R(\psi,\theta,\phi)=R_z(\psi)\,R_y(\theta)\,R_x(\phi).\label{eq:rot:zyx}
+\end{equation}
+Read the same product right-to-left with the pre-multiplication rule: first $R_x(\phi)$ about world $x$, then $R_y(\theta)$ about world $y$, then $R_z(\psi)$ about world $z$. Hence
+\[
+\textbf{intrinsic } z\text{--}y'\text{--}x'' \;\equiv\; \textbf{extrinsic } x\text{--}y\text{--}z .
+\]
+The angles are the same; only the story differs. Libraries name these differently (SciPy uses uppercase letters for intrinsic and lowercase for extrinsic sequences), which is the source of countless sign bugs.
+
+\begin{deriv}{the ZYX matrix}
+Multiplying out \eqref{eq:rot:zyx}:
+\begin{equation}
+R=\bmat{c_\psi c_\theta & c_\psi s_\theta s_\phi - s_\psi c_\phi & c_\psi s_\theta c_\phi + s_\psi s_\phi\\
+s_\psi c_\theta & s_\psi s_\theta s_\phi + c_\psi c_\phi & s_\psi s_\theta c_\phi - c_\psi s_\phi\\
+-s_\theta & c_\theta s_\phi & c_\theta c_\phi}.\label{eq:rot:zyxfull}
+\end{equation}
+The first column is $R_z(\psi)R_y(\theta)e_x$: the nose direction. It does not involve roll, as expected (rolling spins the body about its nose).
+\end{deriv}

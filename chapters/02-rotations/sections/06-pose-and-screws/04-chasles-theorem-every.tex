@@ -1,0 +1,8 @@
+\subsection{Chasles' theorem: every rigid displacement is a screw}\label{sec:rot:chasles-theorem-every}
+\begin{deriv}{rotation about some axis $+$ translation along the same axis}
+Take $(R,t)$ with $R$ a rotation by $\theta\neq0$ about $\nh$. Split $t=t_\parallel+t_\perp$ along and across $\nh$. A screw motion (rotate by $\theta$ about the line through point $q$ with direction $\nh$, then slide $d$ along it) maps $p\mapsto R(p-q)+q+d\nh=Rp+(I-R)q+d\nh$. Match with $Rp+t$:
+\[
+(I-R)q+d\nh=t .
+\]
+Dotting with $\nh$ (note $\nh\T(I-R)=0$ because $R\T\nh=\nh$) gives $d=\nh\cdot t$. The remaining equation $(I-R)q=t_\perp$ is solvable because on the plane perpendicular to $\nh$, $R$ is a rotation by $\theta\neq0$ and has no fixed vector, so $I-R$ is invertible there. Hence \emph{any} rigid displacement is a screw: rotation $\theta$ about a unique axis, plus translation $d$ along that same axis. Its \textbf{pitch} is $h=d/\theta$ (metres per radian). Pure rotation: $h=0$. Pure translation: $\theta=0$, the limiting case $h=\infty$.
+\end{deriv}

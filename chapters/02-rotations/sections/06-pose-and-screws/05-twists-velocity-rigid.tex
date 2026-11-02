@@ -1,0 +1,12 @@
+\subsection{Twists: the velocity of a rigid body}\label{sec:rot:twists-velocity-rigid}
+Differentiate a moving pose $T(t)$, as we did for $R(t)$:
+\[
+T^{-1}\dot T=\bmat{R\T\dot R&R\T\dot t\\0&0}=\bmat{\skw{\omega_b}&v_b\\0&0},\qquad
+\dot TT^{-1}=\bmat{\dot RR\T&\dot t-\dot RR\T t\\0&0}=\bmat{\skw{\omega_s}&v_s\\0&0}.
+\]
+Both have the form $[\xi]=\bmat{\skw{\omega}&v\\0&0}\in\se$, the Lie algebra of $\SE$, identified with the \textbf{twist} $\xi=(v,\omega)\in\RR^6$.
+\begin{itemize}
+\item \textbf{Body twist} $\xi_b$: $\omega_b$ and $v_b=R\T\dot t$, the velocity of the body origin, both in body coordinates. This is what wheel odometry and a VIO front-end produce.
+\item \textbf{Spatial twist} $\xi_s$: $\omega_s$ and $v_s=\dot t-\omega_s\times t$. $v_s$ is the velocity of the (imaginary) body point that is currently passing through the world origin. Strange, but it makes $\xi_s$ independent of where the body frame is attached.
+\end{itemize}
+\textbf{Screw axis $\to$ twist.} A unit-speed screw with direction $\nh$, a point $q$ on the axis and pitch $h$ has $\omega=\nh$ and $v=-\nh\times q+h\nh$. The term $-\nh\times q=\nh\times(0-q)$ is the velocity of the origin caused by spinning about an axis through $q$; $h\nh$ is the slide along the axis. For a revolute joint $h=0$; for a prismatic joint $\omega=0$, $v=\nh$.

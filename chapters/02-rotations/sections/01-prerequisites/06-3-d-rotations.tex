@@ -1,0 +1,8 @@
+\subsection{Why 3-D rotations do not commute}\label{sec:rot:3-d-rotations}
+In 2-D every rotation is about the same axis (the one sticking out of the plane), so $R(\alpha)R(\beta)=R(\alpha+\beta)=R(\beta)R(\alpha)$. In 3-D, rotations about \emph{different} axes interfere: the first rotation moves the axis that the second one would have used. \figref{fig:rot:noncommute} shows the same two $90^\circ$ turns applied in opposite orders ending in completely different orientations. Consequences: (a) the order in a product of rotations is meaningful, (b) ``sum of angles'' is meaningless unless the axes agree, (c) the set of rotations cannot be a vector space. Everything in \S\ref{sec:rot:exponential-coordinates} is about dealing with (c) correctly.
+
+\begin{figure}[h]
+\centering\includegraphics[width=0.92\linewidth]{noncommute.pdf}
+\caption{The same two $90^\circ$ rotations about the fixed $X$ and $Z$ axes, in opposite orders. Orange face $=+x$ face of the box, blue $=+z$, green $=+y$. Final orientations differ: $R_zR_x\neq R_xR_z$. (In \S\ref{sec:rot:quaternions} we compute both products: they are $120^\circ$ rotations about $(1,1,1)/\sqrt3$ and $(1,-1,1)/\sqrt3$.)}
+\label{fig:rot:noncommute}
+\end{figure}

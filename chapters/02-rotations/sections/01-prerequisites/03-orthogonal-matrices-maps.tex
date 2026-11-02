@@ -1,0 +1,8 @@
+\subsection{Orthogonal matrices: maps that keep geometry}\label{sec:rot:orthogonal-matrices-maps}
+A square matrix $Q$ is \emph{orthogonal} if $Q\T Q=I$. Three equivalent readings:
+\begin{enumerate}[(i)]
+\item its columns are unit length and mutually perpendicular ($Q\T Q=I$ \emph{is} the table of column dot products);
+\item it preserves dot products: $(Qx)\cdot(Qy)=x\T Q\T Qy=x\cdot y$, hence lengths, distances and angles;
+\item its inverse is free: $Q^{-1}=Q\T$.
+\end{enumerate}
+Taking determinants of $Q\T Q=I$ gives $(\det Q)^2=1$, so $\det Q=\pm1$. $+1$: a proper rotation (handedness kept). $-1$: a rotation combined with a reflection (a left hand becomes a right hand). Physical motions of a rigid body are always $+1$.

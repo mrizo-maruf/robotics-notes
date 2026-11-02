@@ -1,0 +1,21 @@
+\subsection{Forward kinematics by the product of exponentials}\label{sec:rot:forward-kinematics-product}
+\begin{deriv}{$T(\theta)=e^{[S_1]\theta_1}\cdots e^{[S_n]\theta_n}M$}
+Let $M$ be the end-effector pose with all joints at zero, and $S_i$ the screw axis of joint $i$ expressed in the world frame \emph{at that home configuration}. Move only the last joint: the tool undergoes a screw about $S_n$, so $T=e^{[S_n]\theta_n}M$. Now move joint $n-1$: it carries joint $n$ and the tool rigidly, and its own axis has not been moved by joint $n$ (joint $n$ is downstream). So $T=e^{[S_{n-1}]\theta_{n-1}}e^{[S_n]\theta_n}M$. Induct to the base. No Denavit--Hartenberg frames are needed: only $n$ screw axes and one home pose.
+\end{deriv}
+\begin{figure}[h]
+\centering
+\begin{minipage}{0.36\linewidth}\includegraphics[width=\linewidth]{arm.pdf}\end{minipage}\hfill
+\begin{minipage}{0.6\linewidth}
+\caption{The 3-DOF elbow arm of the example at home (grey) and at $\theta=(30^\circ,45^\circ,-60^\circ)$ (blue). Each joint is described only by its screw axis at home; the product of exponentials moves the tool.}
+\label{fig:rot:arm}
+\end{minipage}
+\end{figure}
+\begin{example}{a 3-DOF elbow arm}
+Link lengths $L_0=0.3$ (base height), $L_1=0.4$, $L_2=0.3$\,m; at home the arm points along $+x$. Joint 1: $\omega_1=e_z$ through the origin. Joints 2, 3: $\omega=-e_y$ (positive angle lifts the arm) through $q_2=(0,0,L_0)$ and $q_3=(L_1,0,L_0)$. With $v_i=-\omega_i\times q_i$:
+\[
+S_1=(0,0,0;\,0,0,1),\ S_2=(0.3,0,0;\,0,-1,0),\ S_3=(0.3,0,-0.4;\,0,-1,0),
+\]
+$M=\bmat{I&(0.7,0,0.3)\T\\0&1}$. For $\theta=(30^\circ,45^\circ,-60^\circ)$ the product gives tool position $(0.496,\,0.286,\,0.505)$\,m and tool $z$-axis $(0.224,0.129,0.966)$. Elementary check: horizontal reach $L_1\cos45^\circ+L_2\cos(-15^\circ)=0.573$, height $L_0+L_1\sin45^\circ+L_2\sin(-15^\circ)=0.505$, and $0.573(\cos30^\circ,\sin30^\circ)=(0.496,0.286)$.
+\end{example}
+
+\textbf{Velocity kinematics comes for free.} The spatial Jacobian has columns $J_1=S_1$ and $J_i=\Ad_{e^{[S_1]\theta_1}\cdots e^{[S_{i-1}]\theta_{i-1}}}S_i$: each joint's screw axis, carried to its \emph{current} location by the joints before it. For the arm above, $J_2=(0.260,0.150,0;\ 0.5,-0.866,0)$, $J_3=(0.505,0.291,-0.283;\ 0.5,-0.866,0)$. For $\dot\theta=(0.1,-0.2,0.3)$\,rad/s, $\xi_s=J\dot\theta$ and the tool-tip velocity $v_s+\omega_s\times p$ is $(0.0271,\,0.0818,\,-0.0276)$\,m/s, which matches finite differences of the forward kinematics.

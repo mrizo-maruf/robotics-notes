@@ -1,0 +1,8 @@
+\subsection{Conversions}\label{sec:rot:conversions}
+\textbf{Quaternion $\to$ matrix.} Apply the sandwich to $e_x,e_y,e_z$ and use $w^2+x^2+y^2+z^2=1$:
+\[
+R(q)=\bmat{1-2(y^2+z^2)&2(xy-wz)&2(xz+wy)\\2(xy+wz)&1-2(x^2+z^2)&2(yz-wx)\\2(xz-wy)&2(yz+wx)&1-2(x^2+y^2)}.
+\]
+\textbf{Matrix $\to$ quaternion.} From the diagonal: $\tr R=3-4(x^2+y^2+z^2)=4w^2-1$, so $w=\frac12\sqrt{1+\tr R}$, then $x=(r_{32}-r_{23})/4w$, $y=(r_{13}-r_{31})/4w$, $z=(r_{21}-r_{12})/4w$. This divides by $w$, which is tiny for rotations near $180^\circ$. \emph{Shepperd's method} fixes that: compute whichever of $w^2,x^2,y^2,z^2$ is largest from the diagonal (e.g.\ $4x^2=1+2r_{11}-\tr R$) and get the other three from off-diagonal sums/differences, dividing by the largest. Every serious library does this.
+
+\textbf{Rotation vector $\leftrightarrow$ quaternion.} $q=\Exp(\varphi)=\big(\cos\frac{\|\varphi\|}2,\ \sin\frac{\|\varphi\|}2\frac{\varphi}{\|\varphi\|}\big)$ and $\varphi=2\,\atantwo(\|u\|,w)\,u/\|u\|$. The $\atantwo$ form is accurate at all angles, unlike $\arccos w$ near $w=\pm1$.

@@ -1,0 +1,13 @@
+\subsection{Why $R^{-1}=R\T$, why $\det R=+1$: the group $\SO$}\label{sec:rot:group}
+\begin{deriv}{the defining properties of a rotation}
+\textbf{(1) Orthogonality.} A physical rotation preserves lengths and angles, hence dot products: $(Rx)\cdot(Ry)=x\cdot y$ for all $x,y$. Then $x\T(R\T R)y=x\T y$ for all $x,y$, which forces $R\T R=I$. Geometrically: the columns are the body axes, which are orthonormal.
+
+\textbf{(2) Inverse is the transpose.} From $R\T R=I$. Read via \eqref{eq:rot:dcm}: $(R_{AB})\T$ has entries $b_i\cdot a_j$, i.e.\ it is ``$A$'s axes written in $B$'', which is $R_{BA}$. So $R_{BA}=R_{AB}^{-1}=R_{AB}\T$: inverting a rotation costs nothing.
+
+\textbf{(3) Determinant $+1$.} $\det(R\T R)=(\det R)^2=1$. A physical rotation can be reached continuously from the identity (just turn the body slowly). $\det$ is continuous and can only take the values $\pm1$, so it cannot jump: it stays at $\det I=1$. Equivalently $\det R=b_x\cdot(b_y\times b_z)=+1$ says the body frame is right-handed.
+\end{deriv}
+Hence
+\[
+\boxed{\ \SO=\{R\in\RR^{3\times3}:\ R\T R=I,\ \det R=1\}\ }
+\]
+is a \textbf{group}: closed under products ($(R_1R_2)\T R_1R_2=I$, $\det=1\cdot1$), has an identity, has inverses ($R\T$), is associative, but is \emph{not} commutative (\S\ref{sec:rot:3-d-rotations}). It is \emph{not a vector space}: $R+R=2R$ has determinant 8 and stretches vectors, and $\frac12(R_1+R_2)$ is generally not a rotation. Averaging, interpolating or adding small corrections therefore needs the tools of \S\ref{sec:rot:exponential-coordinates}.

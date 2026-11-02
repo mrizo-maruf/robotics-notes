@@ -1,0 +1,18 @@
+\subsection{The exponential map: rotation as ``spinning for a while''}\label{sec:rot:exponential-map-rotation}
+Where does an exponential come from? From physics. Spin a body at unit rate about the fixed axis $\nh$. Every point moves with velocity $\dot p=\nh\times p=\skw{\nh}p$, a linear ODE with constant coefficients. Its solution is $p(t)=e^{\skw{\nh}t}p(0)$. After time $\theta$ the body has turned by angle $\theta$, so
+\[
+R(\nh,\theta)=e^{\skw{\nh}\theta}.
+\]
+\begin{deriv}{Rodrigues $=$ matrix exponential}
+Expand the series and use the cycling powers \eqref{eq:rot:skewpow} to replace $\skw{\nh}^3\to-\skw{\nh}$, $\skw{\nh}^4\to-\skw{\nh}^2$, etc.:
+\[
+e^{\skw{\nh}\theta}=I+\underbrace{\Big(\theta-\frac{\theta^3}{3!}+\frac{\theta^5}{5!}-\cdots\Big)}_{\sin\theta}\skw{\nh}+\underbrace{\Big(\frac{\theta^2}{2!}-\frac{\theta^4}{4!}+\cdots\Big)}_{1-\cos\theta}\skw{\nh}^2,
+\]
+which is exactly \eqref{eq:rot:rodrigues}. The two derivations meet: the geometric one (decompose and rotate) and the dynamical one (integrate a constant spin). Numerically, \eqref{eq:rot:rodrigues} and \texttt{scipy.linalg.expm} agree to $10^{-16}$.
+\end{deriv}
+
+\textbf{Exponential coordinates.} Pack axis and angle into one 3-vector, the \emph{rotation vector} $\varphi=\theta\nh\in\RR^3$ (direction = axis, length = angle). Then
+\[
+\Exp(\varphi)=e^{\skw{\varphi}}=I+\frac{\sin\|\varphi\|}{\|\varphi\|}\skw{\varphi}+\frac{1-\cos\|\varphi\|}{\|\varphi\|^2}\skw{\varphi}^2.
+\]
+Three numbers, no constraint, smooth, and $\Exp(0)=I$. The ball $\|\varphi\|\le\pi$ covers every rotation once, except that antipodal surface points $\pm\pi\nh$ are the same rotation. Because of that gluing of the boundary, no 3-number chart can be globally smooth and one-to-one; this is the deeper reason behind gimbal lock in \S\ref{sec:rot:euler-angles}.

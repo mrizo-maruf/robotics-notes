@@ -1,0 +1,13 @@
+\subsection{Vocabulary}\label{sec:rot:vocabulary}
+\begin{center}\small
+\begin{tabular}{@{}lll@{}}\toprule
+Term & What it is & Mathematical object\\\midrule
+Orientation (attitude) & the \emph{state}: how a body frame is turned relative to a reference & $R\in\SO$ (3 DOF)\\
+Rotation & the \emph{operation} that changes orientation (or converts coordinates) & also $R\in\SO$\\
+Position & where the body origin is & $t\in\RR^3$ (3 DOF)\\
+Pose (configuration) & position + orientation & $T\in\SE$ (6 DOF)\\
+Displacement & the relative motion between two poses & $T_1^{-1}T_2\in\SE$\\
+Angular velocity / twist & instantaneous rate of rotation / of rigid motion & $\omega\in\RR^3$ / $\xi\in\RR^6$\\\bottomrule
+\end{tabular}
+\end{center}
+The fact that ``state'' and ``operation'' are the same kind of object is special: an orientation \emph{is} the rotation that takes the reference frame to the body frame. That is why a single group, $\SO$, serves both roles.

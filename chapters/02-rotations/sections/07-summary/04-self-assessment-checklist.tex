@@ -1,0 +1,15 @@
+\subsection{Self-assessment checklist}\label{sec:rot:self-assessment-checklist}
+You understand this chapter if you can do each of these \emph{without notes}, and say why it works:
+\begin{enumerate}[label=\arabic*.,itemsep=1pt]
+\item Explain why 3-D orientation has exactly three degrees of freedom (\S\ref{sec:rot:degrees-freedom-3}), and why every 3-number chart has a singularity (\S\ref{sec:rot:exponential-map-rotation}).
+\item Write $R_{AB}$ from a description of axes by columns, and compose/invert chains without index mistakes (\S\ref{sec:rot:rotation-matrix-first}, \S\ref{sec:rot:composition-order-multiplication}).
+\item Derive the ZYX matrix, the extraction formulas, and the Euler-rate matrix $E$ with $\det E=\cos\theta$ (\S\S\ref{sec:rot:zyx-yaw-pitch}--\ref{sec:rot:euler-angle-rates}).
+\item Explain gimbal lock geometrically (coinciding axes) and algebraically (only $\phi\mp\psi$ survives) (\S\ref{sec:rot:gimbal-lock}).
+\item Derive Rodrigues' formula from the parallel/perpendicular split, and show it equals $e^{\skw{\nh}\theta}$ (\S\S\ref{sec:rot:rodrigues-formula-derived}--\ref{sec:rot:exponential-map-rotation}).
+\item Convert between axis--angle, rotation vector, matrix and quaternion in both directions, including the numerical special cases (\S\ref{sec:rot:logarithm-matrix-back}, \S\ref{sec:rot:conversions}).
+\item Explain why the quaternion has $\theta/2$ and why $q\equiv-q$ (\S\ref{sec:rot:unit-quaternion-rotates}, \S\ref{sec:rot:double-cover}).
+\item Compose and invert homogeneous transforms; project a world point into a camera (\S\ref{sec:rot:homogeneous-coordinates-transformation}).
+\item Explain why $\SO$ and $\SE$ are groups but not vector spaces, and what $\so$, $\se$ represent (tangent spaces of velocities and small corrections) (\S\ref{sec:rot:group}, \S\ref{sec:rot:lie-algebra-space}, \S\ref{sec:rot:twists-velocity-rigid}).
+\item Derive the exponential of a twist and identify pure rotation, pure translation and a general screw (\S\ref{sec:rot:exponential-twist}).
+\item Use the adjoint to move a twist between frames, and the PoE formula for forward kinematics (\S\S\ref{sec:rot:changing-frame-twist}--\ref{sec:rot:forward-kinematics-product}).
+\end{enumerate}
