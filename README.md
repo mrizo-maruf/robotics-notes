@@ -1,6 +1,6 @@
 # Introduction to Robotics: extended notes
 
-My own textbook for the Graduate Introduction to Robotics course, built from first principles one lecture idea at a time.
+My own textbook for the Graduate Introduction to Robotics course, built from first principles one idea at a time.
 
 **Latest PDF** (rebuilt automatically on every push to `main`):
 https://github.com/mrizo-maruf/robotics-notes/releases/download/latest/robotics-notes.pdf
@@ -8,7 +8,7 @@ https://github.com/mrizo-maruf/robotics-notes/releases/download/latest/robotics-
 ## How a new section gets written
 
 1. Send Claude the slide images for one idea (in a session that has this repo attached), and say which chapter they belong to if it isn't obvious.
-2. Claude stores the slides in `slides/`, writes the section (derivations, figures, verified worked examples), builds it, looks at the pages and pushes to `main`. `CLAUDE.md` holds the standing instructions.
+2. Claude writes the section (derivations, figures, verified worked examples), builds it, looks at the pages and pushes to `main`. `CLAUDE.md` holds the standing instructions.
 3. CI rebuilds the PDF at the link above.
 
 You can edit any `.tex` file yourself; Claude pulls before working and keeps your changes.
@@ -32,12 +32,12 @@ VS Code: the LaTeX Workshop extension works if you build `notes.tex` from the re
 The `.tex` is split so every piece is small and edited on its own:
 
 ```
-chapters/NN-name/                one lecture (NN = lecture number)
+chapters/NN-name/                one chapter (NN = chapter number)
   chapter.tex                    intro + list of sections
   sections/NN-idea/section.tex   one idea: heading + list of subsections
   sections/NN-idea/MM-sub.tex    one sub-idea (~10-60 lines)
 ```
 
-Chapter 1 is a placeholder (lecture 1 slides only); chapter 2 is rotations and rigid-body motion.
+Chapter 1 is a placeholder; chapter 2 is rotations and rigid-body motion.
 
-See the "Layout" section of `CLAUDE.md`. Keep the repo **private**: `slides/` contains course material.
+See the "Layout" section of `CLAUDE.md`. Slides are not stored in the repo.

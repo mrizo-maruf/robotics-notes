@@ -21,7 +21,6 @@ new:
 	@test ! -e chapters/$(CH) || (echo "chapters/$(CH) exists" && exit 1)
 	cp -r chapters/_template chapters/$(CH)
 	find chapters/$(CH) -name '*.tex' -exec sed -i 's|@CH@|$(CH)|g; s|@TITLE@|$(TITLE)|g; s|@KEY@|$(KEY)|g' {} +
-	mkdir -p slides/$(CH)
 	sed -i 's|^% ---- new chapters are inserted above this line|\\subfile{chapters/$(CH)/chapter}\n&|' notes.tex
 	@echo "created chapters/$(CH) and added it to notes.tex"
 clean:

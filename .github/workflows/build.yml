@@ -5,7 +5,7 @@ name: Build notes
 on:
   push:
     branches: [main]
-    paths-ignore: ["slides/**", "**.md"]
+    paths-ignore: ["**.md"]
   workflow_dispatch:
 permissions:
   contents: write

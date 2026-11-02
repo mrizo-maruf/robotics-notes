@@ -4,10 +4,6 @@
 
 \chapter{Orientation, Rotations and Rigid-Body Motion}\label{ch:rot}
 
-\begin{sourcebox}
-Lecture: \emph{3-D Orientation}, \emph{Three Angles and Gimbal Lock}, \emph{Angle-Axis and Exponential Coordinates}, \emph{Unit Quaternions}, \emph{3-D Pose and Screw Motion}. Built from the lecture topic roadmap (\texttt{slides/02-rotations/}).
-\end{sourcebox}
-
 \vspace{2pt}
 \begin{keyidea}[: the one sentence behind the whole chapter]
 The orientation of a rigid body is \emph{one} physical fact: how its attached frame sits relative to another frame. Rotation matrices, Euler angles, axis--angle, rotation vectors and quaternions are five different \emph{coordinate systems on the same curved space} $\SO$. Each one makes some operations easy and some impossible. Adding position turns $\SO$ into $\SE$, and the same story repeats one level up with homogeneous matrices and twists. Almost every bug with rotations in real robot code comes from forgetting that this space is curved (you cannot add rotations like vectors) or from mixing up which frame a number is expressed in.

@@ -1,15 +1,15 @@
 # Robotics notes: instructions for Claude
 
-This repo is Mukhammadrizo's personal textbook for a semester-long **Graduate Introduction to Robotics** course. It is built one idea at a time from lecture slides. He is a robotics/CV researcher (SLAM, VIO, ROS2, Isaac Sim, 3-D perception), so write at graduate level: full derivations and no hand-holding on basics he clearly knows. Never skip a step in an argument, though.
+This repo is Mukhammadrizo's personal textbook for a semester-long **Graduate Introduction to Robotics** course. It is built one idea at a time from slide images he sends in the chat. He is a robotics/CV researcher (SLAM, VIO, ROS2, Isaac Sim, 3-D perception), so write at graduate level: full derivations and no hand-holding on basics he clearly knows. Never skip a step in an argument, though.
 
 What he asked for, in his words: *extended notes on each idea; derive things, explain why and how it works; approach from first principles and the essence of the idea; visualizations that show how and why; applied, practical, non-trivial examples and how to use the concepts in them.* Every section must deliver all of that.
 
 ## The session workflow
 
 1. **Sync.** `git pull`. Read this file, `frontmatter/notation.tex`, and the target chapter's `chapter.tex` plus the section before the new one, so notation and story continue seamlessly.
-2. **Store the slides.** Copy the slide images he sent into `slides/<chapter>/`, named `NN-short-name.png` in lecture order. Update the chapter's `sourcebox` to list them.
+2. **Read the slides** he sent in the chat. Slides are never stored in the repo (`slides/` is git-ignored).
 3. **Place the idea.** The `.tex` is split finely so that work, edits and diffs happen one piece at a time. Never put a whole section in one file:
-   - one lecture = one chapter folder `chapters/NN-name/` (`make new CH=NN-name TITLE="..." KEY=short`; chapter numbers follow lecture numbers);
+   - one chapter = one folder `chapters/NN-name/`, NN = chapter number in book order (`make new CH=NN-name TITLE="..." KEY=short`). Refer to chapters only by chapter, never by lecture number;
    - one idea (a group of slides) = one **section folder** `sections/NN-slug/`, containing `section.tex` (heading, a short motivating paragraph, and the `\input` list) and is `\input` in `chapter.tex`;
    - one sub-idea = one **subsection file** `sections/NN-slug/MM-slug.tex` (~10-60 lines), `\input` in that `section.tex`.
 
@@ -43,7 +43,7 @@ Close each chapter with a summary section: a comparison table if relevant, a for
 - **Honest.** If a slide's claim is wrong, imprecise, or uses a different convention, write the correct version and add a `noteb` box mapping the slide's notation or statement to ours. Mention it in the report. If something is uncertain (e.g. a library's current convention), say so or check it, never guess.
 - **Beyond the slides.** Sparse slides should be filled in from standard references (Lynch & Park, Siciliano et al., Barfoot, Murray-Li-Sastry, Corke, Thrun et al., Hartley & Zisserman), so each section stands alone.
 - **Notation.** Use the book's notation (`frontmatter/notation.tex`), even when the slides differ. New notation goes into `notation.tex` first. New macros used in more than one chapter go in `notes.sty`. Chapter-only macros go at the top of that chapter's `chapter.tex`.
-- **Boxes.** Use only `keyidea`, `deriv`, `example`, `pitfall`, `noteb`, plus one `sourcebox` per chapter.
+- **Boxes.** Use only `keyidea`, `deriv`, `example`, `pitfall`, `noteb`.
 - **Labels.** Always `sec:<KEY>:<slug>`, `eq:<KEY>:<slug>`, `fig:<KEY>:<slug>`, where KEY is the chapter key (chapter 2 is `rot`). **Never hard-code a section, equation or figure number**: always `\ref`/`\eqref`/`\figref`.
 - **Font.** 10 pt Times (`mathptmx`), set in `notes.sty`. Do not change layout per chapter.
 
@@ -60,14 +60,13 @@ Close each chapter with a summary section: a comparison table if relevant, a for
 notes.tex            book root: front matter + \subfile per chapter
 notes.sty            fonts, layout, boxes, global macros
 frontmatter/notation.tex
-chapters/NN-name/    one lecture; NN = lecture number
+chapters/NN-name/    one chapter; NN = chapter number
   chapter.tex        compiles alone; intro + \input of each section.tex
   sections/NN-slug/  one idea: section.tex + MM-slug.tex per subsection
   figs/  code/       generated figure PDFs; figs.py + examples.py
-chapters/01-lecture-1/  placeholder (lecture 1 slides only, no notes)
+chapters/01-placeholder/  chapter 1, placeholder (no notes by request)
 chapters/_template/  copied by `make new`
 code/rigid.py        shared, tested numerics (SO3/SE3/quaternions/...)
 code/style.py        shared figure style
-slides/NN-name/      the source slide images
 .github/workflows/build.yml   CI: build + publish PDF to release "latest"
 ```
