@@ -1,0 +1,28 @@
+\documentclass[../../notes.tex]{subfiles}
+\begin{document}
+\chapterfigs{01-rotations}
+
+\chapter{Orientation, Rotations and Rigid-Body Motion}\label{ch:rot}
+
+\begin{sourcebox}
+Lecture: \emph{3-D Orientation}, \emph{Three Angles and Gimbal Lock}, \emph{Angle-Axis and Exponential Coordinates}, \emph{Unit Quaternions}, \emph{3-D Pose and Screw Motion}. Built from the lecture topic roadmap (\texttt{slides/01-rotations/}).
+\end{sourcebox}
+
+\vspace{2pt}
+\begin{keyidea}[: the one sentence behind the whole chapter]
+The orientation of a rigid body is \emph{one} physical fact: how its attached frame sits relative to another frame. Rotation matrices, Euler angles, axis--angle, rotation vectors and quaternions are five different \emph{coordinate systems on the same curved space} $\SO$. Each one makes some operations easy and some impossible. Adding position turns $\SO$ into $\SE$, and the same story repeats one level up with homogeneous matrices and twists. Almost every bug with rotations in real robot code comes from forgetting that this space is curved (you cannot add rotations like vectors) or from mixing up which frame a number is expressed in.
+\end{keyidea}
+
+\textbf{Roadmap.} \S\ref{sec:rot:prerequisites} sets up the language (frames, active vs.\ passive, why 3-D rotations do not commute). \S\ref{sec:rot:orientation} builds rotation matrices from nothing but ``where do the axes go'' and derives $\SO$. \S\ref{sec:rot:euler-angles} parameterises $\SO$ by three angles and shows exactly why that must fail somewhere (gimbal lock). \S\ref{sec:rot:exponential-coordinates} finds the parameterisation that comes from physics, constant-rate spinning, which gives Rodrigues' formula, the exponential map and the Lie algebra $\so$; this is the toolset of modern estimation. \S\ref{sec:rot:quaternions} shows quaternions as the cleanest computational encoding of the same idea and explains the famous half-angle. \S\ref{sec:rot:pose-and-screws} adds translation: homogeneous transforms, $\SE$, screws, twists, the adjoint and product-of-exponentials kinematics. \S\ref{sec:rot:summary} compares everything, gives a conversion map, a formula sheet, and practice problems with answers.
+
+Every numerical example in this chapter was computed and checked in code (numpy/scipy), so the numbers can be used to test your own implementations.
+
+\input{\subfix{sections/1-prerequisites}}
+\input{\subfix{sections/2-orientation}}
+\input{\subfix{sections/3-euler-angles}}
+\input{\subfix{sections/4-exponential-coordinates}}
+\input{\subfix{sections/5-quaternions}}
+\input{\subfix{sections/6-pose-and-screws}}
+\input{\subfix{sections/7-summary}}
+
+\end{document}

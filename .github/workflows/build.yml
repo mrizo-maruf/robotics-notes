@@ -1,0 +1,30 @@
+# On every push to main: compile the book and publish it as the release
+# "latest", so the newest PDF always lives at one fixed link:
+#   https://github.com/<owner>/<repo>/releases/download/latest/robotics-notes.pdf
+name: Build notes
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["slides/**", "**.md"]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile with latexmk (full TeX Live)
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: notes.tex
+      - name: Publish PDF to the "latest" release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp build/notes.pdf robotics-notes.pdf
+          gh release delete latest --cleanup-tag -y || true
+          gh release create latest robotics-notes.pdf \
+            --title "Latest notes" \
+            --notes "Built from ${GITHUB_SHA::7} on $(date -u +%Y-%m-%d)" \
+            --target "$GITHUB_SHA"

@@ -1,0 +1,111 @@
+% Chapter 1, section: euler-angles
+\section{Three angles and gimbal lock}\label{sec:rot:euler-angles}
+
+\subsection{The idea: build any rotation from three elementary turns}\label{sec:rot:idea-build-any}
+Since $\SO$ has three degrees of freedom, it is natural to try three numbers: perform three elementary rotations about coordinate axes. Consecutive axes must differ (two turns about the same axis merge into one), which leaves 12 sequences:
+\begin{itemize}
+\item \textbf{Tait--Bryan} (three distinct axes): $xyz, xzy, yxz, yzx, zxy, zyx$. Roll--pitch--yaw belongs here.
+\item \textbf{Proper Euler} (first axis repeated): $xyx, xzx, yxy, yzy, zxz, zyz$. Used for precession--nutation--spin and for robot wrists (\S\ref{sec:rot:wrist}).
+\end{itemize}
+On top of the sequence, each can be \emph{intrinsic} (about the moving body axes) or \emph{extrinsic} (about the fixed axes), giving 24 conventions in use. A list of three angles is meaningless until the convention is stated.
+
+\subsection{ZYX yaw--pitch--roll, intrinsic and extrinsic}\label{sec:rot:zyx-yaw-pitch}
+\begin{figure}[h]
+\centering\includegraphics[width=\linewidth]{zyx_seq.pdf}
+\caption{Intrinsic $z$--$y'$--$x''$: yaw about the world $z$, then pitch about the \emph{new} $y'$, then roll about the \emph{newest} $x''$. Dashed: previous frame; purple: the axis used in that step.}
+\label{fig:rot:zyxseq}
+\end{figure}
+Start aligned with the world. Yaw by $\psi$ about $z$: orientation $R_z(\psi)$. Pitch by $\theta$ about the \emph{current} $y$ axis: by the post-multiplication rule (\S\ref{sec:rot:composition-order-multiplication}), $R_z(\psi)R_y(\theta)$. Roll by $\phi$ about the current $x$ axis:
+\begin{equation}
+R(\psi,\theta,\phi)=R_z(\psi)\,R_y(\theta)\,R_x(\phi).\label{eq:rot:zyx}
+\end{equation}
+Read the same product right-to-left with the pre-multiplication rule: first $R_x(\phi)$ about world $x$, then $R_y(\theta)$ about world $y$, then $R_z(\psi)$ about world $z$. Hence
+\[
+\textbf{intrinsic } z\text{--}y'\text{--}x'' \;\equiv\; \textbf{extrinsic } x\text{--}y\text{--}z .
+\]
+The angles are the same; only the story differs. Libraries name these differently (SciPy uses uppercase letters for intrinsic and lowercase for extrinsic sequences), which is the source of countless sign bugs.
+
+\begin{deriv}{the ZYX matrix}
+Multiplying out \eqref{eq:rot:zyx}:
+\begin{equation}
+R=\bmat{c_\psi c_\theta & c_\psi s_\theta s_\phi - s_\psi c_\phi & c_\psi s_\theta c_\phi + s_\psi s_\phi\\
+s_\psi c_\theta & s_\psi s_\theta s_\phi + c_\psi c_\phi & s_\psi s_\theta c_\phi - c_\psi s_\phi\\
+-s_\theta & c_\theta s_\phi & c_\theta c_\phi}.\label{eq:rot:zyxfull}
+\end{equation}
+The first column is $R_z(\psi)R_y(\theta)e_x$: the nose direction. It does not involve roll, as expected (rolling spins the body about its nose).
+\end{deriv}
+
+\subsection{Recovering the angles}\label{sec:rot:recovering-angles}
+From \eqref{eq:rot:zyxfull}: $r_{31}=-s_\theta$; $r_{21}/r_{11}=\tan\psi$; $r_{32}/r_{33}=\tan\phi$ (when $c_\theta\neq0$). Robust formulas use $\atantwo$, which knows the quadrant:
+\[
+\theta=\atantwo\!\big(-r_{31},\sqrt{r_{11}^2+r_{21}^2}\big),\qquad
+\psi=\atantwo(r_{21},r_{11}),\qquad
+\phi=\atantwo(r_{32},r_{33}).
+\]
+There are always two solutions, $(\psi,\theta,\phi)$ and $(\psi+\pi,\ \pi-\theta,\ \phi+\pi)$; restricting $\theta\in[-\pi/2,\pi/2]$ picks one. All three formulas divide by (or take the angle of a vector scaled by) $c_\theta$. When $c_\theta\to0$ both $\atantwo$ calls receive $(0,0)$ and become meaningless. That is the algebraic face of gimbal lock. Robust code detects $|r_{31}|\approx1$ and then fixes one angle by convention (say $\psi=0$) and recovers the other from the surviving combination: at $\theta=+90^\circ$, $\phi-\psi=\atantwo(r_{12},r_{22})$; at $\theta=-90^\circ$, $\phi+\psi=\atantwo(-r_{12},r_{22})$ (read off the matrix in \S\ref{sec:rot:gimbal-lock} and its $-90^\circ$ analogue). Without this branch, the generic formulas return $\atantwo(0,0)=0$ for both angles, which reconstructs a \emph{different} rotation (practice problem 6).
+
+\subsection{Gimbal lock}\label{sec:rot:gimbal-lock}
+\begin{deriv}{at pitch $90^\circ$ only $\phi-\psi$ survives}
+Set $\theta=90^\circ$ ($s_\theta=1,\ c_\theta=0$) in \eqref{eq:rot:zyxfull} and use angle-difference identities:
+\[
+R(\psi,90^\circ,\phi)=\bmat{0 & c_\psi s_\phi - s_\psi c_\phi & c_\psi c_\phi + s_\psi s_\phi\\ 0 & s_\psi s_\phi + c_\psi c_\phi & s_\psi c_\phi - c_\psi s_\phi\\ -1&0&0}
+=\bmat{0&\sin(\phi-\psi)&\cos(\phi-\psi)\\0&\cos(\phi-\psi)&-\sin(\phi-\psi)\\-1&0&0}.
+\]
+The matrix depends on $\psi$ and $\phi$ only through $\phi-\psi$. Every pair with the same difference gives the \emph{same} orientation. For example $(\psi,\phi)=(30^\circ,50^\circ)$, $(0^\circ,20^\circ)$ and $(-40^\circ,-20^\circ)$ produce identical matrices (checked numerically). At $\theta=-90^\circ$ the same happens with $\phi+\psi$. The map from angles to rotations has collapsed a whole line of angle-triples onto one rotation, so it cannot be inverted there, and nearby it is badly conditioned.
+\end{deriv}
+
+\begin{figure}[h]
+\centering\includegraphics[width=\linewidth]{gimbal.pdf}
+\caption{A mechanical ZYX gimbal: blue ring turns about the world $z$ (yaw), green about the yaw-ring's $y$ (pitch), red about the pitch-ring's $x$ (roll), and the body (black ``nose'') is fixed in the red ring. (a) Generic pose: the three rotation axes are independent. (b) At $\theta=90^\circ$ the roll axis lines up with the yaw axis and the outer two rings become coplanar; turning either one produces the same motion of the nose, and there is no ring left that can move the nose sideways. (c) To produce a modest body yaw rate of 1\,rad/s, the required Euler rates diverge as $\theta\to90^\circ$.}
+\label{fig:rot:gimbal}
+\end{figure}
+
+\textbf{Geometric picture.} The three rotation axes of the parameterisation are: world $z$ (yaw), $R_z(\psi)e_y$ (pitch), and $R_z(\psi)R_y(\theta)e_x$ (roll). At $\theta=\pm90^\circ$, $R_y(\theta)e_x=\mp e_z$, so the roll axis becomes parallel to the yaw axis. Three ``knobs'' now span only a 2-D set of instantaneous rotations; one direction of angular velocity (perpendicular to both the yaw and pitch axes) cannot be produced by any finite angle rates (\figref{fig:rot:gimbal}).
+
+\textbf{What gimbal lock is not.} The body is not physically stuck: it can still rotate in any direction. What fails is the \emph{coordinate system} (and a mechanical gimbal that implements it). The same thing happens with latitude/longitude at the North Pole: you can walk in any direction, but longitude is undefined there, and small steps can change it by $180^\circ$. This is unavoidable: no 3-number parameterisation covers all of $\SO$ smoothly and one-to-one (a topological fact). You can only move the singularity, never remove it.
+
+\subsection{Euler-angle rates are not angular velocity}\label{sec:rot:euler-angle-rates}
+\begin{deriv}{the map $(\dot\phi,\dot\theta,\dot\psi)\mapsto\omega_b$ and its determinant}
+The body angular velocity is defined by $\skw{\omega_b}=R\T\dot R$ (derived in \S\ref{sec:rot:angvel}). Differentiate $R=R_zR_yR_x$ with the product rule, using $\dot R_z=R_z\skw{\dot\psi e_z}$ etc.:
+\[
+R\T\dot R = R_x\T R_y\T\skw{\dot\psi e_z}R_yR_x + R_x\T\skw{\dot\theta e_y}R_x + \skw{\dot\phi e_x}.
+\]
+By \eqref{eq:rot:conj}, $R\T\skw{a}R=\skw{R\T a}$, so
+$\omega_b=\dot\phi\,e_x+\dot\theta\,R_x\T e_y+\dot\psi\,R_x\T R_y\T e_z$. Evaluating the two rotated unit vectors:
+\[
+\omega_b=\underbrace{\bmat{1&0&-s_\theta\\0&c_\phi&s_\phi c_\theta\\0&-s_\phi&c_\phi c_\theta}}_{E(\phi,\theta)}\bmat{\dot\phi\\\dot\theta\\\dot\psi},\qquad \det E=c_\theta .
+\]
+$E$ is singular exactly at $\theta=\pm90^\circ$. Away from it,
+\[
+\dot\phi=\omega_x+(s_\phi\omega_y+c_\phi\omega_z)\tan\theta,\qquad \dot\theta=c_\phi\omega_y-s_\phi\omega_z,\qquad \dot\psi=\frac{s_\phi\omega_y+c_\phi\omega_z}{\cos\theta}.
+\]
+(Checked against finite differences.) The angle rates are the components of $\omega$ along three \emph{non-orthogonal} axes. Only when the angles are all small is $E\approx I$, so that angle rates $\approx$ gyro readings.
+\end{deriv}
+
+\subsection{Practical consequences}\label{sec:rot:practical-consequences}
+\begin{itemize}
+\item \textbf{Discontinuities.} Yaw wraps at $\pm180^\circ$. Averaging two headings $179^\circ$ and $-179^\circ$ arithmetically gives $0^\circ$, which is $180^\circ$ wrong. Controllers and filters with Euler states need angle-wrapping everywhere.
+\item \textbf{Interpolation.} Interpolating the three angles linearly produces a path in $\SO$ that is neither shortest nor constant-speed (\figref{fig:rot:slerp}: $232^\circ$ of turning to achieve a $153^\circ$ reorientation).
+\item \textbf{Control and estimation.} Near the singularity, small attitude errors become huge angle errors, Jacobians blow up, and an EKF with Euler states diverges. Aircraft that hover nose-up (tail-sitters), aerobatic drones, and humanoid torsos all reach $\pm90^\circ$ pitch.
+\item \textbf{When Euler angles are fine:} human-readable display and logs, specifying set-points, and systems that never come near the singularity (ground vehicles, ships). Store and compute with something else; convert to Euler only at the edges.
+\end{itemize}
+
+\begin{example}{a tail-sitter VTOL in hover: tiny attitude change, huge angle change}
+A tail-sitter drone hovers nose-up, so its ZYX pitch is near $90^\circ$. True attitude $(\psi,\theta,\phi)=(10^\circ,\,89.5^\circ,\,20^\circ)$. The estimator's attitude is off by only $0.3^\circ$, a body-frame error $R_{\text{est}}=R_{\text{true}}\Exp(\delta)$. Extracted angles:
+\begin{center}\small
+\begin{tabular}{@{}lccc@{}}\toprule
+error $\delta$ ($0.3^\circ$ about body\dots) & $\psi$ & $\theta$ & $\phi$\\\midrule
+none & $10.00^\circ$ & $89.50^\circ$ & $20.00^\circ$\\
+$x$ (the nose) & $10.00^\circ$ & $89.50^\circ$ & $20.30^\circ$\\
+$z$ & $35.07^\circ$ & $89.33^\circ$ & $45.07^\circ$\\
+$y$ & $35.20^\circ$ & $89.76^\circ$ & $45.20^\circ$\\\bottomrule
+\end{tabular}
+\end{center}
+A $0.3^\circ$ attitude error moved yaw and roll by $25^\circ$ each, while $\phi-\psi=-10^\circ$ stayed put, exactly as the gimbal-lock derivation predicts. A yaw controller fed these numbers would command a violent correction for an error that does not exist. Fix used in practice: control on $\SO$ directly (error $=\Log(R_d\T R)$), or re-define the body frame so that hover corresponds to zero pitch.
+
+\emph{Rates.} At $\theta=80^\circ,\ \phi=0$, a gentle body yaw rate $\omega_b=(0,0,1)$\,rad/s corresponds to $\dot\psi=1/\cos80^\circ=5.76$\,rad/s and $\dot\phi=\tan80^\circ=5.67$\,rad/s (\figref{fig:rot:gimbal}c). An Euler-angle integrator needs a tiny time step here.
+\end{example}
+
+\begin{example}{the spherical wrist of a 6-DOF arm is a ZYZ gimbal}\label{sec:rot:wrist}
+Many industrial arms (e.g.\ most KUKA, ABB and Fanuc models) end in three revolute joints whose axes meet at one point. Their orientation is $R_{\text{wrist}}=R_z(\theta_4)R_y(\theta_5)R_z(\theta_6)$: a proper Euler ZYZ sequence. At $\theta_5=0$ joints 4 and 6 are coaxial: only $\theta_4+\theta_6$ matters, inverse kinematics has infinitely many solutions, and keeping the tool moving along certain directions requires $\dot\theta_4,\dot\theta_6\to\infty$. Robot programmers call this the \emph{wrist singularity}; it is gimbal lock in hardware, and motion planners avoid paths with $\theta_5\approx0$ for exactly the reason in \figref{fig:rot:gimbal}(c).
+\end{example}

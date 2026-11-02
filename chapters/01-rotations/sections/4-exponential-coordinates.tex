@@ -1,0 +1,152 @@
+% Chapter 1, section: exponential-coordinates
+\section{Angle--axis and exponential coordinates}\label{sec:rot:exponential-coordinates}
+
+\subsection{Euler's rotation theorem: every rotation has an axis}\label{sec:rot:euler-s-rotation}
+\begin{deriv}{$R\in\SO$ always fixes a line}
+We need a vector $n$ with $Rn=n$, i.e.\ $\det(R-I)=0$. Using $RR\T=I$ and $\det R=\det R\T=1$:
+\[
+\det(R-I)=\det(R-RR\T)=\det R\,\det(I-R\T)=\det\big((I-R)\T\big)=\det(I-R)=(-1)^3\det(R-I).
+\]
+So $\det(R-I)=-\det(R-I)$, hence it is $0$: eigenvalue $1$ exists, with a unit eigenvector $\nh$. The plane perpendicular to $\nh$ is mapped to itself (dot products are preserved), and there $R$ acts as a $2\times2$ orthogonal matrix of determinant $1$, which is a planar rotation by some $\theta$. Therefore every 3-D rotation is ``turn by $\theta$ about one fixed axis $\nh$''. (The odd dimension is what makes this work. In 4-D a rotation can turn two planes independently with no fixed axis at all.)
+\end{deriv}
+
+\subsection{Axis--angle and its ambiguities}\label{sec:rot:axis-angle-ambiguities}
+The pair $(\nh,\theta)$ with $\|\nh\|=1$ is the most geometric description possible: \emph{which} line stays fixed, and \emph{how much} everything turns around it. It uses four numbers with one constraint. Its ambiguities are exactly the places where it stops being one-to-one:
+\begin{itemize}
+\item $(\nh,\theta)$, $(-\nh,-\theta)$ and $(\nh,\theta+2\pi k)$ are the same rotation; restrict to $\theta\in[0,\pi]$.
+\item $\theta=0$: the axis is undefined (every axis works for ``no rotation'').
+\item $\theta=\pi$: $(\nh,\pi)$ and $(-\nh,\pi)$ coincide (turning half a turn either way lands at the same place).
+\end{itemize}
+
+\subsection{The cross product as a matrix}\label{sec:rot:skew}\label{sec:rot:cross-product-matrix}
+Because $\omega\times v$ is linear in $v$:
+\[
+\omega\times v=\skw{\omega}v,\qquad \skw{\omega}=\bmat{0&-\omega_z&\omega_y\\ \omega_z&0&-\omega_x\\ -\omega_y&\omega_x&0},\qquad \skw{\omega}\T=-\skw{\omega}.
+\]
+The algebra of rotations follows from \eqref{eq:rot:bac}. For unit $\nh$: $\skw{\nh}^2v=\nh\times(\nh\times v)=\nh(\nh\cdot v)-v$, so
+\begin{equation}
+\skw{\nh}^2=\nh\nh\T-I,\qquad \skw{\nh}^3=-\skw{\nh},\qquad \skw{\nh}^4=-\skw{\nh}^2,\ \dots\label{eq:rot:skewpow}
+\end{equation}
+Geometrically: $\nh\nh\T v$ is the component of $v$ along the axis, $-\skw{\nh}^2v$ is the perpendicular component, and $\skw{\nh}v$ is the perpendicular component turned $90^\circ$. Applying $\skw{\nh}$ twice turns it $180^\circ$ (a minus sign), which is why the powers cycle exactly like those of the imaginary unit $i$.
+
+\subsection{Rodrigues' formula, derived geometrically}\label{sec:rot:rodrigues-formula-derived}
+\begin{figure}[h]
+\centering\includegraphics[width=\linewidth]{rodrigues.pdf}
+\caption{Rodrigues' construction. (a) Split $v$ into the part along the axis (unchanged by the rotation) and the part perpendicular to it (which sweeps a circle). (b) In the perpendicular plane, $v_\perp$ and $\hat\omega\times v$ form an orthogonal pair of equal length, so turning by $\theta$ is ``$\cos\theta$ of one plus $\sin\theta$ of the other'', just as in 2-D.}
+\label{fig:rot:rodrigues}
+\end{figure}
+\begin{deriv}{rotation by $\theta$ about $\nh$}
+Decompose $v=v_\parallel+v_\perp$ with $v_\parallel=(\nh\cdot v)\nh=(I+\skw{\nh}^2)v$ and $v_\perp=-\skw{\nh}^2v$. The parallel part does not move. The perpendicular part lives in a plane where $\{v_\perp,\ \nh\times v\}$ is an orthogonal pair of equal length ($\nh\times v=\nh\times v_\perp$). A planar rotation by $\theta$ gives
+\[
+v'=v_\parallel+\cos\theta\,v_\perp+\sin\theta\,(\nh\times v)
+=(I+\skw{\nh}^2)v-\cos\theta\,\skw{\nh}^2v+\sin\theta\,\skw{\nh}v .
+\]
+Collecting terms gives Rodrigues' rotation formula:
+\begin{equation}
+\boxed{R(\nh,\theta)=I+\sin\theta\,\skw{\nh}+(1-\cos\theta)\,\skw{\nh}^2}\label{eq:rot:rodrigues}
+\end{equation}
+\end{deriv}
+
+\subsection{The exponential map: rotation as ``spinning for a while''}\label{sec:rot:exponential-map-rotation}
+Where does an exponential come from? From physics. Spin a body at unit rate about the fixed axis $\nh$. Every point moves with velocity $\dot p=\nh\times p=\skw{\nh}p$, a linear ODE with constant coefficients. Its solution is $p(t)=e^{\skw{\nh}t}p(0)$. After time $\theta$ the body has turned by angle $\theta$, so
+\[
+R(\nh,\theta)=e^{\skw{\nh}\theta}.
+\]
+\begin{deriv}{Rodrigues $=$ matrix exponential}
+Expand the series and use the cycling powers \eqref{eq:rot:skewpow} to replace $\skw{\nh}^3\to-\skw{\nh}$, $\skw{\nh}^4\to-\skw{\nh}^2$, etc.:
+\[
+e^{\skw{\nh}\theta}=I+\underbrace{\Big(\theta-\frac{\theta^3}{3!}+\frac{\theta^5}{5!}-\cdots\Big)}_{\sin\theta}\skw{\nh}+\underbrace{\Big(\frac{\theta^2}{2!}-\frac{\theta^4}{4!}+\cdots\Big)}_{1-\cos\theta}\skw{\nh}^2,
+\]
+which is exactly \eqref{eq:rot:rodrigues}. The two derivations meet: the geometric one (decompose and rotate) and the dynamical one (integrate a constant spin). Numerically, \eqref{eq:rot:rodrigues} and \texttt{scipy.linalg.expm} agree to $10^{-16}$.
+\end{deriv}
+
+\textbf{Exponential coordinates.} Pack axis and angle into one 3-vector, the \emph{rotation vector} $\varphi=\theta\nh\in\RR^3$ (direction = axis, length = angle). Then
+\[
+\Exp(\varphi)=e^{\skw{\varphi}}=I+\frac{\sin\|\varphi\|}{\|\varphi\|}\skw{\varphi}+\frac{1-\cos\|\varphi\|}{\|\varphi\|^2}\skw{\varphi}^2.
+\]
+Three numbers, no constraint, smooth, and $\Exp(0)=I$. The ball $\|\varphi\|\le\pi$ covers every rotation once, except that antipodal surface points $\pm\pi\nh$ are the same rotation. Because of that gluing of the boundary, no 3-number chart can be globally smooth and one-to-one; this is the deeper reason behind gimbal lock in \S\ref{sec:rot:euler-angles}.
+
+\subsection{The Lie algebra $\so$: the space of infinitesimal rotations}\label{sec:rot:lie}\label{sec:rot:lie-algebra-space}
+\begin{deriv}{tangent vectors to $\SO$ are skew-symmetric}
+Let $R(t)$ be any smooth path of rotations. Differentiate $R\T R=I$: $\dot R\T R+R\T\dot R=0$, i.e.\ $R\T\dot R=-(R\T\dot R)\T$. So $R\T\dot R$ is always skew-symmetric. At $R(0)=I$ the velocity $\dot R(0)$ itself is skew. The tangent space at the identity is therefore
+\[
+\so=\{\Omega\in\RR^{3\times3}:\Omega\T=-\Omega\}=\{\skw{\omega}:\omega\in\RR^3\}\cong\RR^3 .
+\]
+\end{deriv}
+$\so$ is a genuine vector space: you can add, scale and average elements of it. The exponential maps it onto the group; the logarithm maps (a neighbourhood of) the group back. Non-commutativity survives only infinitesimally through the bracket $[\skw{a},\skw{b}]=\skw{a}\skw{b}-\skw{b}\skw{a}=\skw{a\times b}$. That is why rotation vectors add only to first order:
+\begin{equation}
+\Log\big(\Exp(a)\Exp(b)\big)=a+b+\tfrac12\,a\times b+O(\|a\|,\|b\|)^3\qquad\text{(BCH formula).}\label{eq:rot:bch}
+\end{equation}
+Example: $a=(0.3,0,0)$, $b=(0,0.4,0)$ gives $\Log(\Exp a\,\Exp b)=(0.296,\,0.397,\,0.060)$, while $a+b=(0.3,0.4,0)$ and $a+b+\tfrac12a\times b=(0.3,0.4,0.06)$.
+
+\subsection{The logarithm: from a matrix back to axis and angle}\label{sec:rot:log}\label{sec:rot:logarithm-matrix-back}
+\begin{deriv}{trace and skew part of Rodrigues}
+Take the trace of \eqref{eq:rot:rodrigues}: $\tr I=3$, $\tr\skw{\nh}=0$, $\tr\skw{\nh}^2=\tr(\nh\nh\T-I)=1-3=-2$. So $\tr R=1+2\cos\theta$. Take the skew part: $R-R\T=2\sin\theta\,\skw{\nh}$ (the $\skw{\nh}^2$ term is symmetric). Hence
+\[
+\theta=\arccos\frac{\tr R-1}{2}\in[0,\pi],\qquad \skw{\nh}=\frac{R-R\T}{2\sin\theta},\qquad \varphi=\Log(R)=\theta\nh .
+\]
+\end{deriv}
+\textbf{Numerical care.} (i) Near $\theta=0$, compute $\theta/\sin\theta$ with its Taylor series $1+\theta^2/6$ instead of dividing two tiny numbers; likewise $\sin\theta/\theta\approx1-\theta^2/6$ and $(1-\cos\theta)/\theta^2\approx\frac12-\theta^2/24$ in $\Exp$. (ii) Near $\theta=\pi$, $\sin\theta\to0$ and the skew part vanishes. Use the symmetric part instead: $\frac12(R+R\T)=\cos\theta\,I+(1-\cos\theta)\nh\nh\T$, so $\nh\nh\T=\big(\tfrac12(R+R\T)-\cos\theta I\big)/(1-\cos\theta)$; take the column with the largest diagonal entry and normalise. The sign of $\nh$ is genuinely ambiguous at exactly $\pi$. (iii) Clamp $(\tr R-1)/2$ to $[-1,1]$ before $\arccos$; floating point will occasionally give $1.0000000002$.
+
+\begin{example}{knee angle and hinge axis, part 2}
+From part 1 (\S\ref{sec:rot:orientation}), $\tr R_{12}=2.1450$, so $\theta=\arccos(0.5725)=55.08^\circ$, and $\Log$ gives axis $\nh=(0.050,\,0.998,\,-0.026)$. The joint turned $55.1^\circ$ about an axis within about $3^\circ$ of the shank's $y$-axis, which is the anatomical flexion axis. The small off-axis part is the $3^\circ$ ab/adduction. This single number is frame-independent: unlike ``difference of pitch angles'', it does not change if the person turns around or if the IMUs are mounted rolled. Gait-analysis toolkits report joint angles this way, or decompose $R_{12}$ with a joint-specific Euler sequence chosen so that the singularity is outside the physiological range.
+\end{example}
+
+\subsection{Angular velocity and the kinematics of rotation}\label{sec:rot:angvel}\label{sec:rot:angular-velocity-kinematics}
+For a moving body $R(t)=R_{WB}(t)$, both $\dot RR\T$ and $R\T\dot R$ are skew (\S\ref{sec:rot:lie}), so define
+\[
+\dot R=\skw{\omega_s}R\quad\text{(spatial / world angular velocity)},\qquad \dot R=R\skw{\omega_b}\quad\text{(body angular velocity)}.
+\]
+They are the same physical spin expressed in two frames: by \eqref{eq:rot:conj}, $\skw{\omega_s}=R\skw{\omega_b}R\T=\skw{R\omega_b}$, so $\omega_s=R\,\omega_b$. \emph{Physical meaning:} a body point with fixed body coordinates $\pre{B}{p}$ is at $p(t)=R(t)\pre{B}{p}$ in the world, and $\dot p=\dot R\,\pre{B}{p}=\skw{\omega_s}p=\omega_s\times p$: the familiar ``$v=\omega\times r$''. A gyroscope bolted to the body measures $\omega_b$.
+
+\textbf{Exact integration.} If $\omega_b$ is constant over a step $\Delta t$, then $\dot R=R\skw{\omega_b}$ has the exact solution
+\[
+R_{k+1}=R_k\,\Exp(\omega_b\,\Delta t).
+\]
+Each factor is exactly a rotation, so the product stays on $\SO$ forever, up to round-off.
+
+\begin{figure}[h]
+\centering\includegraphics[width=\linewidth]{gyro.pdf}
+\caption{Integrating a 100\,Hz gyro signal for two minutes. (a) The naive Euler step $R\leftarrow R(I+\skw{\omega}\Delta t)$ leaves $\SO$: each factor has singular values $\sqrt{1+\|\omega\|^2\Delta t^2}>1$, so errors compound geometrically. The exponential update stays orthogonal to machine precision. (b) Why it matters: an IMU must subtract gravity rotated into the body frame. With the naive matrix the rotated gravity vector has the wrong length, so the navigation filter sees phantom accelerations: about $0.01$\,m/s$^2$ after 1\,s and $\approx 10$\,m/s$^2$ after 2 minutes.}
+\label{fig:rot:gyro}
+\end{figure}
+
+\textbf{An honest caveat} from the same simulation: the \emph{attitude} errors (after re-projecting the naive estimate onto $\SO$) were about $0.3$--$0.5^\circ$ for all three methods after 120\,s. That error is dominated by treating $\omega$ as constant during each step, not by the parameterisation. The exponential map removes the structural error (leaving the group). It does not fix sampling or sensor errors; for those, use higher-order schemes (e.g.\ midpoint $\omega$, or pre-integration with coning correction) and a filter.
+
+\subsection{Perturbations, errors and optimisation on $\SO$}\label{sec:rot:perturb}\label{sec:rot:perturbations-errors-optimisation}
+\begin{figure}[h]
+\centering
+\begin{minipage}{0.37\linewidth}\centering\includegraphics[width=\linewidth]{manifold.pdf}\end{minipage}\hfill
+\begin{minipage}{0.6\linewidth}
+\caption{Adding a small vector to a point on a curved surface leaves the surface; walking along the surface in that direction (the exponential) does not. Estimators therefore keep the state $R$ on the group and represent \emph{corrections} as tangent vectors $\delta\in\RR^3$: $R\boxplus\delta=R\,\Exp(\delta)$ (body / right perturbation) or $\Exp(\delta)\,R$ (world / left perturbation). The difference between two rotations is the tangent vector $\delta=\Log(R_1\T R_2)$. Both conventions are valid; mixing them inside one Jacobian is a classic bug.}
+\label{fig:rot:manifold}
+\end{minipage}
+\end{figure}
+
+\begin{deriv}{the Jacobian behind every SLAM / VIO residual}
+How does a rotated point $Rp$ change under a small body-frame correction $\delta$? Use $\Exp(\delta)\approx I+\skw{\delta}$:
+\[
+R\Exp(\delta)p\approx Rp+R(\delta\times p)=Rp-R\skw{p}\,\delta\quad\Longrightarrow\quad\frac{\partial\,(R\Exp(\delta)p)}{\partial\delta}\Big|_{\delta=0}=-R\skw{p}.
+\]
+A Gauss--Newton step then solves for $\delta\in\RR^3$ (an ordinary vector), and updates $R\leftarrow R\,\Exp(\delta)$. No constraints, no singularities, and the state is always a valid rotation. This ``minimal tangent update, full group state'' pattern is the core of GTSAM, Ceres manifolds, Sophus/manif, and error-state Kalman filters.
+\end{deriv}
+
+\begin{example}{measuring rotation error correctly (trajectory evaluation)}
+Ground truth $R_g=\Exp(0.1,-0.2,0.3)$, estimate $R_e=\Exp(0.12,-0.18,0.29)$ (rotation vectors in rad). The geodesic error is
+\[
+e=\Log(R_g\T R_e)=(0.0214,\ 0.0162,\ -0.0130)\ \text{rad},\qquad \|e\|=1.711^\circ .
+\]
+Subtracting the rotation vectors gives $(0.02,0.02,-0.01)$: almost the same length ($1.719^\circ$) but pointing about $10^\circ$ away, since \eqref{eq:rot:bch} only holds to first order. For large rotations the naive difference is meaningless. Two useful identities: the angle can be read from $\tr(R_g\T R_e)=1+2\cos\|e\|$, and the Frobenius (``chordal'') distance is $\|R_g-R_e\|_F=2\sqrt2\sin(\|e\|/2)$ (here $0.04223$, matching). Benchmarks such as the TUM and KITTI odometry metrics compute rotation errors in exactly this geodesic way.
+\end{example}
+
+\begin{example}{averaging rotations (extrinsic calibration)}
+Three calibration runs estimate the camera-to-IMU rotation, nominally $R_0=R_z(90^\circ)R_x(-90^\circ)$, as $R_i=R_0\Exp(\delta_i)$ with $\delta_i=(2,-1,0.5)^\circ,\ (-1,1.5,1)^\circ,\ (0.5,-0.5,-2)^\circ$. What is ``the average''?
+
+\emph{Element-wise mean of matrices:} $M=\frac13\sum R_i$ has $\det M=0.99866$ and $\|M\T M-I\|_F=1.7\times10^{-3}$. It is not a rotation (it shrinks vectors), and for widely spread inputs it degrades badly.
+
+\emph{Intrinsic (Karcher) mean:} find $\bar R$ with $\sum_i\Log(\bar R\T R_i)=0$, i.e.\ the tangent-space errors balance. Iterate
+\[
+\delta\leftarrow\tfrac1N\textstyle\sum_i\Log(\bar R\T R_i),\qquad \bar R\leftarrow\bar R\,\Exp(\delta).
+\]
+Starting from $\bar R=R_1$, the step sizes were $1.92^\circ$, $1.2\times10^{-4}{}^\circ$, $8\times10^{-9}{}^\circ$: converged in two iterations, to $\bar R=R_0\Exp\big((0.500,\,0,\,-0.167)^\circ\big)$. For tightly clustered data this equals the mean of the $\delta_i$, and also the SVD projection of $M$ onto $\SO$ (``chordal mean''). The pattern ``map to tangent space, do Euclidean arithmetic, map back'' is how every statistic (mean, covariance, interpolation, filtering) is done on $\SO$.
+\end{example}

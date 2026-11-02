@@ -1,0 +1,115 @@
+% Chapter 1, section: quaternions
+\section{Unit quaternions}\label{sec:rot:quaternions}
+
+\subsection{Why another representation?}\label{sec:rot:another-representation}
+Rotation matrices: 9 numbers, 6 constraints, 27 multiplications to compose, and re-orthonormalisation is awkward. Euler angles: singular. Rotation vectors: minimal and great for corrections, but composing two of them needs $\Exp$, a product and $\Log$ (with trigonometry each time). Quaternions sit in the sweet spot: 4 numbers, \emph{one} easy constraint ($\|q\|=1$, fixed by dividing by the norm), composition by a 16-multiplication product, no singularities, and a natural geometry for interpolation and averaging. That is why IMU firmware, flight controllers, game engines, ROS \texttt{tf}, and most SLAM front-ends store attitude as a quaternion.
+
+\subsection{Quaternion algebra from one rule}\label{sec:rot:quaternion-algebra-rule}
+Hamilton's rule $i^2=j^2=k^2=ijk=-1$ defines everything. Right-multiplying $ijk=-1$ by $k$ gives $ij(-1)=-k$, so $ij=k$; similarly $jk=i$, $ki=j$, and reversing the order flips the sign ($ji=-k$, etc.). These are exactly the cross-product rules for $e_x,e_y,e_z$, with an extra $-1$ for squares.
+
+Write $q=w+xi+yj+zk=(w,u)$ with scalar part $w$ and vector part $u=(x,y,z)$. For two \emph{pure} quaternions (zero scalar part), expanding with the rules above gives the key identity
+\begin{equation}
+(0,a)(0,b)=(-a\cdot b,\ a\times b).\label{eq:rot:purequat}
+\end{equation}
+The quaternion product packages the dot and cross products into one operation. By bilinearity, the general product is
+\[
+\boxed{(w_1,u_1)\otimes(w_2,u_2)=\big(w_1w_2-u_1\cdot u_2,\ \ w_1u_2+w_2u_1+u_1\times u_2\big)}
+\]
+It is associative but not commutative (because of the $u_1\times u_2$ term), just like rotations.
+
+\textbf{Conjugate, norm, inverse.} $q^*=(w,-u)$; $\ q\otimes q^*=(w^2+\|u\|^2,0)=\|q\|^2$; $\ q^{-1}=q^*/\|q\|^2$. The norm is multiplicative: $\|p\otimes q\|^2=p\,q\,q^*p^*=\|q\|^2\|p\|^2$. So unit quaternions (the 3-sphere $S^3\subset\RR^4$) are closed under multiplication, and for them $q^{-1}=q^*$. The analogy to $\SO$ is exact: unit norm $\leftrightarrow$ orthogonality, conjugate $\leftrightarrow$ transpose.
+
+\subsection{How a unit quaternion rotates a vector, and where the half-angle comes from}\label{sec:rot:unit-quaternion-rotates}
+Embed a vector $v$ as the pure quaternion $(0,v)$ and define $v'$ by the \emph{sandwich product} $(0,v')=q\otimes(0,v)\otimes q^*$.
+
+\begin{deriv}{the sandwich is a rotation, and why $\theta/2$}
+\emph{Step 1: it is a rotation.} The result is pure: $\mathrm{Re}(q\,v\,q^*)=\mathrm{Re}(v\,q^*q)=\mathrm{Re}(v)=0$ (using $\mathrm{Re}(ab)=\mathrm{Re}(ba)$). It preserves length: $\|qvq^*\|=\|v\|$. It is linear in $v$ and equals the identity at $q=1$. A length-preserving linear map connected to the identity is a rotation.
+
+\emph{Step 2: which rotation.} Write $q=(\cos\alpha,\ \sin\alpha\,\nh)=\cos\alpha+\sin\alpha\,\nh$ and split $v=v_\parallel+v_\perp$ relative to $\nh$. From \eqref{eq:rot:purequat}: $\nh\,v_\parallel=-\nh\cdot v_\parallel+0=v_\parallel\,\nh$ (they \emph{commute}), while $\nh\,v_\perp=\nh\times v_\perp=-v_\perp\,\nh$ (they \emph{anticommute}). Therefore
+\begin{align*}
+q\,v_\parallel\,q^*&=v_\parallel\,q\,q^*=v_\parallel &&\text{(the two factors cancel)},\\
+q\,v_\perp\,q^*&=q\,q\,v_\perp=q^2\,v_\perp &&\text{(the two factors add)},
+\end{align*}
+where $v_\perp q^*=v_\perp(\cos\alpha-\sin\alpha\,\nh)=(\cos\alpha+\sin\alpha\,\nh)v_\perp=q\,v_\perp$ was used. Now $q^2=\cos2\alpha+\sin2\alpha\,\nh$ (de Moivre, since $\nh^2=-1$), so
+\[
+q\,v_\perp\,q^*=\cos2\alpha\,v_\perp+\sin2\alpha\,(\nh\times v_\perp).
+\]
+This is Rodrigues' formula with rotation angle $\theta=2\alpha$. To rotate by $\theta$ we must take
+\[
+\boxed{q(\nh,\theta)=\Big(\cos\frac\theta2,\ \ \sin\frac\theta2\,\nh\Big)}
+\]
+\emph{The half angle is there because $q$ acts twice} (once from each side). On the perpendicular component the two half-turns add up to a full $\theta$; on the parallel component they cancel. A one-sided product $q\otimes(0,v)$ rotates $v_\perp$ by only $\theta/2$ and turns $v_\parallel$ into a quaternion with a non-zero scalar part, so the result is not even a vector in $\RR^3$.
+\end{deriv}
+Expanding the sandwich in components gives the explicit form $v'=(w^2-\|u\|^2)v+2(u\cdot v)u+2w\,(u\times v)$.
+
+\subsection{Composition}\label{sec:rot:composition}
+Since $q_1(q_2vq_2^*)q_1^*=(q_1q_2)v(q_1q_2)^*$, quaternions compose in the same order as matrices: $q_{AC}=q_{AB}\otimes q_{BC}$ and $R(q_1\otimes q_2)=R(q_1)R(q_2)$. Pre-multiplication = world axes, post-multiplication = body axes, exactly as in \S\ref{sec:rot:composition-order-multiplication}.
+
+\begin{example}{non-commutativity, computed exactly}
+$q_z=(\tfrac{\sqrt2}2,0,0,\tfrac{\sqrt2}2)$ is $90^\circ$ about $z$; $q_x=(\tfrac{\sqrt2}2,\tfrac{\sqrt2}2,0,0)$ is $90^\circ$ about $x$. With the product formula:
+\[
+q_z\otimes q_x=\big(\tfrac12,\ \underbrace{\tfrac12(1,0,0)+\tfrac12(0,0,1)+\tfrac12(0,1,0)}_{w_1u_2+w_2u_1+u_1\times u_2}\big)=\tfrac12(1,1,1,1),\qquad q_x\otimes q_z=\tfrac12(1,1,-1,1).
+\]
+Reading off $\cos(\theta/2)=\frac12$: both are $120^\circ$ rotations, about $(1,1,1)/\sqrt3$ and $(1,-1,1)/\sqrt3$ respectively; these are the two final boxes in \figref{fig:rot:noncommute}. Check by sandwich: $q_zq_x$ sends $e_y\mapsto e_z$ ($R_x$ takes $y\to z$, then $R_z$ leaves $z$ alone). Note the symmetric axis $(1,1,1)$: a $120^\circ$ turn about it cyclically permutes $x\to y\to z$.
+\end{example}
+
+\subsection{Conversions}\label{sec:rot:conversions}
+\textbf{Quaternion $\to$ matrix.} Apply the sandwich to $e_x,e_y,e_z$ and use $w^2+x^2+y^2+z^2=1$:
+\[
+R(q)=\bmat{1-2(y^2+z^2)&2(xy-wz)&2(xz+wy)\\2(xy+wz)&1-2(x^2+z^2)&2(yz-wx)\\2(xz-wy)&2(yz+wx)&1-2(x^2+y^2)}.
+\]
+\textbf{Matrix $\to$ quaternion.} From the diagonal: $\tr R=3-4(x^2+y^2+z^2)=4w^2-1$, so $w=\frac12\sqrt{1+\tr R}$, then $x=(r_{32}-r_{23})/4w$, $y=(r_{13}-r_{31})/4w$, $z=(r_{21}-r_{12})/4w$. This divides by $w$, which is tiny for rotations near $180^\circ$. \emph{Shepperd's method} fixes that: compute whichever of $w^2,x^2,y^2,z^2$ is largest from the diagonal (e.g.\ $4x^2=1+2r_{11}-\tr R$) and get the other three from off-diagonal sums/differences, dividing by the largest. Every serious library does this.
+
+\textbf{Rotation vector $\leftrightarrow$ quaternion.} $q=\Exp(\varphi)=\big(\cos\frac{\|\varphi\|}2,\ \sin\frac{\|\varphi\|}2\frac{\varphi}{\|\varphi\|}\big)$ and $\varphi=2\,\atantwo(\|u\|,w)\,u/\|u\|$. The $\atantwo$ form is accurate at all angles, unlike $\arccos w$ near $w=\pm1$.
+
+\subsection{Double cover: $q$ and $-q$}\label{sec:rot:double-cover}
+$R(q)$ is quadratic in $q$, so $R(-q)=R(q)$: every rotation has exactly two unit quaternions, at opposite points of $S^3$. Physically, $-q=(\cos\frac{\theta+2\pi}2,\sin\frac{\theta+2\pi}2\nh)$ is ``the same rotation plus one extra full turn''. \figref{fig:rot:quatcover} shows the consequence: as a body turns continuously about a fixed axis, its matrix returns to $I$ after $2\pi$ but its quaternion only after $4\pi$. The 3-sphere $S^3$ is the double cover of $\SO$, and unlike $\SO$ it has no ``glued boundary'', which is why quaternions have no singularity.
+\begin{figure}[h]
+\centering\includegraphics[width=\linewidth]{quat_cover.pdf}
+\caption{(a) Quaternion components for a rotation by $\theta$ about $z$, compared with a rotation-matrix entry. (b) In the $(q_w,q_z)$ plane, $q$ sits at angle $\theta/2$; $-q$ is diametrically opposite and encodes the same rotation.}
+\label{fig:rot:quatcover}
+\end{figure}
+\textbf{Practical rules.} (1) The angle between two orientations is $2\arccos|q_1\cdot q_2|$ (note the absolute value). (2) Before interpolating or blending, flip one quaternion if $q_1\cdot q_2<0$. (3) To average many quaternions, do not sum them; use the eigenvector of $\sum_iq_iq_i\T$ with the largest eigenvalue (Markley's method), which is insensitive to signs. (4) In a Kalman filter, a measured quaternion may arrive with the opposite sign to the state; compute the innovation as $\Log(q_{\text{state}}^*\otimes q_{\text{meas}})$ after enforcing a non-negative scalar part on the product.
+
+\subsection{Quaternion kinematics and IMU integration}\label{sec:rot:quaternion-kinematics-imu}
+With $\dot R=R\skw{\omega_b}$ and $q(t+\Delta t)=q(t)\otimes\Exp(\omega_b\Delta t)\approx q\otimes(1,\tfrac12\omega_b\Delta t)$:
+\[
+\dot q=\tfrac12\,q\otimes(0,\omega_b)=\tfrac12\,(0,\omega_s)\otimes q,\qquad q_{k+1}=q_k\otimes\Big(\cos\frac{\|\omega\|\Delta t}2,\ \sin\frac{\|\omega\|\Delta t}2\,\frac{\omega}{\|\omega\|}\Big).
+\]
+The $\frac12$ is the half-angle again. Renormalise $q$ occasionally to remove round-off (cheap and harmless, unlike orthonormalising a matrix).
+
+\begin{example}{integrating a gyro with quaternions}
+A gyro reports constant $\omega_b=(0.4,-0.2,1.0)$\,rad/s at 200\,Hz. After 200 steps (1\,s) of the update above, $q=(0.8537,\ 0.1901,\ -0.0951,\ 0.4754)$, identical to $\Exp(\omega_b\cdot1\,\text{s})$ to all printed digits: for constant rate the exponential update is exact, regardless of step size. Sanity check: $\|\omega_b\|=1.095$\,rad, and $\cos(1.095/2)=0.8537$.
+\end{example}
+
+\subsection{Interpolation: LERP, NLERP and SLERP}\label{sec:rot:interpolation-lerp-nlerp}
+To move smoothly from $q_0$ to $q_1$ (camera keyframes, animation, trajectory set-points) we want the shortest rotation, traversed at constant angular speed. On $\SO$ that is $q(t)=q_0\otimes\Exp\big(t\Log(q_0^*\otimes q_1)\big)$: compute the relative rotation, take a fraction $t$ of its rotation vector, apply it.
+
+\begin{deriv}{the SLERP formula}
+On $S^3$ the shortest path is a great-circle arc. Let $\cos\Omega=q_0\cdot q_1$ (after flipping $q_1$ if negative). The unit vector in the plane of $q_0,q_1$ orthogonal to $q_0$ is $q_\perp=(q_1-\cos\Omega\,q_0)/\sin\Omega$. Walking an angle $t\Omega$ along the arc:
+\[
+q(t)=\cos(t\Omega)\,q_0+\sin(t\Omega)\,q_\perp=\frac{\sin((1-t)\Omega)\,q_0+\sin(t\Omega)\,q_1}{\sin\Omega}.
+\]
+The physical rotation angle between $q_0$ and $q_1$ is $2\Omega$ (half-angle once more). For $\Omega\to0$ switch to normalised linear interpolation to avoid $0/0$.
+\end{deriv}
+\begin{figure}[h]
+\centering\includegraphics[width=\linewidth]{slerp.pdf}
+\caption{Interpolating from identity to ZYX $(150^\circ,50^\circ,-120^\circ)$. (a) SLERP and NLERP follow the same great-circle path (they overlap); linear interpolation of Euler angles wanders. (b) SLERP has constant angular speed; NLERP (normalised linear interpolation of $q$) has the same path but speeds up in the middle; Euler-angle interpolation turns $232^\circ$ in total to achieve a $153^\circ$ reorientation.}
+\label{fig:rot:slerp}
+\end{figure}
+
+\begin{example}{the sign check matters: yaw across $\pm180^\circ$}
+A ship's heading goes from $170^\circ$ to $-170^\circ$ (a $20^\circ$ turn through south). $q_a=(0.0872,0,0,0.9962)$. Converting $R_z(-170^\circ)$ with a library that enforces $w\ge0$ gives $q_b=(0.0872,0,0,-0.9962)$, and $q_a\cdot q_b=-0.985$. SLERP without the sign check returns the midpoint $(1,0,0,0)$: heading $0^\circ$, i.e.\ it turned $340^\circ$ the long way. With the check ($q_b\to-q_b$) the midpoint is $(0,0,0,1)$: heading $180^\circ$, correct.
+\end{example}
+
+\begin{example}{rolling-shutter / timestamp interpolation}
+A camera's rows are exposed at different times; a row captured 40\% of the way between two IMU-propagated poses needs the orientation at $t=0.4$. Take $q_0$ = the quaternion of ZYX $(20^\circ,5^\circ,-3^\circ)$ $=(0.9833,-0.0333,0.0384,0.1745)$ and $q_1$ = that of ZYX $(32^\circ,2^\circ,1^\circ)$ $=(0.9611,0.0036,0.0192,0.2754)$. Then $\Omega=6.38^\circ$ (a $12.77^\circ$ rotation) and $q(0.4)=(0.9759,-0.0186,0.0308,0.2152)$, i.e.\ ZYX $(24.83^\circ,3.90^\circ,-1.32^\circ)$; its geodesic distance from $q_0$ is exactly $0.4$ of the total. Interpolating the Euler angles linearly would give $(24.8^\circ,3.8^\circ,-1.4^\circ)$: close here only because the rotation is small and far from the singularity, and wrong by degrees for fast motions.
+\end{example}
+
+\subsection{Strengths, limitations and conventions}\label{sec:rot:strengths-limitations-conventions}
+\begin{itemize}
+\item[$+$] Singularity-free, compact, cheap to compose and renormalise; smooth interpolation and averaging; exact integration for constant rates.
+\item[$-$] Not minimal (4 numbers, 1 constraint): an EKF must not put $q$ directly in its error state (the $4\times4$ covariance would be singular). Error-state filters keep $q$ as the nominal state and a 3-vector $\delta\theta$ as the error, $q=\hat q\otimes\Exp(\delta\theta)$.
+\item[$-$] Double cover: sign ambiguity in comparisons, interpolation, averaging and filtering.
+\item[$!$] \textbf{Conventions.} Hamilton ($ij=k$, used here, ROS, Eigen, most of robotics) vs.\ JPL ($ij=-k$, common in older aerospace and some VIO papers): the product formulas differ in the sign of the cross term. Storage order $(w,x,y,z)$ vs.\ $(x,y,z,w)$ differs between libraries, and mixing them silently produces wrong rotations without crashing.
+\end{itemize}

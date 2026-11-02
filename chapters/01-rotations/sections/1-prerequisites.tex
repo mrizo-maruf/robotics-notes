@@ -1,0 +1,70 @@
+% Chapter 1, section: prerequisites
+\section{Prerequisites: the language of 3-D rotation}\label{sec:rot:prerequisites}
+
+\subsection{Vectors are arrows; coordinates are a choice}\label{sec:rot:vectors-are-arrows}
+A vector $v$ (a displacement, a velocity, a gravity direction) exists independently of any frame. Coordinates appear only once we pick an orthonormal, right-handed basis $\{a_x,a_y,a_z\}$:
+\[
+v = v_1 a_x + v_2 a_y + v_3 a_z,\qquad v_i = a_i\cdot v \quad(\text{because } a_i\cdot a_j=\delta_{ij}).
+\]
+So a coordinate is a \emph{projection} onto a basis direction. Hold onto this: every entry of a rotation matrix will turn out to be one of these projections. The same arrow has different coordinate triples $\pre{A}{v}$ and $\pre{B}{v}$ in different frames; most of this chapter is about converting between them.
+
+A \emph{point} is different from a vector: it has a location, so its coordinates depend on the frame's origin as well as its axes. Rotations act identically on both; translations move points but leave vectors (directions) untouched. This distinction becomes the ``1 vs.\ 0'' in homogeneous coordinates (\S\ref{sec:rot:homog}).
+
+\subsection{Dot product, cross product, and the right-hand rule}\label{sec:rot:dot-product-cross}
+\textbf{Dot product} $a\cdot b=\|a\|\|b\|\cos\angle(a,b)$: defined purely by lengths and angles, so any map that preserves lengths and angles preserves dot products. \textbf{Cross product} $a\times b$: the vector perpendicular to both, of length $\|a\|\|b\|\sin\angle(a,b)$, direction given by the right-hand rule. Two facts are used constantly:
+\begin{align}
+a\times(b\times c) &= b\,(a\cdot c) - c\,(a\cdot b) \qquad\text{(``BAC--CAB'')},\label{eq:rot:bac}\\
+R(a\times b) &= (Ra)\times(Rb)\quad\text{for every proper rotation } R. \label{eq:rot:crossrot}
+\end{align}
+Eq.~\eqref{eq:rot:crossrot} holds because the cross product is built from lengths, angles and handedness, and a proper rotation preserves all three. (A mirror reflection preserves lengths and angles but flips handedness, and \eqref{eq:rot:crossrot} then fails by a sign.) It has a useful matrix form. Since $a\times b$ is linear in $b$, there is a matrix $\skw{a}$ with $\skw{a}b=a\times b$ (written out in \S\ref{sec:rot:skew}). Then \eqref{eq:rot:crossrot} gives
+\begin{equation}
+\skw{Ra}\,b=(Ra)\times b = R\big(a\times R\T b\big)=R\skw{a}R\T b\quad\Longrightarrow\quad \boxed{\skw{Ra}=R\skw{a}R\T}. \label{eq:rot:conj}
+\end{equation}
+In words: rotating the axis of a cross product is the same as conjugating its matrix. This identity will reappear in Euler-rate derivations, angular velocity, and the adjoint map.
+
+\subsection{Orthogonal matrices: maps that keep geometry}\label{sec:rot:orthogonal-matrices-maps}
+A square matrix $Q$ is \emph{orthogonal} if $Q\T Q=I$. Three equivalent readings:
+\begin{enumerate}[(i)]
+\item its columns are unit length and mutually perpendicular ($Q\T Q=I$ \emph{is} the table of column dot products);
+\item it preserves dot products: $(Qx)\cdot(Qy)=x\T Q\T Qy=x\cdot y$, hence lengths, distances and angles;
+\item its inverse is free: $Q^{-1}=Q\T$.
+\end{enumerate}
+Taking determinants of $Q\T Q=I$ gives $(\det Q)^2=1$, so $\det Q=\pm1$. $+1$: a proper rotation (handedness kept). $-1$: a rotation combined with a reflection (a left hand becomes a right hand). Physical motions of a rigid body are always $+1$.
+
+\subsection{Active vs.\ passive: one matrix, two readings}\label{sec:rot:active-passive-matrix}
+\begin{figure}[h]
+\centering\includegraphics[width=\linewidth]{active_passive.pdf}
+\caption{(a) A rotation is fully determined by where it sends the basis vectors; those images are its columns. (b) Active reading: the vector moves, the frame is fixed, $p'=Rp$. (c) Passive reading: the vector is fixed, the frame turns by $\theta$; the same physical $p$ now has coordinates $R\T p$ in the new frame.}
+\label{fig:rot:activepassive}
+\end{figure}
+\begin{itemize}
+\item \textbf{Active (alibi):} the object moves. $p' = Rp$ are the new coordinates of the moved vector, in the same frame.
+\item \textbf{Passive (alias):} nothing moves; we re-describe the same vector in a rotated frame. If the frame is rotated by $R$, the coordinates change by $R\T$.
+\end{itemize}
+These are not two different physics; they are inverse readings of the same matrix. In these notes, $R_{AB}$ is read passively as ``convert $B$-coordinates to $A$-coordinates'', which is simultaneously the active rotation that carries $A$'s axes onto $B$'s axes. If you ever get a sign or transpose wrong, it is almost always because the code author used the other reading.
+
+\subsection{World frame vs.\ body frame}\label{sec:rot:world-frame-body}
+The \emph{world} (spatial, fixed, inertial) frame is attached to the environment. The \emph{body} frame is glued to the robot and moves with it. Sensors report in body frames (an IMU measures angular rate and specific force in its own axes; a camera measures pixels in its own optical frame), while maps, goals and gravity live in the world frame. Converting between the two, at every time step, is the main job of rotations in practice.
+
+\subsection{Why 3-D rotations do not commute}\label{sec:rot:3-d-rotations}
+In 2-D every rotation is about the same axis (the one sticking out of the plane), so $R(\alpha)R(\beta)=R(\alpha+\beta)=R(\beta)R(\alpha)$. In 3-D, rotations about \emph{different} axes interfere: the first rotation moves the axis that the second one would have used. \figref{fig:rot:noncommute} shows the same two $90^\circ$ turns applied in opposite orders ending in completely different orientations. Consequences: (a) the order in a product of rotations is meaningful, (b) ``sum of angles'' is meaningless unless the axes agree, (c) the set of rotations cannot be a vector space. Everything in \S\ref{sec:rot:exponential-coordinates} is about dealing with (c) correctly.
+
+\begin{figure}[h]
+\centering\includegraphics[width=0.92\linewidth]{noncommute.pdf}
+\caption{The same two $90^\circ$ rotations about the fixed $X$ and $Z$ axes, in opposite orders. Orange face $=+x$ face of the box, blue $=+z$, green $=+y$. Final orientations differ: $R_zR_x\neq R_xR_z$. (In \S\ref{sec:rot:quaternions} we compute both products: they are $120^\circ$ rotations about $(1,1,1)/\sqrt3$ and $(1,-1,1)/\sqrt3$.)}
+\label{fig:rot:noncommute}
+\end{figure}
+
+\subsection{Vocabulary}\label{sec:rot:vocabulary}
+\begin{center}\small
+\begin{tabular}{@{}lll@{}}\toprule
+Term & What it is & Mathematical object\\\midrule
+Orientation (attitude) & the \emph{state}: how a body frame is turned relative to a reference & $R\in\SO$ (3 DOF)\\
+Rotation & the \emph{operation} that changes orientation (or converts coordinates) & also $R\in\SO$\\
+Position & where the body origin is & $t\in\RR^3$ (3 DOF)\\
+Pose (configuration) & position + orientation & $T\in\SE$ (6 DOF)\\
+Displacement & the relative motion between two poses & $T_1^{-1}T_2\in\SE$\\
+Angular velocity / twist & instantaneous rate of rotation / of rigid motion & $\omega\in\RR^3$ / $\xi\in\RR^6$\\\bottomrule
+\end{tabular}
+\end{center}
+The fact that ``state'' and ``operation'' are the same kind of object is special: an orientation \emph{is} the rotation that takes the reference frame to the body frame. That is why a single group, $\SO$, serves both roles.

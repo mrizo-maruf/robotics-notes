@@ -1,0 +1,36 @@
+% =====================================================================
+%  The book. Build:  make        (or: latexmk -pdf notes.tex)
+%  One chapter only: make ch CH=01-rotations
+%  To add a chapter: make new CH=02-something TITLE="Some title"
+%  then add its \subfile line below.
+% =====================================================================
+\documentclass[10pt,a4paper,oneside]{book}
+\usepackage{notes}
+\usepackage{subfiles}   % chapters compile on their own too
+
+\begin{document}
+
+\frontmatter
+\begin{titlepage}
+\centering
+\vspace*{5cm}
+{\Huge\bfseries Introduction to Robotics\par}
+\vspace{6pt}
+{\Large Extended lecture notes, built from first principles\par}
+\vspace{1.5cm}
+{\large Mukhammadrizo\par}
+\vspace{4pt}
+{\normalsize Graduate Introduction to Robotics\par}
+\vfill
+{\small Compiled \today}
+\end{titlepage}
+
+\tableofcontents
+\subfile{frontmatter/notation}
+
+\mainmatter
+% ---- chapters, in course order --------------------------------------
+\subfile{chapters/01-rotations/chapter}
+% ---- new chapters are inserted above this line (make new) ----
+
+\end{document}

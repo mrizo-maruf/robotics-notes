@@ -1,0 +1,123 @@
+% Chapter 1, section: summary
+\section{Putting it together}\label{sec:rot:summary}
+
+\subsection{Comparing the representations}\label{sec:rot:comparing-representations}
+\begin{center}\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{@{}l c >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}\toprule
+Representation & Numbers & Strength & Limitation & Use it for\\\midrule
+Rotation matrix $R$ & 9 (6 constr.) & transforms vectors directly; composition $=$ product; no ambiguity & redundant; drifts off $\SO$ numerically & applying rotations, transform chains, final computations\\
+Euler / RPY angles & 3 & human-readable, minimal & singular at $\theta=\pm90^\circ$; wrap-around; convention zoo & display, logs, set-points, vehicles far from singularity\\
+Axis--angle $(\nh,\theta)$ & 4 (1 constr.) & clearest geometry; Euler's theorem & axis undefined at $\theta=0$; $\pm$ at $\pi$ & reasoning, joint axes, describing a relative rotation\\
+Rotation vector $\varphi$ & 3 & minimal; a vector space (tangent space) & Log ambiguous near $\pi$; does not add (BCH) & small corrections, errors, optimisation, filtering, averaging\\
+Unit quaternion $q$ & 4 (1 constr.) & singularity-free; cheap composition; SLERP & $q\equiv-q$; not minimal; convention mix-ups & storing and propagating attitude, interpolation\\
+Homogeneous $T$ & 16 (12 used) & composes poses by products; points and directions & redundant; inverse needs $R\T$, $-R\T t$ & frame chains, kinematics, projection\\
+Twist $\xi=(v,\omega)$ & 6 & minimal; velocity and screw axis; vector space & Log ambiguities; frame (body/spatial) must be tracked & velocities, joint axes, PoE, pose optimisation\\\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{How everything connects}\label{sec:rot:everything-connects}
+\begin{center}
+\begin{tikzpicture}[
+  box/.style={draw,rounded corners=2pt,align=center,font=\small,minimum width=2.9cm,minimum height=0.9cm,fill=#1},
+  box/.default=white,
+  lab/.style={font=\scriptsize,align=center,inner sep=1.5pt},
+  ar/.style={-{Stealth[length=2mm]},thick,draw=black!70}]
+\node[box=blue!8] (R) at (0,0) {Rotation matrix\\$R\in\SO$};
+\node[box=green!8] (eul) at (-3.4,2.9) {Euler angles\\$(\psi,\theta,\phi)$};
+\node[box=green!8] (q) at (3.4,2.9) {Unit quaternion\\$q\in S^3$};
+\node[box=green!8] (phi) at (-5.6,0) {Rotation vector\\$\varphi=\theta\nh\in\so\cong\RR^3$};
+\node[box=orange!10] (T) at (0,-2.6) {Pose\\$T=(R,t)\in\SE$};
+\node[box=orange!10] (xi) at (-5.6,-2.6) {Twist\\$\xi\theta=(\rho,\varphi)\in\se\cong\RR^6$};
+\node[box=black!4] (p) at (4.6,-2.6) {points / directions\\$(p,1)$, $(d,0)$};
+% Euler <-> R
+\draw[ar] (eul.south) -- node[lab,anchor=north east,pos=0.45]{$R_z(\psi)R_y(\theta)R_x(\phi)$} ([xshift=-26pt]R.north);
+\draw[ar] ([xshift=-6pt]R.north) -- node[lab,anchor=west,pos=0.72]{atan2\\(singular at $\theta=\pm90^\circ$)} (eul.east);
+% q <-> R
+\draw[ar] ([xshift=6pt]R.north) -- node[lab,anchor=east,pos=0.28]{Shepperd} (q.west);
+\draw[ar] (q.south) -- node[lab,anchor=north west,pos=0.45]{quadratic in $q$\\(sandwich product)} ([xshift=26pt]R.north);
+% phi <-> R
+\draw[ar] ([yshift=5pt]phi.east) -- node[lab,above]{Exp (Rodrigues)} ([yshift=5pt]R.west);
+\draw[ar] ([yshift=-5pt]R.west) -- node[lab,below]{Log (trace, skew part)} ([yshift=-5pt]phi.east);
+% phi -> q
+\draw[ar] (phi.north) .. controls (-6.2,5.6) and (2.6,5.0) .. node[lab,above,pos=0.5]{$q=(\cos\frac\theta2,\ \sin\frac\theta2\,\nh)$} (q.north);
+\draw[ar,dashed] (q.east) to[out=0,in=0,looseness=1.6] node[lab,right]{$q\equiv-q$} ([yshift=-14pt]q.east);
+% pose level
+\draw[ar] (R.south) -- node[lab,right]{add $t$} (T.north);
+\draw[ar] ([yshift=5pt]xi.east) -- node[lab,above]{Exp (with $V$)} ([yshift=5pt]T.west);
+\draw[ar] ([yshift=-5pt]T.west) -- node[lab,below]{Log} ([yshift=-5pt]xi.east);
+\draw[ar] (phi.south) -- node[lab,left]{angular part} (xi.north);
+\draw[ar] (T.east) -- node[lab,above]{acts on} (p.west);
+\end{tikzpicture}
+\end{center}
+Green: parameterisations of $\SO$. Blue: the group itself (what actually acts on vectors). Orange: the same story one level up, for poses. Horizontal arrows on the left are $\Exp/\Log$ between the flat tangent spaces and the curved groups; this is the bridge every estimator, controller and planner crosses.
+
+\subsection{Formula sheet}\label{sec:rot:formula-sheet}
+\begin{center}\small
+\renewcommand{\arraystretch}{1.35}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{3.4cm}X@{}}\toprule
+Skew matrix & $\skw{\omega}v=\omega\times v$;\ \ $\skw{\nh}^2=\nh\nh\T-I$;\ \ $\skw{\nh}^3=-\skw{\nh}$;\ \ $\skw{R\omega}=R\skw{\omega}R\T$\\
+Rodrigues / Exp & $R=I+\sin\theta\skw{\nh}+(1-\cos\theta)\skw{\nh}^2=e^{\skw{\nh}\theta}$\\
+Log & $\theta=\arccos\frac{\tr R-1}2$,\ \ $\skw{\nh}=\frac{R-R\T}{2\sin\theta}$;\ near $\pi$: $\nh\nh\T=\frac{(R+R\T)/2-\cos\theta I}{1-\cos\theta}$\\
+Angular velocity & $\dot R=\skw{\omega_s}R=R\skw{\omega_b}$,\ \ $\omega_s=R\omega_b$;\ \ exact step $R_{k+1}=R_k\Exp(\omega_b\Delta t)$\\
+ZYX Euler & $R=R_z(\psi)R_y(\theta)R_x(\phi)$;\ $\theta=\atantwo(-r_{31},\sqrt{r_{11}^2+r_{21}^2})$, $\psi=\atantwo(r_{21},r_{11})$, $\phi=\atantwo(r_{32},r_{33})$; $\det E=\cos\theta$\\
+Quaternion & $q=(\cos\frac\theta2,\sin\frac\theta2\nh)$;\ $(w_1,u_1)(w_2,u_2)=(w_1w_2-u_1\!\cdot\!u_2,\ w_1u_2+w_2u_1+u_1\!\times\!u_2)$;\ $v'=qvq^*$;\ $\dot q=\frac12q\otimes(0,\omega_b)$;\ angle $=2\arccos|q_1\!\cdot\!q_2|$\\
+SLERP & $q(t)=\frac{\sin((1-t)\Omega)q_0+\sin(t\Omega)q_1}{\sin\Omega}$, $\cos\Omega=q_0\cdot q_1\ge0$ (flip if negative)\\
+Pose & $T_{AB}=\bmat{R_{AB}&t_{AB}\\0&1}$;\ \ $T_{AB}^{-1}=\bmat{R\T&-R\T t\\0&1}$;\ \ $T_{AC}=T_{AB}T_{BC}$\\
+Twist & $[\xi]=\bmat{\skw{\omega}&v\\0&0}$; screw: $\omega=\nh$, $v=-\nh\times q+h\nh$; $T^{-1}\dot T=[\xi_b]$, $\dot TT^{-1}=[\xi_s]$\\
+SE(3) Exp & $e^{[\xi]\theta}=\bmat{e^{\skw{\omega}\theta}&(I\theta+(1-\cos\theta)\skw{\omega}+(\theta-\sin\theta)\skw{\omega}^2)v\\0&1}$\\
+Adjoint & $\Ad_T=\bmat{R&\skw{t}R\\0&R}$ for $\xi=(v,\omega)$;\ \ $\xi_A=\Ad_{T_{AB}}\xi_B$\\
+PoE kinematics & $T(\theta)=e^{[S_1]\theta_1}\cdots e^{[S_n]\theta_n}M$;\ \ $J_i=\Ad_{e^{[S_1]\theta_1}\cdots e^{[S_{i-1}]\theta_{i-1}}}S_i$\\
+Perturbation Jacobians & $\partial(R\Exp(\delta)p)/\partial\delta=-R\skw{p}$;\ \ $\partial(T\Exp(\delta)p)/\partial\delta=R\,[\,I\ |\ -\skw{p}\,]$\\
+Kabsch & $H=\sum p_i'(q_i')\T=USV\T$,\ $R=V\mathrm{diag}(1,1,\det VU\T)U\T$,\ $t=\bar q-R\bar p$\\\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Self-assessment checklist}\label{sec:rot:self-assessment-checklist}
+You understand this chapter if you can do each of these \emph{without notes}, and say why it works:
+\begin{enumerate}[label=\arabic*.,itemsep=1pt]
+\item Explain why 3-D orientation has exactly three degrees of freedom (\S\ref{sec:rot:degrees-freedom-3}), and why every 3-number chart has a singularity (\S\ref{sec:rot:exponential-map-rotation}).
+\item Write $R_{AB}$ from a description of axes by columns, and compose/invert chains without index mistakes (\S\ref{sec:rot:rotation-matrix-first}, \S\ref{sec:rot:composition-order-multiplication}).
+\item Derive the ZYX matrix, the extraction formulas, and the Euler-rate matrix $E$ with $\det E=\cos\theta$ (\S\S\ref{sec:rot:zyx-yaw-pitch}--\ref{sec:rot:euler-angle-rates}).
+\item Explain gimbal lock geometrically (coinciding axes) and algebraically (only $\phi\mp\psi$ survives) (\S\ref{sec:rot:gimbal-lock}).
+\item Derive Rodrigues' formula from the parallel/perpendicular split, and show it equals $e^{\skw{\nh}\theta}$ (\S\S\ref{sec:rot:rodrigues-formula-derived}--\ref{sec:rot:exponential-map-rotation}).
+\item Convert between axis--angle, rotation vector, matrix and quaternion in both directions, including the numerical special cases (\S\ref{sec:rot:logarithm-matrix-back}, \S\ref{sec:rot:conversions}).
+\item Explain why the quaternion has $\theta/2$ and why $q\equiv-q$ (\S\ref{sec:rot:unit-quaternion-rotates}, \S\ref{sec:rot:double-cover}).
+\item Compose and invert homogeneous transforms; project a world point into a camera (\S\ref{sec:rot:homogeneous-coordinates-transformation}).
+\item Explain why $\SO$ and $\SE$ are groups but not vector spaces, and what $\so$, $\se$ represent (tangent spaces of velocities and small corrections) (\S\ref{sec:rot:group}, \S\ref{sec:rot:lie-algebra-space}, \S\ref{sec:rot:twists-velocity-rigid}).
+\item Derive the exponential of a twist and identify pure rotation, pure translation and a general screw (\S\ref{sec:rot:exponential-twist}).
+\item Use the adjoint to move a twist between frames, and the PoE formula for forward kinematics (\S\S\ref{sec:rot:changing-frame-twist}--\ref{sec:rot:forward-kinematics-product}).
+\end{enumerate}
+
+\subsection{Practice problems (answers below)}\label{sec:rot:practice-problems-answers}
+\begin{enumerate}[label=\textbf{P\arabic*.},itemsep=2pt]
+\item Compute $R_x(90^\circ)R_y(90^\circ)$ and $R_y(90^\circ)R_x(90^\circ)$. Where does each send $e_x$?
+\item Orientation 1 is $45^\circ$ about $z$; orientation 2 is $45^\circ$ about $x$. What single rotation angle separates them? (Use quaternions.)
+\item A revolute joint has axis $\nh=e_z$ passing through $(1,2,0)$. Write its unit twist $(v,\omega)$.
+\item Find the axis and angle of $R=\bmat{0&-1&0\\0&0&-1\\1&0&0}$.
+\item Find the quaternion of the same $R$, and identify it as a product of two $90^\circ$ elementary rotations.
+\item Extract ZYX Euler angles from the same $R$. What goes wrong with the generic formulas, and what is the correct answer?
+\item Invert $T=\bmat{R_z(90^\circ)&(1,0,0)\T\\0&1}$.
+\item An IMU is mounted at $r=(0.1,0,0)$\,m from the body origin. The body spins in place at $\omega=(0,0,2)$\,rad/s. What velocity and acceleration does the IMU's location experience, and why does this matter for VIO?
+\end{enumerate}
+
+\textbf{Answers.}
+\begin{enumerate}[label=\textbf{P\arabic*.},itemsep=2pt]
+\item $R_xR_y=\bmat{0&0&1\\1&0&0\\0&1&0}$ sends $e_x\mapsto e_y$; $R_yR_x=\bmat{0&1&0\\0&0&-1\\-1&0&0}$ sends $e_x\mapsto-e_z$. Different, as expected.
+\item $q_1\cdot q_2=\cos^2 22.5^\circ=0.8536$, so the angle is $2\arccos(0.8536)=62.8^\circ$ (same as $\|\Log(R_1\T R_2)\|$). Not $45^\circ+45^\circ$, not $45^\circ\sqrt2$.
+\item $v=-\nh\times q=-(e_z\times(1,2,0))=-(-2,1,0)=(2,-1,0)$, $\omega=(0,0,1)$. Check: the origin, at distance $\sqrt5$ from the axis, moves perpendicular to the lever arm with speed $\sqrt5$.
+\item $\tr R=0\Rightarrow\theta=\arccos(-\tfrac12)=120^\circ$. Skew part: $(r_{32}-r_{23},\,r_{13}-r_{31},\,r_{21}-r_{12})=(1,-1,1)$, divided by $2\sin120^\circ=\sqrt3$: axis $(1,-1,1)/\sqrt3$.
+\item $w=\tfrac12\sqrt{1+\tr R}=\tfrac12$ and $(x,y,z)=(r_{32}-r_{23},\,r_{13}-r_{31},\,r_{21}-r_{12})/(4w)=\tfrac12(1,-1,1)$, so $q=\tfrac12(1,1,-1,1)=q_x\otimes q_z$, i.e.\ $R=R_x(90^\circ)R_z(90^\circ)$, the second box sequence of \figref{fig:rot:noncommute}.
+\item $r_{31}=1\Rightarrow\theta=-90^\circ$: gimbal lock. The generic formulas give $\atantwo(0,0)$ for $\psi$ and $\phi$; most libraries return $0$, i.e.\ $(0,-90^\circ,0)$, which reconstructs a \emph{different} matrix. Correct: only $\phi+\psi=\atantwo(-r_{12},r_{22})=90^\circ$ is determined, e.g.\ $(\psi,\theta,\phi)=(0,-90^\circ,90^\circ)$ or $(30^\circ,-90^\circ,60^\circ)$; both reproduce $R$ exactly.
+\item $R\T=R_z(-90^\circ)$, $-R\T t=-(0,-1,0)=(0,1,0)$: $T^{-1}=\bmat{R_z(-90^\circ)&(0,1,0)\T\\0&1}$. Check: $T^{-1}$ maps $T$'s origin $(1,0,0)$ to $0$.
+\item $v=\omega\times r=(0,0.2,0)$\,m/s and centripetal acceleration $\omega\times(\omega\times r)=(-0.4,0,0)$\,m/s$^2$, even though the body origin is stationary. An accelerometer that is not at the body origin measures these lever-arm terms; a VIO filter must include the IMU--body extrinsic $T_{BI}$ (and, through the adjoint, these $\omega\times r$ terms) or it will interpret rotation as translation.
+\end{enumerate}
+
+\subsection{The essence, in five lines}\label{sec:rot:essence-five-lines}
+\begin{enumerate}[label=\arabic*.,itemsep=1pt]
+\item A rotation matrix is ``the body axes written in reference coordinates''; everything else about $\SO$ follows from that.
+\item Rotations live on a curved 3-D space: they compose by multiplication, never by addition.
+\item Every rotation is a spin about one axis, so $R=\Exp(\theta\nh)$; the flat space of $\theta\nh$ (tangent space, $\so$) is where you add, average, differentiate and optimise.
+\item Quaternions are the double-cover encoding of the same exponential: half angles because they act from both sides, $\pm q$ because the cover is double.
+\item Add translation and the same structure repeats: $T\in\SE$, twists in $\se$, $\Exp$ gives screw motions, the adjoint changes frames, and products of exponentials give robot kinematics.
+\end{enumerate}

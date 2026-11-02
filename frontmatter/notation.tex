@@ -1,0 +1,38 @@
+\documentclass[../notes.tex]{subfiles}
+\begin{document}
+
+\chapter{Conventions and notation}
+\markboth{Conventions and notation}{}
+
+These conventions hold in every chapter. When a chapter needs new notation, it is added here first, so the whole book stays consistent. Most confusion in robotics comes from mismatched conventions, not from hard mathematics.
+
+\section*{Frames and coordinates}
+\begin{itemize}
+\item Frames are written $\{A\},\{B\},\dots$; reserved names: $\{W\}$ world, $\{B\}$ robot base/body, $\{C\}$ camera, $\{I\}$ IMU, $\{E\}$ end-effector. $\pre{A}{p}$ = coordinates of point/vector $p$ expressed in frame $\{A\}$.
+\item $R_{AB}\in\SO$ is the orientation of $\{B\}$ \emph{relative to} $\{A\}$. As a matrix it converts coordinates \emph{from} $B$ \emph{to} $A$: $\pre{A}{p}=R_{AB}\,\pre{B}{p}$. Inner indices cancel: $R_{AC}=R_{AB}R_{BC}$.
+\item Poses: $T_{AB}\in\SE$, with $t_{AB}$ the origin of $\{B\}$ written in $\{A\}$; $\pre{A}{p}=R_{AB}\pre{B}{p}+t_{AB}$.
+\item ROS body convention: $x$ forward, $y$ left, $z$ up. Camera optical convention: $z$ forward, $x$ right, $y$ down.
+\end{itemize}
+
+\section*{Rotations and their parameterisations}
+\begin{itemize}
+\item $\skw{\omega}$: the $3\times3$ skew matrix with $\skw{\omega}v=\omega\times v$. $\Exp:\RR^3\to\SO$ and $\Log:\SO\to\RR^3$ map between rotation vectors and matrices; $e^{(\cdot)}$ is the ordinary matrix exponential.
+\item Euler angles: aerospace/ROS ``RPY'' $R=R_z(\psi)R_y(\theta)R_x(\phi)$: yaw $\psi$, pitch $\theta$, roll $\phi$.
+\item Quaternions: Hamilton ($ij=k$), scalar first, $q=(w,x,y,z)=(w,u)$, product $\otimes$. ROS messages, Eigen's storage and SciPy output use $(x,y,z,w)$.
+\item Angular velocity: $\dot R=\skw{\omega_s}R=R\skw{\omega_b}$ ($s$ = spatial/world, $b$ = body).
+\end{itemize}
+
+\section*{Rigid-body motion}
+\begin{itemize}
+\item Twists are ordered linear-first, $\xi=(v,\omega)\in\RR^6$, as in Murray--Li--Sastry, Barfoot and Sophus. Lynch \& Park (\emph{Modern Robotics}) and GTSAM use $(\omega,v)$; the adjoint blocks swap accordingly.
+\item $[\xi]=\bmat{\skw{\omega}&v\\0&0}\in\se$; $\Ad_T=\bmat{R&\skw{t}R\\0&R}$.
+\item Perturbations are on the right (body frame) unless stated: $R\Exp(\delta)$, $T\Exp(\delta)$.
+\end{itemize}
+
+\section*{General}
+\begin{itemize}
+\item Vectors are columns. $c_\theta=\cos\theta$, $s_\theta=\sin\theta$. Angles in radians in formulas, degrees in examples.
+\item Box types: \textbf{Key idea} (the essence), \textbf{Derivation} (full argument), \textbf{Worked example} (applied, numbers verified in code), \textbf{Pitfall} (what goes wrong in practice), plus plain note boxes.
+\end{itemize}
+
+\end{document}

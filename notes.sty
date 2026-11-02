@@ -1,0 +1,84 @@
+% =====================================================================
+%  notes.sty  --  single source of truth for layout, boxes and macros.
+%  Every chapter uses these. Add a macro here (not in a chapter) when it
+%  will be used in more than one chapter, and document it in
+%  frontmatter/notation.tex.
+% =====================================================================
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{notes}
+
+% ---------- fonts & page ---------------------------------------------
+\RequirePackage[T1]{fontenc}
+\RequirePackage{amsmath,amssymb,amsthm}
+\RequirePackage{mathptmx}                 % Times text + math
+\RequirePackage[a4paper,margin=2cm,top=2.2cm,bottom=2.2cm]{geometry}
+
+% ---------- general ---------------------------------------------------
+\RequirePackage{graphicx,booktabs,array,tabularx,xcolor}
+\RequirePackage[shortlabels]{enumitem}
+\RequirePackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc}
+\RequirePackage[most]{tcolorbox}
+\RequirePackage{titlesec}
+\RequirePackage[font=small,labelfont=bf,skip=3pt]{caption}
+\RequirePackage{fancyhdr}
+\RequirePackage{needspace,multicol}
+\RequirePackage[colorlinks,linkcolor=blue!45!black,urlcolor=blue!45!black,citecolor=blue!45!black]{hyperref}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\setlist{itemsep=1pt,topsep=2pt,parsep=0pt,leftmargin=*}
+
+% ---------- headings --------------------------------------------------
+\titleformat{\chapter}[display]{\bfseries}{\large Chapter \thechapter}{4pt}{\LARGE}[\vspace{2pt}\color{black!40}\rule{\linewidth}{0.6pt}]
+\titlespacing*{\chapter}{0pt}{0pt}{14pt}
+\titleformat{\section}{\Needspace*{14\baselineskip}\large\bfseries}{\thesection}{0.6em}{}[\vspace{-2pt}\color{black!40}\rule{\linewidth}{0.4pt}]
+\titleformat{\subsection}{\Needspace*{6\baselineskip}\normalsize\bfseries}{\thesubsection}{0.6em}{}
+\titleformat{\subsubsection}[runin]{\normalsize\bfseries}{}{0em}{}[.]
+\titlespacing*{\section}{0pt}{12pt}{6pt}
+\titlespacing*{\subsection}{0pt}{9pt}{3pt}
+\titlespacing*{\subsubsection}{0pt}{6pt}{0.6em}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{1}
+
+\pagestyle{fancy}\fancyhf{}
+\renewcommand{\chaptermark}[1]{\markboth{\thechapter.\ #1}{}}
+\fancyhead[L]{\small\leftmark}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\small\thepage}\renewcommand{\headrulewidth}{0pt}}
+
+% ---------- boxes (the only five box types; see CLAUDE.md) ------------
+\tcbset{common/.style={breakable,enhanced,boxrule=0.5pt,arc=1.2pt,left=5pt,right=5pt,top=3pt,bottom=3pt,
+  fonttitle=\bfseries\small,toptitle=1pt,bottomtitle=1pt,before skip=6pt,after skip=6pt}}
+\newtcolorbox{keyidea}[1][]{common,colback=blue!3,colframe=blue!45!black,title={Key idea#1}}
+\newtcolorbox{deriv}[1]{common,colback=black!2,colframe=black!55,title={Derivation: #1}}
+\newtcolorbox{example}[1]{common,colback=green!3,colframe=green!35!black,title={Worked example: #1}}
+\newtcolorbox{pitfall}[1][]{common,colback=red!3,colframe=red!50!black,title={Pitfall#1}}
+\newtcolorbox{noteb}[1]{common,colback=orange!4,colframe=orange!60!black,title={#1}}
+% Where the chapter comes from (slides covered); one per chapter, at the top.
+\newtcolorbox{sourcebox}{common,colback=black!1,colframe=black!25,coltitle=black,title={Lecture source}}
+
+% ---------- math macros (global notation, see frontmatter/notation.tex) -
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\skw}[1]{[#1]_{\times}}
+\newcommand{\so}{\mathfrak{so}(3)}
+\newcommand{\se}{\mathfrak{se}(3)}
+\newcommand{\SO}{SO(3)}
+\newcommand{\SE}{SE(3)}
+\newcommand{\nh}{\hat n}
+\newcommand{\T}{^{\top}}
+\DeclareMathOperator{\Exp}{Exp}
+\DeclareMathOperator{\Log}{Log}
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\Ad}{Ad}
+\DeclareMathOperator{\atantwo}{atan2}
+\newcommand{\pre}[2]{{}^{#1}\!#2}
+\newcommand{\figref}[1]{Fig.~\ref{#1}}
+\newcommand{\bmat}[1]{\begin{bmatrix}#1\end{bmatrix}}
+
+% ---------- figures: each chapter sets its own figs/ path -------------
+% Inside a chapter file use \chapterfigs{01-rotations}.
+\newcommand{\chapterfigs}[1]{\graphicspath{{chapters/#1/figs/}{../#1/figs/}{figs/}}}
+
+\endinput
