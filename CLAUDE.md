@@ -17,7 +17,7 @@ What he asked for, in his words: *extended notes on each idea; derive things, ex
 4. **Write** the section (anatomy below).
 5. **Compute every number** in a worked example in `chapters/<ch>/code/examples.py`, using `code/rigid.py` (extend it when a new primitive is needed). Never hand-compute a number that appears in the text. Cross-check against an independent route (finite differences, `scipy`, a second formula).
 6. **Draw figures** in `chapters/<ch>/code/figs.py` (style from `code/style.py`), output PDF to `chapters/<ch>/figs/`. Render each figure to PNG and look at it before using it; fix clipping and overlapping labels.
-7. **Build and inspect.** Run `make ch CH=<ch>`. It must have 0 errors, 0 undefined references and 0 overfull boxes. Render the new pages to PNG and look at every one. Then run `make` (the whole book) to make sure nothing else broke.
+7. **Build and inspect.** Run `make ch CH=<ch>`. It must have 0 errors and 0 overfull boxes. References into *other* chapters show as ?? in a standalone chapter build; that is expected. Render the new pages to PNG and look at every one. Then run `make` (the whole book): it must have 0 undefined references and nothing else may break.
 8. **Commit and push** to `main` with a message like `ch02: add DH parameters section`. CI rebuilds the PDF at the fixed link (README).
 9. **Report** in 3-5 lines: what was added (section names, pages), anything on the slides that was ambiguous or looked wrong, and what you went beyond the slides with.
 
@@ -44,7 +44,7 @@ Close each chapter with a summary section: a comparison table if relevant, a for
 - **Beyond the slides.** Sparse slides should be filled in from standard references (Lynch & Park, Siciliano et al., Barfoot, Murray-Li-Sastry, Corke, Thrun et al., Hartley & Zisserman), so each section stands alone.
 - **Notation.** Use the book's notation (`frontmatter/notation.tex`), even when the slides differ. New notation goes into `notation.tex` first. New macros used in more than one chapter go in `notes.sty`. Chapter-only macros go at the top of that chapter's `chapter.tex`.
 - **Boxes.** Use only `keyidea`, `deriv`, `example`, `pitfall`, `noteb`.
-- **Labels.** Always `sec:<KEY>:<slug>`, `eq:<KEY>:<slug>`, `fig:<KEY>:<slug>`, where KEY is the chapter key (chapter 2 is `rot`). **Never hard-code a section, equation or figure number**: always `\ref`/`\eqref`/`\figref`.
+- **Labels.** Always `sec:<KEY>:<slug>`, `eq:<KEY>:<slug>`, `fig:<KEY>:<slug>`, where KEY is the chapter key (chapter 1 is `pl`, chapter 2 is `rot`). **Never hard-code a section, equation or figure number**: always `\ref`/`\eqref`/`\figref`.
 - **Font.** 10 pt Times (`mathptmx`), set in `notes.sty`. Do not change layout per chapter.
 
 ## Figures
@@ -64,7 +64,7 @@ chapters/NN-name/    one chapter; NN = chapter number
   chapter.tex        compiles alone; intro + \input of each section.tex
   sections/NN-slug/  one idea: section.tex + MM-slug.tex per subsection
   figs/  code/       generated figure PDFs; figs.py + examples.py
-chapters/01-placeholder/  chapter 1, placeholder (no notes by request)
+chapters/01-planar-motion/  chapter 1: frames, planar poses, pose graphs, twists
 chapters/_template/  copied by `make new`
 code/rigid.py        shared, tested numerics (SO3/SE3/quaternions/...)
 code/style.py        shared figure style

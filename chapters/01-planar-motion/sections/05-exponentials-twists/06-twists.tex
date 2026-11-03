@@ -1,0 +1,45 @@
+\subsection{Twists: naming, scaling and units}\label{sec:pl:twists}
+
+The generator deserves a name and a coordinate vector. A planar \emph{twist} is
+\[
+S=\bmat{v_x\\v_y\\\omega},\qquad [S]=\bmat{0&-\omega&v_x\\\omega&0&v_y\\0&0&0}\in\setwo,
+\]
+linear part first (the book's convention for 3-D twists as well, chapter~\ref{ch:rot}). The set $\setwo$ of all such matrices is a 3-dimensional vector space, the \emph{Lie algebra} of $\SEtwo$. It is the space of velocities of planar rigid motions: by route 2 of \S\ref{sec:pl:exponential-limit}, for any motion $T(\lambda)$ with $T(0)=I$, $\frac{dT}{d\lambda}\big|_0$ has exactly this shape. The components are expressed in the \emph{starting body frame}.
+
+\subsubsection{Unit twists and the motion amount}
+A twist mixes units (metres and radians), so ``unit length'' cannot mean $\|S\|=1$. It means instead that $\lambda$ gets a clean physical meaning:
+\begin{itemize}
+\item \emph{Unit rotational twist}: $\omega=1$. Then $\lambda=\theta$ is the turn angle in radians and $v$ is the displacement per radian (for the left turn, $\hat S=(r,0,1)$, and $|v|=r$ is the turn radius).
+\item \emph{Unit translational twist}: $\omega=0$, $\|v\|=1$. Then $\lambda=d$ is the distance in metres, and $\exp(d[\hat S_p])$ with $\hat S_p=(1,0,0)$ is just $T_x(d)$.
+\end{itemize}
+Any twist factors as $S=\lambda\hat S$ (amount times kind), and $T(\lambda)=\exp([S])=\exp(\lambda[\hat S])$ with $T(0)=I$ and $\frac{dT}{d\lambda}\big|_0=[\hat S]$. Here $\lambda$ is a motion \emph{amount}, not a time. When the robot moves with a constant body velocity twist $\mathcal V=(v_x,v_y,\omega)$ in m/s and rad/s for a time $\Delta t$, the same machinery applies with $S=\mathcal V\Delta t$.
+
+\begin{pitfall}[: scaling the wrong thing]
+A left turn of radius $r$ by angle $\theta$ is $S=\theta\,(r,0,1)=(r\theta,0,\theta)$, not $(r,0,\theta)$. The second has translation part $v=(r,0)$ ``spent'' over the whole turn, i.e.\ a radius of $r/\theta$. For $r=1$, $\theta=\pi/2$ it lands at $(0.637,0.637)$ instead of $(1,1)$, with the correct heading, so a heading-only check will not catch it. This exact bug happened while preparing this section's examples. Always scale the \emph{whole} unit twist.
+\end{pitfall}
+
+\begin{example}{differential-drive odometry: exact, Euler and RK2}
+\emph{Kinematics.} A differential-drive robot has wheels at $y=\pm b/2$ on its axle (track width $b$). Over one encoder interval the wheels roll arc lengths $\Delta s_L$, $\Delta s_R$. The body origin travels the average and the heading changes by the difference over the lever arm:
+\[
+\Delta s=\frac{\Delta s_R+\Delta s_L}{2},\qquad\Delta\theta=\frac{\Delta s_R-\Delta s_L}{b},\qquad S_k=(\Delta s,\,0,\,\Delta\theta).
+\]
+If the wheel speeds are constant during the interval (the usual zero-order-hold assumption), the body twist is constant, and by \S\ref{sec:pl:exponential-limit} the \emph{exact} update is $T_{k+1}=T_k\exp([S_k])$. Its turn centre is $C=J(\Delta s,0)\T/\Delta\theta=(0,\Delta s/\Delta\theta)$, on the axle line, at radius $\frac b2\frac{\Delta s_R+\Delta s_L}{\Delta s_R-\Delta s_L}$.
+
+\emph{Experiment.} A robot with $b=0.30$\,m drives a slalom at $0.6$\,m/s with turn rate $0.8\cos(2\pi t/8\,\text{s})$\,rad/s for 60\,s (36\,m). Three integrators receive the same encoder increments: the exponential; ``Euler'' ($x\mathrel{+}=\Delta s\cos\theta$, $y\mathrel{+}=\Delta s\sin\theta$, then $\theta\mathrel{+}=\Delta\theta$, i.e.\ move, then turn); and ``RK2'' (the same with heading $\theta+\Delta\theta/2$, i.e.\ half-turn, move, half-turn). Ground truth is the continuous motion integrated by an adaptive ODE solver. Maximum position error over the run:
+\begin{center}\small
+\begin{tabular}{@{}lccc@{}}\toprule
+encoder rate & exponential & RK2 & Euler\\\midrule
+50 Hz & exact & 0.017\,cm & 0.59\,cm\\
+10 Hz & exact & 0.42\,cm & 2.9\,cm\\
+2 Hz & exact & 10.5\,cm & 21\,cm\\\bottomrule
+\end{tabular}
+\end{center}
+The exponential is exact at every rate, because it \emph{is} the solution of the ODE when the twist is constant: at 10\,Hz it agrees with the high-accuracy ODE solution to $2\times10^{-7}$\,m, which is the solver's own accuracy. Euler's error grows linearly with the step, and RK2's quadratically, as predicted in \S\ref{sec:pl:exponential-limit}.
+
+\emph{Lesson.} At 50--100\,Hz any of the three is far below wheel slip and calibration errors. But integration error is \emph{systematic}: it does not average out. It matters whenever increments are large: low-rate odometry, keyframe-to-keyframe motion in a pose graph (\S\ref{sec:pl:pose-graphs}), or replaying a long log at a coarse rate. ROS~2's \texttt{diff\_drive\_controller} uses the same exact arc (its \texttt{integrateExact} computes $r=\Delta s/\Delta\theta$ and moves along the circle). It switches to the RK2 update when $|\Delta\theta|<10^{-6}$, because $r=\Delta s/\Delta\theta$ blows up as the arc straightens. The closed form $\exp([S])$ with the series for $V(\theta)$ near $\theta=0$ needs no such branch.
+\end{example}
+\begin{figure}[h]
+\centering\includegraphics[width=\linewidth]{odometry.pdf}
+\caption{Odometry integration with identical encoder data. (a,b) At 2\,Hz, Euler (red) cuts the inside of every bend and drifts. RK2 (green dashed) is close. The exponential lands exactly on the true path at every sample. (c) Error relative to the exact solution: integrator error alone, with no slip or noise.}
+\label{fig:pl:odometry}
+\end{figure}

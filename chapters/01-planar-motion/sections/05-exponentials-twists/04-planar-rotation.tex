@@ -1,0 +1,25 @@
+\subsection{The exponential of a planar rotation}\label{sec:pl:rotation-exp}
+
+Before tackling $\exp(\theta G)$ in full, take its rotation block: what is $e^{\theta J}$? Everything follows from one fact: rotating by $90^\circ$ twice is a half turn,
+\[
+J^2=\bmat{0&-1\\1&0}\bmat{0&-1\\1&0}=\bmat{-1&0\\0&-1}=-I .
+\]
+
+\begin{deriv}{$e^{\theta J}=R(\theta)$ from the power series}
+The powers of $J$ cycle with period four: $J^0=I,\ J^1=J,\ J^2=-I,\ J^3=-J,\ J^4=I,\dots$ So the even powers are multiples of $I$ and the odd powers are multiples of $J$. Group them:
+\begin{align*}
+e^{\theta J}&=I+\theta J+\frac{\theta^2J^2}{2!}+\frac{\theta^3J^3}{3!}+\frac{\theta^4J^4}{4!}+\cdots\\
+&=I\Big(1-\frac{\theta^2}{2!}+\frac{\theta^4}{4!}-\cdots\Big)+J\Big(\theta-\frac{\theta^3}{3!}+\cdots\Big)
+=I\cos\theta+J\sin\theta=\bmat{\cos\theta&-\sin\theta\\\sin\theta&\cos\theta}=R(\theta).
+\end{align*}
+\end{deriv}
+
+\subsubsection{Why it had to come out this way}
+Three equivalent views make the formula unsurprising.
+\begin{itemize}
+\item \emph{Flow.} By route 2 of \S\ref{sec:pl:exponential-limit}, $e^{\theta J}p$ solves $\dot p=Jp$: the velocity is always the radius turned by $90^\circ$, with the same length. Such a point never changes its distance to the origin ($\frac{d}{d\theta}\|p\|^2=2p\T Jp=0$) and moves at unit angular speed. It moves on a circle, at angle $\theta$ after ``time'' $\theta$.
+\item \emph{Complex numbers.} Identify $(x,y)$ with $x+iy$. Multiplying by $i$ maps $x+iy\mapsto -y+ix$, which is exactly $J$. So $J$ \emph{is} $i$ in matrix form, $J^2=-I$ is $i^2=-1$, and the derivation above is Euler's formula $e^{i\theta}=\cos\theta+i\sin\theta$. Planar rotations are multiplications by unit complex numbers, which also explains why they commute.
+\item \emph{3-D.} With $\omega=e_z$, the $3\times3$ skew matrix $\skw{e_z}$ has $J$ as its upper-left block, and Rodrigues' formula (\S\ref{sec:rot:rodrigues-formula-derived}) reduces to the derivation above. The 3-D derivation is the same calculation with the extra axis term $\nh\nh\T$.
+\end{itemize}
+
+Note what the exponential achieves. The generator $\theta J$ is linear in $\theta$ and contains no trigonometry; the sines and cosines appear only through the series. A generator is algebraically simpler than the motion it generates. That simplicity is what makes generators the right objects to estimate, interpolate and differentiate.

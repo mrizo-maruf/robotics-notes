@@ -1,0 +1,52 @@
+\subsection{Logarithms: from a pose back to a twist}\label{sec:pl:logarithms}
+
+The exponential turns a twist into a pose. Estimation needs the reverse: given two poses, which twist carries one into the other? That is the \emph{logarithm}. It exists, but it cannot be unique, because the exponential is not one-to-one.
+
+\subsubsection{Rotations}
+For a rotation $R\in\SOtwo$ we want $L\in\sotwo=\{\theta J\}$ with $\exp(L)=R$. Since $e^{\theta J}=R(\theta)$, the answer is $L=\theta J$, where $\theta$ is \emph{any} angle with $\cos\theta=r_{11}$, $\sin\theta=r_{21}$:
+\[
+L=\log R=\bmat{0&-\theta\\\theta&0},\qquad L\T=-L,\qquad \vex(L)=\theta .
+\]
+Angles differing by $2\pi$ give the same rotation, $R(0)=R(2\pi)=I$: a robot that has spun once on the spot is oriented exactly as before, and the matrix keeps no record of the turn. A logarithm must therefore pick a \emph{branch}. The principal branch is $\theta=\atantwo(r_{21},r_{11})\in(-\pi,\pi]$, the smallest turn that does the job.
+
+\begin{deriv}{the logarithm of a pose, in closed form}
+We want $S=(\rho,\theta)$ (with $\rho=\lambda v$ the translational part) such that $\exp([S])=\bmat{R&t\\0&1}$. By \S\ref{sec:pl:turn-centre}, $\exp([S])=\bmat{R(\theta)&V(\theta)\rho\\0&1}$. So:
+\begin{enumerate}
+\item the rotation fixes $\theta=\atantwo(r_{21},r_{11})$ (choosing the branch here chooses it for everything);
+\item the translation fixes $\rho=V(\theta)^{-1}t$.
+\end{enumerate}
+Inverting $V$ is easy using its factored form \eqref{eq:pl:V-factor}, $V=\frac{2\sin(\theta/2)}{\theta}R(\theta/2)$, because the inverse of a rotation is its transpose:
+\[
+V(\theta)^{-1}=\frac{\theta}{2\sin(\theta/2)}\,R(-\theta/2)=\frac\theta2\cot\frac\theta2\;I-\frac\theta2\,J .
+\]
+It exists whenever $\sin(\theta/2)\neq0$, i.e.\ for all $\theta$ in the principal branch (use $V^{-1}\to I-\frac\theta2J$ as $\theta\to0$). Geometrically: undo the half-turn to get the initial direction, then stretch the chord back to the arc length. The result is $S=\vexa(\log T)=(\rho_x,\rho_y,\theta)$, where $\vexa$ reads off the three independent entries of a matrix in $\setwo$.
+\end{deriv}
+
+\begin{example}{the logarithm does not recover the motion history}
+A robot drives three quarters of a left circle of radius 1\,m: $S=\frac{3\pi}{2}(1,0,1)$. It ends at $t=(-1,1)$ facing $-90^\circ$. The principal logarithm of that pose is
+\[
+\vexa(\log T)=\big(-\tfrac\pi2,\ 0,\ -\tfrac\pi2\big)=\tfrac\pi2\,(-1,0,-1):
+\]
+a quarter turn to the \emph{right}, driving \emph{backwards}, about the same centre $C=(0,1)$ (\figref{fig:pl:log-branch}). Both twists produce the same pose. The logarithm returns the shortest one ($90^\circ$ instead of $270^\circ$; arc length $\pi/2$ instead of $3\pi/2$). \texttt{scipy.linalg.logm} returns the same principal branch. A full circle is worse still: $\exp(2\pi[(1,0,1)])=I$, and its logarithm is $0$. The robot drove $2\pi$\,m and the logarithm reports that it never moved.
+\end{example}
+
+\begin{figure}[h]
+\centering
+\begin{minipage}{0.42\linewidth}\centering\includegraphics[width=\linewidth]{log_branch.pdf}\end{minipage}\hfill
+\begin{minipage}{0.54\linewidth}
+\caption{Two twists, one pose. The robot drove $270^\circ$ forward around $C$ (solid). The principal logarithm of the end pose describes a $90^\circ$ \emph{reverse} arc about the same centre (dashed, intermediate poses faded). Both are valid generators. Only the motion history (time stamps, intermediate poses, or the knowledge that steps are small) can tell them apart.}
+\label{fig:pl:log-branch}
+\end{minipage}
+\end{figure}
+
+\begin{example}{a pose-graph residual}
+In a pose graph (\S\ref{sec:pl:pose-graphs}), an edge stores a measured relative pose $Z_{ab}$ between nodes with estimated poses $T_a,T_b$. The estimate predicts $T_a^{-1}T_b$. The mismatch is the pose $Z_{ab}^{-1}T_a^{-1}T_b$, which is $I$ when estimate and measurement agree. The logarithm turns it into a 3-vector the optimiser can square:
+\[
+e_{ab}=\vexa\big(\log(Z_{ab}^{-1}T_a^{-1}T_b)\big)\in\RR^3 .
+\]
+With $T_a=(2,1,30^\circ)$, $T_b=(2.9,1.6,41^\circ)$ (position in m, heading) and $Z_{ab}=(1.05,0.05,10^\circ)$: the predicted relative pose is $(1.079,0.070,11^\circ)$, and $e_{ab}=(0.0325\,\text{m},\ 0.0139\,\text{m},\ 0.01745\,\text{rad}=1.00^\circ)$. The heading error is just the difference of headings, as it must be in the plane. The translational part is \emph{not} the naive difference $(0.029,0.020)$: it is expressed in the measurement's frame and corrected by $V^{-1}$. For small errors these effects are second order, and $e_{ab}$ behaves like an ordinary vector, which is exactly what least squares needs.
+\end{example}
+
+\begin{pitfall}[: branch jumps]
+The principal logarithm is discontinuous at $\theta=\pm\pi$: an error that drifts from $179^\circ$ to $181^\circ$ jumps to $-179^\circ$. In a residual this is harmless only if errors stay well inside $(-\pi,\pi)$, which they do near convergence but may not with a bad initial guess or a wrong loop closure. Also, \texttt{scipy.linalg.logm} is a general-purpose algorithm: it can return a complex array with tiny imaginary parts and is slow. For $\SEtwo$, use the closed form above with $\atantwo$.
+\end{pitfall}

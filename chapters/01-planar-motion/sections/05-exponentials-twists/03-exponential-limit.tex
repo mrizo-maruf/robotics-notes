@@ -1,0 +1,45 @@
+\subsection{From many small steps to the matrix exponential}\label{sec:pl:exponential-limit}
+
+To turn by a finite angle $\theta$, split it into $n$ identical body-frame steps of $\delta\theta=\theta/n$ and compose them with \eqref{eq:pl:right-compose}:
+\[
+T_n(\theta)=\big(\Delta T_{\theta/n}\big)^n .
+\]
+As $n\to\infty$ the step model stops mattering, and the limit is the exact motion. There are two independent ways to see what that limit is.
+
+\begin{deriv}{route 1: the product limit}
+Every step model from \S\ref{sec:pl:generator} has the form $\Delta T_{\theta/n}=I+\frac{\theta}{n}G+E_n$ with $\|E_n\|\le c/n^2$. For large $n$ this matrix is close to $I$, so its matrix logarithm is defined by the convergent series $\log(I+X)=X-\tfrac12X^2+\dots$, and
+\[
+\log\Delta T_{\theta/n}=\tfrac{\theta}{n}G+O(1/n^2).
+\]
+All $n$ factors are the \emph{same} matrix, so they commute, and $(\Delta T)^n=\exp(n\log\Delta T)$. Therefore
+\[
+T(\theta)=\lim_{n\to\infty}\big(\Delta T_{\theta/n}\big)^n=\lim_{n\to\infty}\exp\!\big(\theta G+O(1/n)\big)=\exp(\theta G),
+\]
+using continuity of $\exp$. With $\Delta T=I+\frac\theta nG$ this is the matrix form of the familiar $\lim(1+\frac xn)^n=e^x$. The proof also shows that the $O(1/n^2)$ details of the step model change the answer only by $O(1/n)$, and not at all in the limit.
+\end{deriv}
+
+\begin{deriv}{route 2: a motion that repeats itself}
+``The same body-frame motion again'' means: going an amount $\lambda$ and then a further amount $\mu$, measured from wherever the robot now is, equals going $\lambda+\mu$. In matrices, $T(\lambda+\mu)=T(\lambda)\,T(\mu)$ with $T(0)=I$, a \emph{one-parameter subgroup}. Differentiate in $\mu$ at $\mu=0$:
+\[
+\frac{dT}{d\lambda}(\lambda)=T(\lambda)\,\frac{dT}{d\mu}(0)=T(\lambda)\,G,\qquad T(0)=I.
+\]
+This is a linear ODE with constant coefficients. The series $\exp(\lambda G)=\sum_k\lambda^kG^k/k!$ solves it (differentiate term by term: $\sum_k\lambda^{k-1}G^k/(k-1)!=\exp(\lambda G)\,G$), and linear ODEs have unique solutions, so $T(\lambda)=\exp(\lambda G)$. Since $G$ commutes with $\exp(\lambda G)$, also $\dot T=GT$: for a motion that repeats itself, the generator is the same whether it is read in the moving body frame or in the starting frame. For general motions the two differ (body and spatial twists, \S\ref{sec:rot:twists-velocity-rigid}).
+\end{deriv}
+
+The two routes say the same thing from different sides: the generator is the \emph{velocity} of the motion at its start, and the exponential is what you get by \emph{flowing} along that velocity while it stays constant in the body frame. To predict a pose after the motion, append it on the right:
+\[
+T_{\text{new}}=T_{\text{current}}\,\exp(\theta G).
+\]
+
+\begin{example}{how fast do step models converge?}
+Quarter turn, $r=1$\,m, so the exact end pose is $\exp(\frac\pi2G)$: position $(1,1)$, heading $90^\circ$. End-point errors after $n$ steps (\figref{fig:pl:step-vs-arc}c):
+\begin{center}\small
+\begin{tabular}{@{}rccc@{}}\toprule
+$n$ & $I+\delta\theta G$ & move, then turn & half-turn, move, half-turn\\\midrule
+1 & 1.15\,m & 1.15\,m & 0.157\,m\\
+16 & 7.99\,cm & 6.94\,cm & 0.57\,mm\\
+1024 & 1.21\,mm & 1.09\,mm & 0.14\,\textmu m\\\bottomrule
+\end{tabular}
+\end{center}
+Fitted slopes between $n=64$ and $1024$ are $-1.00$, $-1.00$ and $-2.00$. The first two are first-order methods. The symmetric step $T_R(\frac{\delta\theta}{2})T_x(\delta s)T_R(\frac{\delta\theta}{2})$ is second-order, because its expansion is symmetric under $\delta\theta\to-\delta\theta$ (it is its own reverse). The even-order error terms that a one-sided split leaves behind therefore cancel. This is exactly the ``RK2'' odometry update used in practice (\S\ref{sec:pl:twists}). The lesson: the exponential is the target every step model is trying to hit, and it is cheap to evaluate exactly (\S\ref{sec:pl:turn-centre}). There is no reason to approximate it.
+\end{example}

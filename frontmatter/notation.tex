@@ -22,6 +22,12 @@ These conventions hold in every chapter. When a chapter needs new notation, it i
 \item Angular velocity: $\dot R=\skw{\omega_s}R=R\skw{\omega_b}$ ($s$ = spatial/world, $b$ = body).
 \end{itemize}
 
+\section*{Planar motion (chapter~\ref{ch:pl})}
+\begin{itemize}
+\item $J=\bmat{0&-1\\1&0}$ is the planar rotation generator ($J^2=-I$; $Jp$ is $p$ turned by $90^\circ$). $R(\theta)=e^{\theta J}\in\SOtwo$. (Chapter~\ref{ch:rot} uses $J$ for Jacobians; the context always makes clear which is meant.)
+\item Planar poses $T=\bmat{R(\theta)&t\\0&1}\in\SEtwo$. Planar twists are linear-first like 3-D ones: $S=(v_x,v_y,\omega)$, $[S]=\bmat{\omega J&v\\0&0}\in\setwo$; $\vexa$ is the inverse of $[\cdot]$. A unit twist $\hat S$ is scaled by a motion amount $\lambda$ (an angle or a distance): $T=\exp(\lambda[\hat S])$.
+\end{itemize}
+
 \section*{Rigid-body motion}
 \begin{itemize}
 \item Twists are ordered linear-first, $\xi=(v,\omega)\in\RR^6$, as in Murray--Li--Sastry, Barfoot and Sophus. Lynch \& Park (\emph{Modern Robotics}) and GTSAM use $(\omega,v)$; the adjoint blocks swap accordingly.

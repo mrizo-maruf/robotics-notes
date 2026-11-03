@@ -1,0 +1,40 @@
+\subsection{One small step: move, then turn}\label{sec:pl:small-step}
+
+\subsubsection{Body-frame increments compose on the right}
+Let $T_k=T_{WB_k}$ be the robot's pose at step $k$. Over the next short interval the robot moves by a displacement $\Delta T=T_{B_kB_{k+1}}$ that is known \emph{in its own body frame}: wheel encoders, an IMU or a motion command never know where the world origin is. Index cancellation (\S\ref{sec:rot:homogeneous-coordinates-transformation}) fixes where $\Delta T$ goes:
+\begin{equation}
+T_{k+1}=T_{WB_{k+1}}=T_{WB_k}\,T_{B_kB_{k+1}}=T_k\,\Delta T.\label{eq:pl:right-compose}
+\end{equation}
+Read it as a map of points: a point with coordinates $p$ in the new body frame has coordinates $\Delta T\,p$ in the old body frame, and $T_k\Delta T\,p$ in the world. A body-frame increment always goes on the \emph{right}. Putting it on the left, $\Delta T\,T_k$, would apply the same numbers as a motion about the \emph{world} origin along \emph{world} axes. That is a different motion as soon as the robot is not at the origin facing $+x$.
+
+\subsubsection{The step as a matrix}
+Write $T_x(d)$ for a pure translation by $d$ along the current body $x$-axis and $T_R(\alpha)$ for a pure rotation by $\alpha$ about the current body origin. A short arc of radius $r$ that turns the heading by $\delta\theta$ has length $\delta s=r\,\delta\theta$. The simplest model of it is ``drive straight $\delta s$, then turn in place by $\delta\theta$'':
+\[
+\Delta T=T_x(\delta s)\,T_R(\delta\theta)=\bmat{1&0&r\,\delta\theta\\0&1&0\\0&0&1}\bmat{\cos\delta\theta&-\sin\delta\theta&0\\\sin\delta\theta&\cos\delta\theta&0\\0&0&1}
+=\bmat{\cos\delta\theta&-\sin\delta\theta&r\,\delta\theta\\\sin\delta\theta&\cos\delta\theta&0\\0&0&1}.
+\]
+The order matters. Read as a chain of frames, $T_x(\delta s)\,T_R(\delta\theta)=T_{B_kB'}\,T_{B'B_{k+1}}$: the left factor is the \emph{first} motion (drive to an intermediate frame $B'$), and the right factor is expressed in $B'$ (pivot about the new position). Pivoting does not move the origin, so the translation column stays $(r\,\delta\theta,0)$. For $T_R(\delta\theta)\,T_x(\delta s)$ (pivot, then drive along the \emph{new} heading) it would be $r\,\delta\theta(\cos\delta\theta,\sin\delta\theta)$.
+
+\begin{deriv}{how far is ``move, then turn'' from the real arc?}
+On the real arc the robot turns about the centre $C=(0,r)$, which lies a distance $r$ to its left in the starting body frame. After turning by $\delta\theta$ it is at angle $\delta\theta$ around that circle:
+\[
+t_{\text{arc}}=C+R(\delta\theta)\,(0,-r)\T=\big(r\sin\delta\theta,\ r(1-\cos\delta\theta)\big),\qquad\text{heading }\delta\theta .
+\]
+The step model puts the robot at $(r\,\delta\theta,0)$ with the same heading. Expanding $\sin\delta\theta=\delta\theta-\delta\theta^3/6$ and $1-\cos\delta\theta=\delta\theta^2/2$:
+\[
+t_{\text{step}}-t_{\text{arc}}=\Big(\tfrac{r\,\delta\theta^3}{6},\ -\tfrac{r\,\delta\theta^2}{2}\Big)+O(\delta\theta^4).
+\]
+The heading is exact, and the position is wrong \emph{sideways} by $r\,\delta\theta^2/2$. Per step the error is second order, so the model is \emph{first-order accurate}. Over a fixed total turn $\theta$ split into $n=\theta/\delta\theta$ steps, the errors add up to $n\cdot O(\delta\theta^2)=O(\theta\,\delta\theta)\to0$ as $\delta\theta\to0$.
+\end{deriv}
+
+\begin{figure}[h]
+\centering\includegraphics[width=\linewidth]{step_vs_arc.pdf}
+\caption{(a) One step of ``move $r\delta\theta$, then turn'' (orange) against the true arc (blue). The heading agrees, but the step model lands $\approx r\delta\theta^2/2$ to the right. (b) Splitting a quarter turn into $n$ such steps: the polygon approaches the arc. (c) End-point error after $n$ steps: first-order steps converge like $1/n$; the symmetric ``half-turn, move, half-turn'' step converges like $1/n^2$ (\S\ref{sec:pl:exponential-limit}).}
+\label{fig:pl:step-vs-arc}
+\end{figure}
+
+With $r=1$\,m the sideways gap is $0.124$\,m for $\delta\theta=0.5$, $5.0$\,mm for $\delta\theta=0.1$ and $0.05$\,mm for $\delta\theta=0.01$. Each tenfold reduction of the step shrinks the error a hundredfold, exactly the $r\,\delta\theta^2/2$ predicted.
+
+\begin{noteb}{On the slide ``finite steps use the exact $\Delta T$''}
+The lecture says that finite steps should use the exact $\Delta T$, with $I+\delta\theta G$ as its first-order approximation. Keep in mind that $T_x(\delta s)T_R(\delta\theta)$ is \emph{exact as a matrix} but is itself only a first-order model of an arc: it is the exact pose for a robot that really drives straight and then pivots. For a robot that drives an arc, the exact step is $\exp(\delta\theta\,G)$ (\S\ref{sec:pl:turn-centre}). All three agree to first order, which is all the limit in \S\ref{sec:pl:exponential-limit} needs.
+\end{noteb}

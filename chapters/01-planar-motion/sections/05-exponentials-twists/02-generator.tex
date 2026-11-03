@@ -1,0 +1,33 @@
+\subsection{The generator: forward motion and turning in one matrix}\label{sec:pl:generator}
+
+For small $\delta\theta$, keep only first-order terms ($\sin\delta\theta\approx\delta\theta$, $\cos\delta\theta\approx1$):
+\begin{equation}
+\Delta T\approx I+\delta\theta\,G,\qquad G=\bmat{0&-1&r\\1&0&0\\0&0&0}.\label{eq:pl:first-order}
+\end{equation}
+$G$ does not depend on the step size. It describes the \emph{kind} of motion (a left turn of radius $r$), while $\delta\theta$ says \emph{how much}. Its two blocks have separate meanings: the upper-left $2\times2$ block is the rotation generator $J$, and the last column $(r,0)$ is the forward displacement per radian of turning.
+
+\begin{deriv}{$G$ is the derivative of the step, and every reasonable step model has the same one}
+Define $G=\frac{d}{d\delta\theta}\Delta T(\delta\theta)\big|_{\delta\theta=0}$. For ``move, then turn'', the product rule at $\delta\theta=0$ (where both factors are $I$) gives
+\[
+\frac{d}{d\delta\theta}\big[T_x(r\delta\theta)T_R(\delta\theta)\big]_{0}=\underbrace{\bmat{0&0&r\\0&0&0\\0&0&0}}_{T_x'(0)\cdot r}+\underbrace{\bmat{0&-1&0\\1&0&0\\0&0&0}}_{T_R'(0)}=G.
+\]
+The derivative of a product at the identity is the \emph{sum} of the derivatives. So ``turn, then move'', ``half-turn, move, half-turn'', and the exact arc all have the same derivative $G$. They differ only at second order. This is why the generator, not any particular step model, is the right description of the motion.
+\end{deriv}
+
+\subsubsection{$J$: rotation as ``turn the radius into the tangent''}
+Rotating a point $p$ by a small angle moves it perpendicular to its radius, by an amount proportional to its distance from the centre:
+\[
+R(\delta\theta)\,p\approx p+\delta\theta\,Jp,\qquad J=\bmat{0&-1\\1&0},\qquad Jp=(-p_y,\,p_x).
+\]
+$Jp$ is $p$ turned by $+90^\circ$: it has the same length ($\|Jp\|=\|p\|$) and is orthogonal ($p\T Jp=-p_xp_y+p_yp_x=0$). So $J$ maps a radius vector to the tangent of the circle through $p$. For $p=(1,0)$, $Jp=(0,1)$: a point on the $x$-axis starts moving straight up. This is the 2-D version of $\omega\times p$ (with $\omega=e_z$), and $J=\skw{e_z}$ restricted to the plane.
+
+\subsubsection{$G$ as a velocity field}
+Apply $G$ to a point in homogeneous coordinates $(p,1)$:
+\begin{equation}
+G\bmat{p\\1}=\bmat{Jp+(r,0)\T\\0}.\label{eq:pl:velocity-field}
+\end{equation}
+The result has a $0$ in the last slot, so it is a \emph{direction}: the velocity, per radian of turning, of the body point at $p$. The origin moves forward at $(r,0)$. A point at $p$ additionally swings around by $Jp$. The point $p=(0,r)$, a distance $r$ to the left, has velocity $J(0,r)+(r,0)=(-r,0)+(r,0)=0$: it is the centre of the turn. \figref{fig:pl:twist-field} draws this field.
+
+\begin{pitfall}[: $I+\delta\theta G$ is not a rigid motion]
+The first-order step has rotation block $\bmat{1&-\delta\theta\\\delta\theta&1}$ with determinant $1+\delta\theta^2>1$. It stretches the plane slightly. Multiplying $n$ of them for a quarter turn gives a rotation block with determinant $3.47$ ($n=1$), $1.17$ ($n=16$), $1.0024$ ($n=1024$). It tends to $1$, but at every finite $n$ the result is not in $\SEtwo$. Use $I+\delta\theta G$ for analysis and Jacobians. To propagate a pose, use the exponential or at least a product of exact rotations and translations.
+\end{pitfall}

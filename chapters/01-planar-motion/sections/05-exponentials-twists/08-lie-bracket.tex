@@ -1,0 +1,34 @@
+\subsection{Twists do not commute: the Lie bracket and parallel parking}\label{sec:pl:lie-bracket}
+
+Twists form a vector space, so they can be added. It is tempting to conclude that $\exp([S_1])\exp([S_2])=\exp([S_1+S_2])$, as for numbers. It is false, and the step model of \S\ref{sec:pl:small-step} already showed it: ``move, then turn'' $=\exp(\delta s[A])\exp(\delta\theta[B])$, with $A=(1,0,0)$ (forward) and $B=(0,0,1)$ (pivot), lands $r\,\delta\theta^2/2$ to the side of the arc $\exp(\delta s[A]+\delta\theta[B])$. The failure has a precise measure.
+
+\begin{deriv}{the commutator of two small motions}
+Drive the four-move loop ``forward $\varepsilon$, turn $\varepsilon$, back $\varepsilon$, turn back $\varepsilon$''. Expand each factor to second order, $e^{\varepsilon X}=I+\varepsilon X+\frac{\varepsilon^2}2X^2+O(\varepsilon^3)$, and multiply:
+\[
+e^{\varepsilon A}e^{\varepsilon B}e^{-\varepsilon A}e^{-\varepsilon B}=I+\varepsilon^2\big(AB-BA\big)+O(\varepsilon^3)=I+\varepsilon^2[A,B]+O(\varepsilon^3).
+\]
+The first-order terms cancel ($+A+B-A-B$). At second order, the four squares contribute $A^2+B^2$, and the six ordered cross terms contribute $AB-A^2-AB-BA-B^2+AB=AB-BA-A^2-B^2$. The squares cancel, and what survives is the \emph{Lie bracket} $[A,B]=AB-BA$. For any two planar twists, block multiplication gives
+\[
+\big[[S_1],[S_2]\big]=\bmat{\omega_1\omega_2J^2-\omega_2\omega_1J^2 & \omega_1Jv_2-\omega_2Jv_1\\0&0}=\bmat{0&\omega_1Jv_2-\omega_2Jv_1\\0&0}.
+\]
+The bracket is always a \emph{pure translation} (planar rotations commute, so the rotation parts cancel). For forward and pivot, $\omega_A=0$, $v_A=(1,0)$, $\omega_B=1$, $v_B=0$: $[A,B]\to-J(1,0)=(0,-1,0)$, i.e.\ \emph{straight sideways}.
+\end{deriv}
+
+This is remarkable: a differential-drive robot can never move sideways, yet a loop of forward and turning moves produces exactly the forbidden direction, at second order in the move size. The same expansion gives the Baker--Campbell--Hausdorff series, $\log(e^Xe^Y)=X+Y+\frac12[X,Y]+\dots$. With $X=\delta s[A]$, $Y=\delta\theta[B]$ and $\delta s=r\delta\theta$, the bracket term $-\frac12r\delta\theta^2$ sideways is precisely the gap between ``move, then turn'' and the true arc found in \S\ref{sec:pl:small-step}.
+
+\begin{example}{parallel parking a differential-drive robot}
+A robot must shift sideways into a docking slot without any lateral motion. One cycle with $\varepsilon=0.2$ (0.2\,m and 0.2\,rad $\approx11.5^\circ$) moves it by $(0.0040,\,-0.0397)$\,m with heading restored exactly. The bracket predicts $\varepsilon^2[A,B]=(0,-0.04)$; the small forward drift is the $O(\varepsilon^3)$ term. Ten cycles give $(0.040,\,-0.397)$\,m: about 40\,cm sideways after driving 4\,m back and forth (\figref{fig:pl:bracket}). For $\varepsilon=0.1$ the net shift is $(0.0005,-0.0100)$: halving $\varepsilon$ quarters the sideways gain, as $\varepsilon^2$ predicts. To shift left, reverse the order of the turns. A car parallel-parks by the same principle, with steering instead of pivoting.
+\end{example}
+
+\begin{figure}[h]
+\centering\includegraphics[width=\linewidth]{bracket.pdf}
+\caption{(a) Forward, turn left, backward, turn right: the four moves do not cancel, and the robot ends up shifted to its right by $\approx\varepsilon^2$ with its original heading. (b) Repeating the cycle walks the robot sideways. This is the Lie bracket $[A,B]$ made physical.}
+\label{fig:pl:bracket}
+\end{figure}
+
+\begin{noteb}{Why this matters beyond parking}
+The bracket decides \emph{reachability}. The velocity twists a differential drive can execute span only $(v_x,0,\omega)$: two of three directions. Their brackets supply the third. Chow's theorem then guarantees that the robot can reach every pose, even though it cannot move in every direction (it is nonholonomic but controllable). Two rotations about different centres $C_1\neq C_2$ also bracket to a pure translation: for unit rotations about $(0,0)$ and $(1,0)$ the bracket is $(1,0,0)$. In 3-D the same bracket appears as $\skw{a}\skw{b}-\skw{b}\skw{a}=\skw{a\times b}$ (\S\ref{sec:rot:lie-algebra-space}). It is the reason rotation vectors add only to first order.
+\end{noteb}
+
+\subsubsection{Where this goes next}
+Every idea in this section carries over to 3-D with the same proofs: $J$ becomes $\skw{\omega}$, $V(\theta)$ gains an axis term, the turn centre becomes Chasles' screw axis, and the logarithm still picks the shortest generator. Chapter~\ref{ch:rot} develops this in \S\S\ref{sec:rot:exponential-map-rotation}--\ref{sec:rot:lie-algebra-space} (rotations) and \S\S\ref{sec:rot:chasles-theorem-every}--\ref{sec:rot:exponential-twist} (twists).

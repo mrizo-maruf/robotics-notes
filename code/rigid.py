@@ -135,3 +135,70 @@ def Ad(M):
     return A
 
 deg = np.pi / 180
+
+
+# ===================================================================== SE(2)
+# Planar twists are ordered linear-first, S = (v_x, v_y, omega), as in 3-D.
+J2 = np.array([[0.0, -1.0], [1.0, 0.0]])  # planar rotation generator, J @ J = -I
+
+
+def R2(th):
+    c, s = np.cos(th), np.sin(th)
+    return np.array([[c, -s], [s, c]])
+
+
+def T2(th, t):
+    M = np.eye(3)
+    M[:2, :2] = R2(th)
+    M[:2, 2] = t
+    return M
+
+
+def hat2(S):
+    """(v_x, v_y, w) -> 3x3 element of se(2)."""
+    vx, vy, w = S
+    return np.array([[0.0, -w, vx], [w, 0.0, vy], [0.0, 0.0, 0.0]])
+
+
+def vee2(M):
+    """'vexa': 3x3 element of se(2) -> (v_x, v_y, w)."""
+    return np.array([M[0, 2], M[1, 2], M[1, 0]])
+
+
+def V2(th):
+    """Translation coupling of the SE(2) exponential: (sin th/th) I + ((1-cos th)/th) J."""
+    if abs(th) < 1e-6:
+        a, b = 1 - th**2 / 6, th / 2 - th**3 / 24
+    else:
+        a, b = np.sin(th) / th, (1 - np.cos(th)) / th
+    return a * np.eye(2) + b * J2
+
+
+def V2inv(th):
+    """(th/2) cot(th/2) I - (th/2) J ; valid for |th| < 2 pi."""
+    if abs(th) < 1e-6:
+        c = 1 - th**2 / 12
+    else:
+        c = (th / 2) / np.tan(th / 2)
+    return c * np.eye(2) - (th / 2) * J2
+
+
+def ExpSE2(S):
+    """Closed-form exp([S]) for S = (v_x, v_y, w)."""
+    v, w = np.asarray(S[:2], float), float(S[2])
+    return T2(w, V2(w) @ v)
+
+
+def LogSE2(M):
+    """Principal logarithm: heading in (-pi, pi]."""
+    th = np.arctan2(M[1, 0], M[0, 0])
+    v = V2inv(th) @ M[:2, 2]
+    return np.array([v[0], v[1], th])
+
+
+def T2inv(M):
+    R, t = M[:2, :2], M[:2, 2]
+    out = np.eye(3)
+    out[:2, :2] = R.T
+    out[:2, 2] = -R.T @ t
+    return out

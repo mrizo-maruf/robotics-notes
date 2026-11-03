@@ -38,6 +38,6 @@ chapters/NN-name/                one chapter (NN = chapter number)
   sections/NN-idea/MM-sub.tex    one sub-idea (~10-60 lines)
 ```
 
-Chapter 1 is a placeholder; chapter 2 is rotations and rigid-body motion.
+Chapter 1 is frames and planar rigid-body motion; chapter 2 is 3-D rotations and rigid-body motion.
 
 See the "Layout" section of `CLAUDE.md`. Slides are not stored in the repo.

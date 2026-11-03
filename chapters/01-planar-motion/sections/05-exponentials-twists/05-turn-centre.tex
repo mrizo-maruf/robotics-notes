@@ -1,0 +1,53 @@
+\subsection{The exponential of a full twist, and the turn centre}\label{sec:pl:turn-centre}
+
+Now the whole generator. Write a general planar generator as $[S]=\bmat{\omega J&v\\0&0}$, with $v=(v_x,v_y)$ the initial velocity of the body origin and $\omega$ the turn rate, both per unit of motion amount. The left turn of radius $r$ is $v=(r,0)$, $\omega=1$, i.e.\ $[S]=G$. We derive $\exp(\lambda[S])$ twice, once by algebra and once by geometry, because each derivation explains something the other hides.
+
+\begin{deriv}{route 1: the series, block by block}
+Block-multiplying shows that powers keep the same shape, $[S]^k=\bmat{(\omega J)^k&(\omega J)^{k-1}v\\0&0}$ for $k\ge1$: the bottom row of zeros kills every term that would feed the translation back into itself. Summing the series with $\theta=\lambda\omega$ (the total turn):
+\[
+\exp(\lambda[S])=\bmat{e^{\theta J}&\lambda\,V(\theta)\,v\\0&1},\qquad V(\theta)=\sum_{k\ge0}\frac{(\theta J)^k}{(k+1)!}.
+\]
+Split $V$ into even and odd powers exactly as in \S\ref{sec:pl:rotation-exp}:
+\[
+V(\theta)=I\Big(1-\frac{\theta^2}{3!}+\frac{\theta^4}{5!}-\cdots\Big)+J\Big(\frac{\theta}{2!}-\frac{\theta^3}{4!}+\cdots\Big)=\frac{\sin\theta}{\theta}\,I+\frac{1-\cos\theta}{\theta}\,J .
+\]
+For the left turn ($v=(r,0)$, $\omega=1$, $\lambda=\theta$):
+\[
+t(\theta)=\theta V(\theta)\bmat{r\\0}=\bmat{r\sin\theta\\r(1-\cos\theta)},\qquad
+T(\theta)=\bmat{\cos\theta&-\sin\theta&r\sin\theta\\\sin\theta&\cos\theta&r(1-\cos\theta)\\0&0&1}.
+\]
+For $r=1$\,m and $\theta=\pi/2$: position $(1,1)$\,m, heading $90^\circ$. This is the exact arc from \S\ref{sec:pl:small-step}, now produced by the generator alone. At $\theta\to0$, use the series ($V\to I$) instead of dividing by $\theta$.
+\end{deriv}
+
+\begin{deriv}{route 2: every planar motion with $\omega\neq0$ is a rotation about one fixed point}
+By \eqref{eq:pl:velocity-field} the body point at $p$ moves with velocity $\omega Jp+v$. Look for the point that does not move:
+\[
+\omega JC+v=0\quad\Longrightarrow\quad C=-\tfrac1\omega J^{-1}v=\tfrac1\omega Jv\qquad(J^{-1}=-J).
+\]
+Equivalently $v=-\omega JC=\omega(c_y,-c_x)$. Because the twist is constant in the body frame, and $C$ is fixed in the body frame, $C$ stays fixed for all $\lambda$. The motion is therefore a pure rotation about $C$ by $\theta=\lambda\omega$. Writing ``rotate about $C$'' as ``shift $C$ to the origin, rotate, shift back'', with $T_C$ the translation by $C$:
+\[
+T(\theta)=T_C\,T_R(\theta)\,T_C^{-1}=\bmat{R(\theta)&C-R(\theta)C\\0&1},\qquad t(\theta)=(I-R(\theta))\,C .
+\]
+For the left turn $C=J(r,0)=(0,r)$, and $t(\pi/2)=(0,r)-(-r,0)=(r,r)$, the same answer. The two routes agree in general because $\theta V(\theta)=\sin\theta\,I+(1-\cos\theta)J=(I-R(\theta))J$, which is checked by expanding $R(\theta)J=\cos\theta J-\sin\theta I$.
+\end{deriv}
+
+\begin{figure}[h]
+\centering\includegraphics[width=\linewidth]{twist_field.pdf}
+\caption{The velocity field $\omega Jp+v$ of three twists, with the motion $\exp(\lambda[S])$ of the robot. (a) Left turn: every body point circles $C=(0,1)$. (b) A twist with sideways velocity (an omnidirectional base): the centre moves to $C=(-0.4,0.6)$, still at $Jv/\omega$. (c) $\omega=0$: the centre is at infinity, and every point moves the same way.}
+\label{fig:pl:twist-field}
+\end{figure}
+
+\subsubsection{What this says}
+In the plane, \emph{every} rigid motion is either a rotation about a single point (when $\omega\neq0$) or a pure translation (when $\omega=0$, the limit $C\to\infty$). This is the planar case of Chasles' theorem (\S\ref{sec:rot:chasles-theorem-every}); in the plane there is no room for the extra slide along the axis. It also explains the slide's warning that $t(\theta)$ need not equal $\theta v$. The vector $v$ is only the \emph{initial} direction of the origin, and the origin then curves around $C$. After a half turn ($r=1$, $\theta=\pi$) the robot is at $t=(0,2)$, while $\theta v=(\pi,0)$ points the wrong way entirely. $V(\theta)$ is the matrix that converts the ``straight-line'' displacement $\lambda v$ into the true chord. Using the half-angle identities $\sin\theta=2\sin\frac\theta2\cos\frac\theta2$ and $1-\cos\theta=2\sin^2\frac\theta2$, it factors as
+\begin{equation}
+V(\theta)=\frac{2\sin(\theta/2)}{\theta}\;R(\theta/2).\label{eq:pl:V-factor}
+\end{equation}
+The scalar is (chord length)/(arc length) for an arc of angle $\theta$, and $R(\theta/2)$ turns the initial direction to the chord's direction, which is half the total turn. For the quarter turn, $V=0.900\,R(45^\circ)$: the arc of length $\pi/2$ becomes a chord of length $0.900\cdot\pi/2=\sqrt2$ pointing at $45^\circ$.
+
+\begin{example}{where is the instantaneous centre of rotation?}
+A differential-drive robot commands $v=0.4$\,m/s, $\omega=0.5$\,rad/s, i.e.\ body twist $(0.4,0,0.5)$ per second. Its turn centre is $C=Jv/\omega=(0,0.8)$\,m: on the wheel axle line, $0.8$\,m to the left. A mecanum or omni-wheel base can also command $v_y$. The twist $(0.3,0.2,0.5)$ has $C=(-0.4,0.6)$\,m, radius $0.721$\,m, behind and to the left. Both satisfy $v+\omega JC=0$ exactly.
+\end{example}
+
+\begin{pitfall}[: the centre must lie where the wheels allow it]
+A differential drive cannot move sideways, so its twist always has $v_y=0$ and $C$ lies on the axle line. A car-like (Ackermann) vehicle can only turn about points on the extension of its rear axle. A planner that outputs twists with $v_y\neq0$ for such a robot is asking for an instantaneous centre the wheels cannot produce: the robot will skid or the controller will saturate. Checking where $C=Jv/\omega$ lies is a one-line sanity test for any commanded twist.
+\end{pitfall}
