@@ -1,0 +1,26 @@
+\subsection{Where the edges come from: URDF, joints and static publishers}\label{sec:rot:tf-urdf}
+
+Most edges in a tree are not published by hand. \texttt{robot\_state\_publisher} reads the robot's URDF and turns each joint into an edge \texttt{parent\_link}$\to$\texttt{child\_link}. Each URDF joint carries an \texttt{<origin xyz rpy>} (the joint frame relative to the parent link) and, for movable joints, an \texttt{<axis>}. The edge is the product-of-exponentials step of \S\ref{sec:rot:forward-kinematics-product}, one joint at a time:
+\[
+T_{\text{parent},\text{child}}(q)=T_{\text{origin}}\;\exp\!\big(q\,[\hat S]\big),\qquad
+\hat S=\begin{cases}(0,\ \hat a)&\text{revolute}\\(\hat a,\ 0)&\text{prismatic}\end{cases}
+\]
+with $\hat a$ the joint axis in the joint frame (twists linear-first). Fixed joints have no exponential and are published once on \texttt{/tf\_static}. Movable joints are recomputed from \texttt{/joint\_states} and published on \texttt{/tf}. The static topic uses \texttt{TRANSIENT\_LOCAL} durability (``latched''), so a node that starts later still receives every static edge. This is visible in the QoS of the FreiCAR system below.
+
+\begin{deriv}{URDF and tf2 ``rpy'' are this book's ZYX Euler angles}
+URDF specifies \texttt{rpy} as rotations about the \emph{fixed} axes: first roll about $x$, then pitch about $y$, then yaw about $z$. By \S\ref{sec:rot:zyx-yaw-pitch}, extrinsic $x$--$y$--$z$ equals intrinsic $z$--$y'$--$x''$, so
+\[
+R=R_z(\text{yaw})\,R_y(\text{pitch})\,R_x(\text{roll}).
+\]
+tf2's \texttt{Quaternion::setRPY(roll, pitch, yaw)} implements the same thing in half-angle form: comparing its formula with $R_z R_y R_x$ on 500 random triples gives agreement to $9\times10^{-16}$. All of \S\ref{sec:rot:euler-angles} applies, including gimbal lock at pitch $\pm90^\circ$.
+\end{deriv}
+
+\begin{example}{adding a camera's optical frame}
+A camera link follows REP~103 ($x$ forward, $y$ left, $z$ up). Its image data follows the optical convention, which REP~103 assigns to a frame with suffix \texttt{\_optical} ($z$ forward, $x$ right, $y$ down). The rotation between them is the $R_{BC}$ built column by column in the example of \S\ref{sec:rot:rotation-change-coordinates}. As roll-pitch-yaw it is $(-\pi/2,\,0,\,-\pi/2)$. Checked numerically: \texttt{setRPY}$(-\pi/2,0,-\pi/2)$ gives exactly $\bmat{0&0&1\\-1&0&0\\0&-1&0}$. On the command line:
+\begin{verbatim}
+ros2 run tf2_ros static_transform_publisher --x 0 --y 0 --z 0 \
+  --roll -1.5708 --pitch 0 --yaw -1.5708 \
+  --frame-id camera_link --child-frame-id camera_link_optical
+\end{verbatim}
+Image detections must be stamped in \texttt{camera\_link\_optical}, not \texttt{camera\_link}. Mixing the two produces the classic ``everything is rotated by $90^\circ$'' bug.
+\end{example}

@@ -1,0 +1,21 @@
+\subsection{In practice and in learning: quaternion conventions and the 6D representation}\label{sec:rot:quat-in-practice}
+
+\subsubsection{Same quaternion, three storage orders}
+The algebra of this section is universal; the memory layout is not.
+\begin{center}\small
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{5.2cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{3.6cm}@{}}\toprule
+where & order & note\\\midrule
+this book, Hamilton & $(w,x,y,z)$ & scalar first\\
+ROS messages (\texttt{geometry\_msgs/Quaternion}) & $(x,y,z,w)$ & default $(0,0,0,1)$ is the identity\\
+Eigen & constructor $(w,x,y,z)$; \texttt{coeffs()} returns $(x,y,z,w)$ & both in one class\\
+SciPy \texttt{Rotation.as\_quat()} & $(x,y,z,w)$ by default; \texttt{scalar\_first=True} gives $(w,x,y,z)$ & checked on SciPy 1.18\\\bottomrule
+\end{tabularx}
+\end{center}
+tf2 interpolates rotations with exactly the SLERP of \S\ref{sec:rot:interpolation-lerp-nlerp}, including the sign check: its \texttt{Quaternion::slerp} negates one input when $q_0\cdot q_1<0$ (\S\ref{sec:rot:tf-time}).
+
+\subsubsection{Why neural networks do not output quaternions}
+Networks that predict orientations (object pose estimation, camera relocalisation, robot policies) need an output representation $f:\SO\to\RR^d$ that is \emph{continuous}. If two nearly equal rotations can have far-apart targets, regression has to learn a jump, and smooth networks are bad at jumps. Zhou et al.\ (\emph{On the Continuity of Rotation Representations in Neural Networks}, CVPR 2019) show that every representation in $\RR^4$ or fewer dimensions is discontinuous somewhere. Euler angles fail at the wrap-around and at gimbal lock (\S\ref{sec:rot:euler-angles}). Quaternions fail because of the double cover (\S\ref{sec:rot:double-cover}): to make the output unique one must pick a hemisphere, e.g.\ $w\ge0$, and rotations near $180^\circ$ then sit on the cut. Their fix is to output the first two columns of $R$ (6 numbers) and recover $R$ by Gram--Schmidt. That map is continuous everywhere, because the columns of $R$ \emph{are} the rotated axes (\S\ref{sec:rot:rotation-matrix-first}).
+
+\begin{example}{two rotations $1^\circ$ apart, two quaternions far apart}
+$R_z(179.5^\circ)$ and $R_z(-179.5^\circ)$ differ by a $1^\circ$ rotation. With the $w\ge0$ convention their quaternions are $(0.0044,0,0,1.000)$ and $(0.0044,0,0,-1.000)$: Euclidean distance $2.00$, the maximum possible between unit quaternions. A network trained with an $L_2$ loss on such targets is told that a $1^\circ$ change is the largest error there is. The sign-invariant distance $1-|q_1\cdot q_2|=3.8\times10^{-5}$ is small, as it should be, and so is the 6D distance between the first two columns, $0.025$. The lesson for training: use a loss that is a function of the rotation, not of its encoding (geodesic $\|\Log(R_1\T R_2)\|$, chordal $\|R_1-R_2\|_F$, or $1-|q_1\cdot q_2|$), and a continuous output such as 6D. Diffusion Policy (Chi et al., RSS 2023), for example, converts end-effector orientations to this 6D representation in its code (\texttt{rotation\_transformer.py}).
+\end{example}

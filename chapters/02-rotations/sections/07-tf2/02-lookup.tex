@@ -1,0 +1,37 @@
+\subsection{A lookup is index cancellation}\label{sec:rot:tf-lookup}
+
+\begin{deriv}{the lookup algorithm, from \S\ref{sec:rot:homogeneous-coordinates-transformation}}
+Let $a$ be the lowest common ancestor of the source frame $s$ and the target frame $g$. Walking from $s$ up to $a$ through $s\to s_1\to\dots\to a$ and chaining the edges (inner indices cancel) gives
+\[
+T_{a s}=T_{a\,s_k}\cdots T_{s_2 s_1}\,T_{s_1 s},
+\]
+and likewise $T_{a g}$ from the target side. Then $T_{gs}=T_{ga}\,T_{as}=T_{ag}^{-1}\,T_{as}$. That is the entire algorithm. It costs one product per edge on the path plus one inverse, and the inverse is free in closed form: $T^{-1}=\bmat{R\T&-R\T t\\0&1}$ (\S\ref{sec:rot:homogeneous-coordinates-transformation}).
+\end{deriv}
+
+The source of tf2 does exactly this. \texttt{BufferCore::walkToTopParent} first walks from the source towards the root, accumulating \texttt{source\_to\_top}, then from the target, accumulating \texttt{target\_to\_top} until it meets a frame on the source's chain. Its \texttt{TransformAccum::finalize} for the general (\texttt{FullPath}) case computes
+\begin{center}\small
+\texttt{result\_quat = inv\_target\_quat * source\_to\_top\_quat}, \quad
+\texttt{result\_vec = quatRotate(inv\_target\_quat, source\_to\_top\_vec) + inv\_target\_vec},
+\end{center}
+which is $T_{ag}^{-1}T_{as}$ written as a quaternion product plus the rotated translation, the $\SE$ product rule of \S\ref{sec:rot:homogeneous-coordinates-transformation} in quaternion form. Two special cases skip the inverse: the target is an ancestor of the source (\texttt{TargetParentOfSource}), or the reverse. In Python, \texttt{tf2\_geometry\_msgs.do\_transform\_point} applies the result by building the $4\times4$ homogeneous matrix and multiplying it with $(p,1)$.
+
+\begin{example}{transforming a lidar point with tf2 (and without it)}
+\begin{verbatim}
+import rclpy, numpy as np
+from rclpy.node import Node
+from tf2_ros import Buffer, TransformListener
+from tf2_geometry_msgs import do_transform_point
+
+class Listener(Node):
+    def __init__(self):
+        super().__init__("lidar_to_base")
+        self.buf = Buffer()                        # 10 s history by default
+        self.tl = TransformListener(self.buf, self)  # subscribes /tf, /tf_static
+
+    def to_base(self, pt):                         # pt: geometry_msgs/PointStamped
+        T = self.buf.lookup_transform(              # T_(base_link, lidar) at pt's stamp
+            "freicar_1/base_link", pt.header.frame_id, pt.header.stamp)
+        return do_transform_point(pt, T)
+\end{verbatim}
+For a whole point cloud, take the matrix once and multiply in numpy: with \texttt{T.transform.rotation} converted from $(x,y,z,w)$ to $R$, $P_{\text{base}}=P_{\text{lidar}}R\T+t\T$ for an $N\times3$ array. Use the cloud's own \texttt{header.stamp}, not ``now'' (\S\ref{sec:rot:tf-time}). The book's \texttt{code/tf\_mini.py} re-implements the buffer in about 100 lines from \texttt{rigid.py} and reproduces every lookup in this section.
+\end{example}

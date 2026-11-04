@@ -145,3 +145,14 @@ Mk = np.linalg.matrix_power(expm(eps * A) @ expm(eps * B) @ expm(-eps * A) @ exp
 print(f"{K} cycles eps={eps}: net pose {Mk[0,2]:.4f}, {Mk[1,2]:.4f}, heading {np.degrees(np.arctan2(Mk[1,0],Mk[0,0])):.3f} deg; distance driven {4*eps*K/2:.1f} m forward+back, rotation {2*eps*K:.1f} rad")
 print("bracket of two unit rotations about C1=(0,0), C2=(1,0):",
       vee2(hat2([0, 0, 1]) @ hat2(np.r_[-J2 @ [1, 0], 1]) - hat2(np.r_[-J2 @ [1, 0], 1]) @ hat2([0, 0, 1])))
+
+# ------------------------------------------------------------------ 5.9 in practice: Dubins LSL from exponentials
+print("\n=== Dubins LSL path as a product of exponentials (r = 0.4 m) ===")
+r = 0.4
+L = lambda a: ExpSE2(a * np.array([r, 0, 1.0]))     # left arc by angle a
+S_ = lambda d: ExpSE2(d * np.array([1.0, 0, 0]))    # straight by distance d
+Rr = lambda a: ExpSE2(a * np.array([r, 0, -1.0]))   # right arc by angle a
+M = L(np.pi / 2) @ S_(1.0) @ L(np.pi / 2)
+print("LSL(90deg, 1 m, 90deg): end", M[:2, 2], "heading", np.degrees(np.arctan2(M[1, 0], M[0, 0])), " length", r * np.pi / 2 * 2 + 1.0)
+M2 = L(np.pi / 2) @ S_(1.0) @ Rr(np.pi / 2)
+print("LSR(90deg, 1 m, 90deg): end", M2[:2, 2], "heading", np.degrees(np.arctan2(M2[1, 0], M2[0, 0])))

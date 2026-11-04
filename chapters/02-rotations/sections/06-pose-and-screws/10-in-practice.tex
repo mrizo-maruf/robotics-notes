@@ -1,0 +1,11 @@
+\subsection{In practice: URDF chains, kinematics libraries and registration}\label{sec:rot:pose-in-practice}
+
+\subsubsection{A URDF is a product of exponentials in local frames}
+A URDF describes a robot as links connected by joints. Each joint has a fixed \texttt{<origin>} (a pose in its parent link) and an \texttt{<axis>}. The pose of a child link in its parent is the origin followed by the joint's own motion, $T_{\text{parent},\text{child}}(q)=T_{\text{origin}}\exp(q[\hat S])$, as in \S\ref{sec:rot:tf-urdf}. Chaining links gives forward kinematics as a product of fixed transforms and exponentials. It is the product of exponentials of \S\ref{sec:rot:forward-kinematics-product}, written with each screw axis in the frame of its own joint instead of the base frame at home. Neither form is the classic Denavit--Hartenberg convention, which imposes four parameters per joint with a specific placement of axes.
+
+\begin{example}{URDF-style and PoE forward kinematics agree}
+The 3-DOF elbow arm of \S\ref{sec:rot:forward-kinematics-product}, written URDF-style, has three joints and a fixed tool offset. Joint 1 has origin $(0,0,0)$ and axis $(0,0,1)$; joint 2 has origin $(0,0,L_0)$ and axis $(0,-1,0)$; joint 3 has origin $(L_1,0,0)$ relative to joint 2 and axis $(0,-1,0)$; the tool sits at $(L_2,0,0)$. With $\theta=(30^\circ,45^\circ,-60^\circ)$ the chain gives tool position $(0.496,0.286,0.505)$\,m, identical (to machine precision) to the base-frame product of exponentials. The two descriptions differ only in which frame each screw axis is written in, and the adjoint (\S\ref{sec:rot:changing-frame-twist}) converts between them. This chain is exactly what \texttt{robot\_state\_publisher} evaluates for every movable joint and publishes on tf.
+\end{example}
+
+\subsubsection{Libraries}
+MoveIt computes kinematics through plugins whose default is KDL, which evaluates such chains numerically. Pinocchio implements forward kinematics, Jacobians and dynamics with the spatial (twist and wrench) algebra of this section, and is the kinematics core of optimal-control stacks such as Crocoddyl. For registration, Open3D's point-to-point ICP solves its inner step with the closed-form SVD alignment of \S\ref{sec:rot:estimating-pose-point}: the Kabsch/Umeyama solution inside a loop that re-estimates correspondences.

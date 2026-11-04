@@ -1,0 +1,29 @@
+\subsection{Time: buffers, interpolation and the latest common time}\label{sec:rot:tf-time}
+
+A frame tree is not one tree but a tree \emph{per instant}: each dynamic edge is a time series $T_{AB}(t)$, kept in a buffer (tf2's default history is 10\,s, \texttt{BUFFER\_CORE\_DEFAULT\_CACHE\_TIME}). Static edges (sensor mounts, fixed joints) have no time at all and are valid forever. A lookup at time $t$ evaluates every edge on the path at the same $t$, and three rules decide how.
+
+\begin{enumerate}
+\item \emph{Between two stamps}, tf2 interpolates. \texttt{TimeCache::interpolate} lerps the translation and SLERPs the rotation (with the shortest-path sign flip of \S\ref{sec:rot:double-cover}). This is the \emph{decoupled} interpolation of \figref{fig:rot:screw}(b), not a constant twist.
+\item \emph{Outside} the stored interval, it refuses: \texttt{ExtrapolationException}. Nothing is extrapolated, ever.
+\item \emph{Time 0} means ``latest available'': for the path in question, tf2 takes the \emph{minimum} over the newest stamps of the dynamic edges on the path (\texttt{getLatestCommonTime}; static edges are skipped). It is the newest instant at which every edge on the path is known.
+\end{enumerate}
+
+\begin{deriv}{when is lerp+SLERP good enough?}
+Suppose an edge describes a vehicle driving a circular arc with speed $v$ and turn rate $\omega$ (radius $\rho=v/\omega$), sampled every $\Delta t$. Between two samples the true origin moves on the arc of angle $\phi=\omega\Delta t$. The lerped position moves on the \emph{chord}. At the midpoint the gap is the sagitta of the arc:
+\[
+e_{\max}=\rho\Big(1-\cos\frac{\omega\Delta t}{2}\Big)\approx\frac{v\,\omega\,\Delta t^2}{8}.
+\]
+The rotation is interpolated exactly (SLERP is the constant-rate rotation). Only the translation-rotation coupling of the screw (\S\ref{sec:rot:exponential-twist}) is lost, and that loss is quadratic in the sample interval.
+\end{deriv}
+
+\begin{example}{tf2's interpolation error on a turning car}
+$v=1.5$\,m/s, $\omega=0.6$\,rad/s. For a 20\,Hz edge ($\Delta t=0.05$\,s) the midpoint error is $0.28$\,mm, far below any sensor. For an edge published at 1\,Hz (a GNSS fix, a slow localiser) it is $112$\,mm, and a point cloud stamped between two fixes is misplaced by that much. Lesson: tf2's interpolation assumes edges are published fast relative to the motion. Slow estimators should publish a slowly varying correction on top of a fast odometry edge, which is exactly the \texttt{map}$\to$\texttt{odom}$\to$\texttt{base\_link} design (\S\ref{sec:rot:tf-map-odom}).
+\end{example}
+
+\begin{pitfall}[s: three timing errors]
+\emph{Stamp mixing.} Looking up the vehicle at time $t_1$ and a camera at $t_2$, and composing the two by hand, builds a frame that never existed. In the FreiCAR example below, a 50\,ms mismatch at $1.5$\,m/s and $0.6$\,rad/s gives $7.5$\,cm and $1.7^\circ$ of error, and $31$\,cm at a point 10\,m ahead. Always ask tf2 for the full chain in one lookup.
+
+\emph{Asking for ``now''.} A message stamped at $t$ must be transformed at $t$. ``Now'' is usually newer than the newest edge, so it extrapolates (exception), or it silently uses the wrong pose if someone ``fixes'' that with time 0.
+
+\emph{Two clocks.} With a simulator, stamps come from \texttt{/clock} (sim time). A node started without \texttt{use\_sim\_time:=true} uses wall time. Every lookup then asks for a time decades in the future (FreiCAR example below).
+\end{pitfall}

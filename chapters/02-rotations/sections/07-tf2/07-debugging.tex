@@ -1,0 +1,20 @@
+\subsection{Diagnosing tf problems with the theory}\label{sec:rot:tf-debugging}
+
+Almost every tf failure has a signature that points to one idea of this chapter. The table is meant to be used at the terminal.
+
+\begin{center}\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{4.1cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{2.2cm}@{}}\toprule
+Symptom & Likely cause, and the check & Theory\\\midrule
+Data rotates the wrong way; works only at zero angle & An edge published inverted ($T_{BA}$ instead of $T_{AB}$). Check \texttt{tf2\_echo parent child}: the translation must be the child's origin in parent coordinates. & \S\ref{sec:rot:active-passive-matrix}, \S\ref{sec:rot:homogeneous-coordinates-transformation}\\
+Identity looks like a $180^\circ$ yaw; small rotations look large & Quaternion order $(x,y,z,w)$ vs $(w,x,y,z)$. & \S\ref{sec:rot:conversions}\\
+Camera detections rotated by $90^\circ$ & Body frame used instead of the \texttt{\_optical} frame. & \S\ref{sec:rot:tf-urdf}\\
+\texttt{ExtrapolationException} (``into the future'') & Lookup at ``now'', a lagging edge, or a missing \texttt{use\_sim\_time}. Use the data's stamp; inspect with \texttt{tf2\_monitor}. & \S\ref{sec:rot:tf-time}\\
+Static map points smear when the robot turns & Stamp mixing or wrong stamps (scan start vs end); fast rotation multiplies small time errors by range. & \S\ref{sec:rot:tf-time}\\
+Pose ``flickers'' between two values & Two nodes publish the same child with different parents or values; a tree has one parent per frame. & \S\ref{sec:rot:tf-tree}\\
+Robot jumps in RViz but the controller is smooth & Expected: \texttt{map} jumps, \texttt{odom} does not. Control in \texttt{odom}. & \S\ref{sec:rot:tf-map-odom}\\
+Gimbal-lock-like jumps in printed angles & Printing Euler angles near pitch $\pm90^\circ$; the transform itself is fine. & \S\ref{sec:rot:gimbal-lock}\\\bottomrule
+\end{tabularx}
+\end{center}
+
+Three commands cover nearly all of it: \texttt{ros2 run tf2\_tools view\_frames} (the tree, rates, newest stamps), \texttt{ros2 run tf2\_ros tf2\_echo A B} ($T_{AB}$ over time), and \texttt{ros2 run tf2\_ros tf2\_monitor} (per-edge delays). With the theory in this chapter, their output explains itself.

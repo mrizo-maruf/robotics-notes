@@ -1,0 +1,25 @@
+\subsection{In practice and in current research: on-manifold estimation}\label{sec:rot:exp-in-practice}
+
+\subsubsection{The libraries implement exactly these maps}
+Every serious robotics code base has a small Lie-group layer, and each one is this section in code:
+\begin{center}\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{@{}l>{\raggedright\arraybackslash}X@{}}\toprule
+library & what it provides, in this section's terms\\\midrule
+SciPy \texttt{Rotation} & \texttt{from\_rotvec} $=\Exp$, \texttt{as\_rotvec} $=\Log$ (checked: agreement to $10^{-16}$)\\
+Sophus, manif (C++/Python) & $\Exp$/$\Log$, composition, and the left/right Jacobians for $\SO$, $\SE$, $\SOtwo$, $\SEtwo$; manif's API follows Solà et al.'s ``micro Lie theory'' notation ($\oplus$, $\ominus$)\\
+GTSAM & \texttt{Rot3}/\texttt{Pose3} \texttt{Expmap}/\texttt{Logmap}; \texttt{retract}$(\delta)=T\Exp(\delta)$, the right perturbation of \S\ref{sec:rot:perturbations-errors-optimisation}; \texttt{Pose3} tangent ordered $(\omega,v)$\\
+Ceres Solver & \texttt{Manifold} interface (e.g.\ \texttt{QuaternionManifold}): state in the group, $\delta\in\RR^3$ in the tangent space\\
+PyTorch: lietorch, PyPose, Theseus & the same maps as differentiable tensor operations, so gradients flow through $\Exp$/$\Log$ into neural networks\\\bottomrule
+\end{tabularx}
+\end{center}
+When combining libraries, check two conventions before anything else: the tangent ordering ($(v,\omega)$ or $(\omega,v)$) and the side of the perturbation (left or right). A mismatch in either gives Jacobians that look plausible and converge to the wrong answer.
+
+\subsubsection{Where these ideas sit in current systems}
+\emph{IMU preintegration.} Visual-inertial odometry (VIO) systems integrate hundreds of gyro samples between two camera keyframes. Forster et al.\ (\emph{On-Manifold Preintegration for Real-Time Visual-Inertial Odometry}, IEEE T-RO 2017) write the relative rotation as $\Delta R_{ij}=\prod_k\Exp\big((\tilde\omega_k-b_g)\Delta t\big)$, which is exactly the exact update of \S\ref{sec:rot:angular-velocity-kinematics}. A change of gyro bias is then handled to first order with the right Jacobian of $\Exp$, so the product never has to be recomputed. GTSAM's IMU factor and ORB-SLAM3's visual-inertial mode build on this formulation.
+
+\emph{Learned SLAM.} DROID-SLAM (Teed and Deng, NeurIPS 2021) runs a differentiable dense bundle adjustment inside a neural network. Its pose update is the ``tangent update, group state'' pattern of \S\ref{sec:rot:perturbations-errors-optimisation}: the bundle-adjustment layer solves a Gauss--Newton system for a twist $\delta\in\RR^6$ per keyframe, and the update is applied through $\Exp$ on $\SE$, implemented in the authors' lietorch library. Pose refinement in neural-field and Gaussian-splatting reconstruction uses the same parameterisation: a twist in $\se$ per camera, mapped through $\Exp$.
+
+\begin{example}{why the exponential belongs inside the optimiser}
+In \S\ref{sec:rot:angular-velocity-kinematics} the naive update $R\leftarrow R(I+\skw{\omega}\Delta t)$ produced a matrix that was no longer a rotation within seconds, and a gravity vector whose length was wrong by $10$\,m/s$^2$ after two minutes. An optimiser that updates a rotation matrix entry by entry has the same problem in every iteration, and ends up fighting six nonlinear constraints instead of solving three free parameters. Every library above makes the same choice for this reason: estimate $\delta\in\RR^3$ (or $\RR^6$), apply it through $\Exp$, and keep the state in the group.
+\end{example}

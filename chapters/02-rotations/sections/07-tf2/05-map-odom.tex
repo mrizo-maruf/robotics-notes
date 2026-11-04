@@ -1,0 +1,27 @@
+\subsection{\texttt{map}, \texttt{odom}, \texttt{base\_link}: why localisation publishes the wrong-looking edge}\label{sec:rot:tf-map-odom}
+
+A mobile robot has two kinds of pose estimate, with opposite failure modes. \emph{Odometry} (wheels, IMU, visual odometry) integrates small motions (\S\ref{sec:pl:twists}). It is smooth and locally accurate, but it drifts without bound. \emph{Localisation} (matching to a map, GNSS, loop closures) is globally accurate, but it arrives late and in jumps. REP~105 gives each its own frame. In \texttt{odom} the robot's pose ``is guaranteed to be continuous'' but ``can drift over time''. In \texttt{map} it ``should not significantly drift'' but ``can change in discrete jumps''. Controllers that close a loop over a few seconds want \texttt{odom}; planners and anything global want \texttt{map}.
+
+Both are parents of the robot, but a tree allows one parent. REP~105 chains them as \texttt{map}$\to$\texttt{odom}$\to$\texttt{base\_link}: odometry publishes $T_{\text{odom},\text{base}}$, and the localiser, which estimates $T_{\text{map},\text{base}}$, ``does not broadcast the transform from \texttt{map} to \texttt{base\_link}. Instead, it first receives the transform from \texttt{odom} to \texttt{base\_link}, and uses this information to broadcast the transform from \texttt{map} to \texttt{odom}.''
+
+\begin{deriv}{the edge the localiser must publish}
+The localiser wants the tree to report its estimate, $T_{\text{map},\text{base}}$. The tree computes this as $T_{\text{map},\text{odom}}\,T_{\text{odom},\text{base}}$. Solve for the one edge the localiser owns:
+\[
+T_{\text{map},\text{odom}}=T_{\text{map},\text{base}}\;T_{\text{odom},\text{base}}^{-1},
+\]
+with both factors taken at the stamp of the localisation fix. Between fixes $T_{\text{map},\text{odom}}$ is held constant, so $T_{\text{map},\text{base}}(t)=T_{\text{map},\text{odom}}\,T_{\text{odom},\text{base}}(t)$ inherits the smoothness of odometry. At each fix only the map$\to$odom edge jumps. $T_{\text{map},\text{odom}}$ is the accumulated odometry drift, written as a pose.
+\end{deriv}
+
+\begin{example}{one localisation fix}
+Odometry reports the robot at $(10.0,\,2.0)$\,m, heading $30^\circ$ in \texttt{odom}. A scan-matching fix says it is at $(10.4,\,1.7)$\,m, $33^\circ$ in \texttt{map}. Then $T_{\text{map},\text{odom}}=(0.518,\,-0.821)$\,m, $3.0^\circ$ (planar, using the $\SEtwo$ tools of \S\ref{sec:pl:turn-centre}). Note that the translation is \emph{not} $(0.4,-0.3)$: it is the offset of the odom origin, so it includes the lever-arm effect of the $3^\circ$ rotation about a point 10\,m away. After odometry reports 1\,m more driving, the robot is at $(10.866,\,2.5)$ in \texttt{odom} and $(11.239,\,2.245)$, $33.0^\circ$ in \texttt{map}, with no jump.
+\end{example}
+
+\begin{figure}[h]
+\centering\includegraphics[width=\linewidth]{map_odom.pdf}
+\caption{Simulated odometry with a 2\% scale error and a 0.005\,rad/s yaw-rate bias, corrected by a localiser every 8\,s (REP~105). (a) In \texttt{odom} the path is smooth but drifts away. In \texttt{map} it follows the truth with small jumps at each fix. (b) Odometry error grows to 4.6\,m over 80\,s; map error stays below 0.14\,m. (c) The published edge $T_{\text{map,odom}}$ is piecewise constant: all the discontinuity lives in this one edge.}
+\label{fig:rot:map-odom}
+\end{figure}
+
+\begin{noteb}{State of the art: who publishes \texttt{map}$\to$\texttt{odom}}
+In Nav2, AMCL (particle-filter localisation) publishes \texttt{map}$\to$\texttt{odom}. So do graph-based SLAM systems such as \texttt{slam\_toolbox}, whose backend is a pose graph (\S\ref{sec:pl:pose-graphs}): after a loop closure re-optimises the graph, only this edge jumps. \texttt{robot\_localization}'s EKF can run twice, once fusing continuous sensors into \texttt{odom}$\to$\texttt{base\_link} and once adding GNSS or map fixes to publish \texttt{map}$\to$\texttt{odom}. The theory in every case is the one-line derivation above.
+\end{noteb}

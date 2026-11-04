@@ -1,0 +1,63 @@
+\subsection{Reading a real tree: the FreiCAR/CARLA stack}\label{sec:rot:tf-freicar}
+
+\figref{fig:rot:freicar-tree} redraws the tree recorded with \texttt{ros2 run tf2\_tools view\_frames} on the FreiCAR simulation stack (CARLA plus \texttt{carla\_ros\_bridge}, vehicle \texttt{freicar\_1}). Names are shortened; every frame except \texttt{map} carries the prefix \texttt{freicar\_1/}. Together with the \texttt{ros2 topic info -v} output for \texttt{/tf} and \texttt{/tf\_static}, it can be read line by line with the tools of this chapter.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+  fr/.style={draw,rounded corners=2pt,font=\scriptsize\ttfamily,inner sep=2pt,fill=white},
+  dyn/.style={-{Stealth[length=1.6mm]},thick,draw=blue!60!black},
+  sta/.style={-{Stealth[length=1.6mm]},dashed,draw=black!55},
+  hl/.style={line width=3.2pt,draw=orange!60,opacity=0.55}]
+\node[fr] (map) at (-1.2,0) {map};
+\node[fr] (veh) at (-4.6,-1.25) {freicar\_1};
+\node[fr] (rgb) at (-1.9,-1.25) {camera\_rgb\_front};
+\node[fr] (lid) at (0.9,-1.25) {lidar};
+\node[fr] (dep) at (3.6,-1.25) {camera\_depth\_front};
+\node[fr] (base) at (-4.6,-2.45) {base\_link};
+\node[fr] (fa) at (-8.4,-3.65) {front\_axis};
+\node[fr] (lm) at (-6.0,-3.65) {laser\_mount\_link};
+\node[fr] (ra) at (-3.7,-3.65) {rear\_axis};
+\node[fr] (rs) at (-1.45,-3.65) {rear\_sensor\_link};
+\node[fr] (tr) at (0.9,-3.65) {tracker};
+\node[fr] (ii) at (0.0,-4.75) {intel\_init};
+\node[fr] (zi) at (1.9,-4.75) {zed\_init};
+\node[fr] (zc) at (1.9,-5.75) {zed\_camera};
+\draw[hl] (lid.north) -- (map.south) -- (veh.north) -- (base.north);
+\foreach \c in {veh,rgb,lid,dep} \draw[dyn] (map) -- (\c);
+\draw[sta] (veh) -- (base);
+\foreach \c in {fa,lm,ra,rs,tr} \draw[sta] (base) -- (\c);
+\draw[sta] (tr) -- (ii); \draw[sta] (tr) -- (zi); \draw[sta] (zi) -- (zc);
+\foreach \c in {lm,lid} \node[draw=red!70!black,very thick,rounded corners=2pt,fit=(\c),inner sep=1.5pt] {};
+\node[font=\scriptsize,align=left,anchor=west] at (3.3,-3.2) {\textcolor{blue!60!black}{\rule[2pt]{12pt}{1pt}} dynamic, \texttt{/tf}, 20\,Hz\\(\texttt{carla\_ros\_bridge})\\[2pt]\textcolor{black!55}{- - -} static, \texttt{/tf\_static}\\(URDF / static publisher)\\[2pt]\textcolor{orange!70}{\rule[1pt]{12pt}{3pt}} path of a lidar$\to$base\_link lookup\\[2pt]\textcolor{red!70!black}{$\square$} one physical lidar, two frame\\\phantom{$\square$} names: tf2 cannot compare them};
+\end{tikzpicture}
+\caption{The FreiCAR/CARLA frame tree, redrawn from \texttt{view\_frames}. Dynamic edges are published by the simulator bridge; static edges come from the URDF (\texttt{robot\_state\_publisher}) and the vehicle-base transform node. The lidar is described twice: by the simulator under \texttt{map}, and by the URDF under \texttt{base\_link}.}
+\label{fig:rot:freicar-tree}
+\end{figure}
+
+\subsubsection{What the recording says}
+\begin{itemize}
+\item \emph{Four dynamic edges, all children of \texttt{map}}, each at 20.1\,Hz with a 9.95\,s buffer: tf2's 10\,s default (\S\ref{sec:rot:tf-time}). \texttt{/tf} lists five publishers: four from \texttt{carla\_ros\_bridge}, one per edge, plus \texttt{robot\_state\_publisher}'s publisher for movable joints. No movable-joint frames appear in the tree, so either the URDF's joints are all fixed or no joint states had arrived.
+\item \emph{Static edges} show in \texttt{view\_frames} as ``rate 10000, buffer length 0, time 0'': they have no history and hold for all time. \texttt{/tf\_static} has two publishers, \texttt{freicar\_robot\_state\_publisher} (the URDF subtree under \texttt{base\_link}) and \texttt{freicar\_vehicle\_base\_transform}. The latter is, by its name, the \texttt{freicar\_1}$\to$\texttt{base\_link} edge that joins the simulator's actor frame to the URDF root (\texttt{view\_frames} shows ``default\_authority'' everywhere, so it cannot confirm this). Both use \texttt{TRANSIENT\_LOCAL} durability, as \S\ref{sec:rot:tf-urdf} predicts.
+\item \emph{No \texttt{odom} frame.} The simulator knows the true pose and publishes \texttt{map}$\to$\texttt{freicar\_1} directly: a perfect localiser. On a real car this one edge becomes the \texttt{map}$\to$\texttt{odom}$\to$\texttt{base\_link} chain of \S\ref{sec:rot:tf-map-odom}. Code that consumes \texttt{map} poses for control works in simulation and then sees jumps on hardware.
+\item \emph{One edge is late.} \texttt{camera\_depth\_front}'s newest transform is 2068.4489, while the other three are at 2068.4989: 50\,ms (one sample) behind.
+\item \emph{Two clocks.} The stamps are around 2068\,s (simulation time from \texttt{/clock}); \texttt{view\_frames} recorded at 1793804439\,s (wall-clock Unix time).
+\end{itemize}
+
+\begin{example}{five lookups on this tree (illustrative numbers)}
+The structure and stamps are the recorded ones. The poses are illustrative: the car drives an arc at $1.5$\,m/s and $0.6$\,rad/s, \texttt{base\_link} sits at $(-0.15,0,-0.06)$\,m in \texttt{freicar\_1}, the URDF puts \texttt{laser\_mount\_link} at $(0.20,0,0.14)$\,m in \texttt{base\_link}, and CARLA spawned the lidar at $(0.07,0,0.10)$\,m, yawed $1^\circ$, in \texttt{freicar\_1}. All numbers come from \texttt{code/tf\_mini.py}.
+
+\emph{1. Lidar to base.} The lowest common ancestor of \texttt{lidar} and \texttt{base\_link} is \texttt{map}, so the lookup composes two moving edges and one static edge (orange in \figref{fig:rot:freicar-tree}). The result is $t=(0.22,0,0.16)$\,m, yaw $1.000^\circ$, at every time: the vehicle's motion cancels exactly because both dynamic edges carry the same stamps.
+
+\emph{2. The two lidars disagree.} $T_{\text{laser\_mount},\,\text{lidar}}$ should be the identity if URDF and simulator describe the same sensor. Here it is $(0.02,0,0.02)$\,m and $1^\circ$, which puts a return 10\,m ahead $17.5$\,cm off sideways. tf2 cannot detect this: the two frames have different names, and the cycle that would expose the inconsistency does not exist in the tree. Check it on the real system with \texttt{ros2 run tf2\_ros tf2\_echo freicar\_1/laser\_mount\_link freicar\_1/lidar} (which prints $T_{\text{laser\_mount},\text{lidar}}$; see the pitfall below).
+
+\emph{3. The late camera.} For \texttt{base\_link}$\leftrightarrow$\texttt{camera\_depth\_front} the latest common time is 2068.4489, the depth edge's newest stamp. A lookup at the vehicle's newest stamp, 2068.4989, raises an \texttt{ExtrapolationException}. Composing the two ``latest'' poses by hand instead gives $7.54$\,cm and $1.72^\circ$ of error ($30.6$\,cm at 10\,m).
+
+\emph{4. Sim time.} A node with \texttt{use\_sim\_time:=false} asks for wall-clock ``now'', $1.79\times10^9$\,s past the newest stamp: an extrapolation of 56.8 years. Every lookup fails until the parameter is set.
+
+\emph{5. Interpolation.} Lidar points stamped between two 20\,Hz samples are placed with lerp+SLERP. The error against the true arc is at most $0.28$\,mm (\S\ref{sec:rot:tf-time}).
+\end{example}
+
+\begin{pitfall}[: \texttt{tf2\_echo}'s argument order]
+\texttt{ros2 run tf2\_ros tf2\_echo A B} calls \texttt{lookupTransform(A, B)} and prints $T_{AB}$: the pose of \texttt{B} in \texttt{A}, i.e.\ the matrix that takes data \emph{from B into A}. Its usage text calls \texttt{A} the ``source frame'', the opposite of the lookup API's naming, and then adds that ``this is the transform to get data from target\_frame into the source\_frame''. Read it as ``frames in the book's subscript order'' and it is unambiguous.
+\end{pitfall}

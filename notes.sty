@@ -17,7 +17,7 @@
 \RequirePackage{graphicx,booktabs,array,tabularx,xcolor}
 \RequirePackage[shortlabels]{enumitem}
 \RequirePackage{tikz}
-\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc,fit}
 \RequirePackage[most]{tcolorbox}
 \RequirePackage{titlesec}
 \RequirePackage[font=small,labelfont=bf,skip=3pt]{caption}
@@ -27,6 +27,7 @@
 
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{4pt}
+\setlength{\emergencystretch}{2em}  % lets lines with long \texttt{names} reflow instead of overflowing
 \setlist{itemsep=1pt,topsep=2pt,parsep=0pt,leftmargin=*}
 
 % ---------- headings --------------------------------------------------

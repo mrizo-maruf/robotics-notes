@@ -184,3 +184,106 @@ th_ = np.linalg.norm(xi[3:]); w_ = xi[3:] / th_; v_ = xi[:3] / th_
 print("theta", th_, "w", w_, "v", v_, "pitch", w_ @ v_, "q=w x v", np.cross(w_, v_))
 print("check Exp", np.abs(ExpSE3(xi) - T2).max())
 mid = ExpSE3(0.5 * xi); print("screw midpoint\n", mid)
+
+
+# =====================================================================================
+#  Section "Frames in practice: tf2 in ROS 2"   (all numbers in that section)
+# =====================================================================================
+from tf_mini import Buffer, ExtrapolationError, from_ros
+import rigid as rg
+print("\n\n######## tf2 section ########")
+
+
+def setRPY(r, p, y):  # copied from tf2/LinearMath/Quaternion.hpp, returns (x,y,z,w)
+    hy, hp, hr = y / 2, p / 2, r / 2
+    cy, sy, cp, sp, cr, sr = np.cos(hy), np.sin(hy), np.cos(hp), np.sin(hp), np.cos(hr), np.sin(hr)
+    return np.array([sr * cp * cy - cr * sp * sy, cr * sp * cy + sr * cp * sy,
+                     cr * cp * sy - sr * sp * cy, cr * cp * cy + sr * sp * sy])
+
+
+errs = [np.abs(q2R(from_ros(setRPY(*a))) - zyx(a[2], a[1], a[0])).max() for a in np.random.default_rng(1).uniform(-3, 3, (500, 3))]
+print("tf2 setRPY(r,p,y) == Rz(y)Ry(p)Rx(r):", max(errs))
+R_opt = q2R(from_ros(setRPY(-np.pi / 2, 0, -np.pi / 2)))
+print("optical rotation from rpy=(-pi/2, 0, -pi/2):\n", np.round(R_opt, 6), "\n == R_BC of ch.2 example:", np.allclose(R_opt, R_BC))
+
+# ---- illustrative FreiCAR/CARLA tree (structure from the user's view_frames; numbers illustrative)
+v, w, z0 = 1.5, 0.6, 0.0
+t_first, t_last, dt = 2058.548925, 2068.498926, 0.05
+stamps = t_first + dt * np.arange(int(round((t_last - t_first) / dt)) + 1)
+t_last = stamps[-1]
+def veh(t):  # map -> freicar_1 : planar arc (exact SE(2) exponential), start (5,3,20deg)
+    T0 = rg.T2(np.radians(20), [5.0, 3.0]); M = T0 @ rg.ExpSE2([v * (t - t_first), 0, w * (t - t_first)])
+    return T(Rz(np.arctan2(M[1, 0], M[0, 0])), [M[0, 2], M[1, 2], z0])
+T_veh_base = T(np.eye(3), [-0.15, 0.0, -0.06])            # freicar_1 -> base_link (static)
+T_base_lmount = T(np.eye(3), [0.20, 0.0, 0.14])            # URDF: base_link -> laser_mount_link
+T_veh_lidar_true = T(Rz(np.radians(1.0)), [0.07, 0.0, 0.10])  # where CARLA actually spawned the lidar
+T_veh_depth = T(np.eye(3), [0.25, 0.0, 0.20])
+buf = Buffer()
+buf.set_transform("freicar_1", "freicar_1/base_link", 0, T_veh_base[:3, 3], R2q(T_veh_base[:3, :3]), static=True)
+buf.set_transform("freicar_1/base_link", "freicar_1/laser_mount_link", 0, T_base_lmount[:3, 3], R2q(np.eye(3)), static=True)
+for s in stamps:
+    Mv = veh(s); buf.set_transform("map", "freicar_1", s, Mv[:3, 3], R2q(Mv[:3, :3]))
+    Ml = Mv @ T_veh_lidar_true; buf.set_transform("map", "freicar_1/lidar", s, Ml[:3, 3], R2q(Ml[:3, :3]))
+    if s < stamps[-1] - 1e-9:   # depth camera edge lags one sample (50 ms), as in the recorded tree
+        Md = Mv @ T_veh_depth; buf.set_transform("map", "freicar_1/camera_depth_front", s, Md[:3, 3], R2q(Md[:3, :3]))
+print("chain lidar:", buf.chain("freicar_1/lidar"), " chain base:", buf.chain("freicar_1/base_link"))
+M, tl = buf.lookup("freicar_1/base_link", "freicar_1/lidar")
+print(f"lookup(base_link, lidar) @ latest common {tl:.6f}: t = {M[:3,3]}, yaw = {np.degrees(np.arctan2(M[1,0],M[0,0])):.3f} deg")
+expect = np.linalg.inv(T_veh_base) @ T_veh_lidar_true
+print("   expected (static truth):", expect[:3, 3], " match:", np.allclose(M, expect))
+D, _ = buf.lookup("freicar_1/laser_mount_link", "freicar_1/lidar")
+print(f"URDF vs CARLA discrepancy T_(laser_mount, lidar): t = {D[:3,3]}, yaw = {np.degrees(np.arctan2(D[1,0],D[0,0])):.3f} deg")
+pt = np.array([10.0, 0, 0, 1]); print("point 10 m ahead of lidar, lateral offset caused by the 1 deg error:", (D @ pt)[1])
+print("latest common time base_link<->depth:", f"{buf.latest_common_time('freicar_1/base_link', 'freicar_1/camera_depth_front'):.6f}",
+      " base_link<->lidar:", f"{buf.latest_common_time('freicar_1/base_link', 'freicar_1/lidar'):.6f}")
+try:
+    buf.lookup("freicar_1/base_link", "freicar_1/camera_depth_front", t_last)
+except ExtrapolationError as e:
+    print("lookup at newest vehicle stamp ->", e)
+# mixing stamps by hand: vehicle pose at t_last, camera pose at t_last-0.05
+Tb_new = buf.edges["freicar_1"].at(t_last) @ T_veh_base
+Tc_old = buf.edges["freicar_1/camera_depth_front"].at(stamps[-2])
+Mix = np.linalg.solve(Tb_new, Tc_old); Good = np.linalg.inv(T_veh_base) @ T_veh_depth
+dE = np.linalg.solve(Good, Mix)
+print(f"stamp-mixing error in T_(base, depth): |dt| = {np.linalg.norm(dE[:3,3])*100:.2f} cm, rot = {np.degrees(np.linalg.norm(Log(dE[:3,:3]))):.3f} deg;"
+      f" lateral error of a point 10 m ahead = {abs((dE @ pt)[1])*100:.1f} cm")
+# interpolation: lerp+slerp vs exact arc
+for gap, name in [(0.05, "20 Hz"), (1.0, "1 Hz")]:
+    ta, tb = 2060.0, 2060.0 + gap; tm = (ta + tb) / 2
+    Ma, Mb, Mtrue = veh(ta), veh(tb), veh(tm)
+    lin = (Ma[:3, 3] + Mb[:3, 3]) / 2
+    print(f"{name}: midpoint error of lerp+slerp vs true arc = {np.linalg.norm(lin - Mtrue[:3,3])*1000:.3f} mm;"
+          f" sagitta formula r(1-cos(w*gap/2)) = {v/w*(1-np.cos(w*gap/2))*1000:.3f} mm")
+wall = 1793804439.4143991
+print(f"use_sim_time=false: now - newest stamp = {wall - t_last:.0f} s = {(wall - t_last)/3.15576e7:.1f} years")
+
+# ---- map / odom / base_link (planar, REP 105)
+T_odom_base = rg.T2(np.radians(30), [10.0, 2.0]); T_map_base = rg.T2(np.radians(33), [10.4, 1.7])
+T_map_odom = T_map_base @ rg.T2inv(T_odom_base)
+print("\nT_map_odom = T_map_base T_odom_base^-1 :", T_map_odom[0, 2], T_map_odom[1, 2], np.degrees(np.arctan2(T_map_odom[1, 0], T_map_odom[0, 0])))
+T_odom_base2 = T_odom_base @ rg.T2(0, [1.0, 0]); T_map_base2 = T_map_odom @ T_odom_base2
+print("after 1 m of odometry: base in odom", T_odom_base2[:2, 2], " base in map", T_map_base2[:2, 2], np.degrees(np.arctan2(T_map_base2[1,0],T_map_base2[0,0])))
+
+# ---- quaternion discontinuity vs 6D (in-practice subsection of the quaternion section)
+q1, q2 = R2q(Rz(np.radians(179.5))), R2q(Rz(np.radians(-179.5)))
+print("\nRz(179.5) vs Rz(-179.5): angle between =", np.degrees(np.linalg.norm(Log(Rz(np.radians(179.5)).T @ Rz(np.radians(-179.5))))), "deg")
+print("  quaternions (w>=0):", q1, q2, " |q1-q2| =", np.linalg.norm(q1 - q2), " 1-|q1.q2| =", 1 - abs(q1 @ q2))
+s6 = lambda R: np.r_[R[:, 0], R[:, 1]]
+print("  6D (first two columns) distance:", np.linalg.norm(s6(Rz(np.radians(179.5))) - s6(Rz(np.radians(-179.5)))))
+
+# ---- in-practice checks: scipy Rotation == Exp/Log; scipy quaternion order; URDF-style FK == PoE
+from scipy.spatial.transform import Rotation as Rot
+import scipy
+phi = np.array([0.3, -0.5, 0.8])
+print("\nscipy", scipy.__version__, ": from_rotvec == Exp:", np.abs(Rot.from_rotvec(phi).as_matrix() - Exp(phi)).max(),
+      "; as_rotvec == Log:", np.abs(Rot.from_matrix(Exp(phi)).as_rotvec() - phi).max())
+print("scipy as_quat() default (scalar last):", Rot.from_rotvec([0, 0, np.pi / 2]).as_quat(),
+      " scalar_first=True:", Rot.from_rotvec([0, 0, np.pi / 2]).as_quat(scalar_first=True))
+# URDF-style: T_parent_child(q) = T_origin * Exp(q * axis) for the 3-DOF elbow arm of the PoE example
+L0, L1, L2 = 0.3, 0.4, 0.3
+def urdf_joint(xyz, axis, q):
+    return T(np.eye(3), xyz) @ T(Exp(q * np.asarray(axis, float)), [0, 0, 0])
+qs = np.radians([30, 45, -60])
+Tu = urdf_joint([0, 0, 0], [0, 0, 1], qs[0]) @ urdf_joint([0, 0, L0], [0, -1, 0], qs[1]) @ \
+     urdf_joint([L1, 0, 0], [0, -1, 0], qs[2]) @ T(np.eye(3), [L2, 0, 0])
+print("URDF-style chain tool position:", Tu[:3, 3], " equals PoE result:", np.allclose(Tu, Tfk))

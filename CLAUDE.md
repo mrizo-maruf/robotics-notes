@@ -2,6 +2,8 @@
 
 This repo is Mukhammadrizo's personal textbook for a semester-long **Graduate Introduction to Robotics** course. It is built one idea at a time from slide images he sends in the chat. He is a robotics/CV researcher (SLAM, VIO, ROS2, Isaac Sim, 3-D perception), so write at graduate level: full derivations and no hand-holding on basics he clearly knows. Never skip a step in an argument, though.
 
+He wants **three layers in every part of the book**: theoretical depth (first principles, derivations), the **practical tools** that implement the idea (ROS 2: tf2, messages, controllers, Nav2; libraries such as Eigen, SciPy, Sophus/manif, GTSAM, Ceres, Pinocchio, Open3D), and **parallels to current methods** (state-of-the-art SLAM/VIO, learning-based perception and policies). Show explicitly how the tool or method is built from the theory, not just that it exists.
+
 What he asked for, in his words: *extended notes on each idea; derive things, explain why and how it works; approach from first principles and the essence of the idea; visualizations that show how and why; applied, practical, non-trivial examples and how to use the concepts in them.* Every section must deliver all of that.
 
 ## The session workflow
@@ -34,6 +36,7 @@ Not every element is needed in every section. Most sections need most of them.
 5. **Worked example(s)** in `example` boxes: applied and non-trivial (real robots, sensors, SLAM/VIO, manipulators, perception pipelines), with concrete numbers from `code/`, a sanity check, and the lesson. At least one per section.
 6. **Pitfalls**: what goes wrong in real code or practice, and how to detect it.
 7. **Connections**: one or two sentences linking back to earlier chapters with `\S\ref{...}` (and forward, if the slides foreshadow something).
+8. **In practice and state of the art**: every section ends with a subsection file `NN-in-practice.tex`. It (a) maps the theory onto the tools that implement it (message fields, API calls, library functions, CLI commands), with a worked example or code snippet; and (b) names where the idea appears in current research systems, with author, venue and year. **Verify every tool or paper claim against primary sources**: clone the repository and read the code (public GitHub repos can be cloned through the git proxy), read message definitions, REPs or official docs. If a detail cannot be verified, leave it out or say it is unverified. Examples on the user's own systems (e.g. his FreiCAR/CARLA stack, see `chapters/02-rotations/sections/07-tf2/06-freicar.tex`) are preferred over generic ones.
 
 Close each chapter with a summary section: a comparison table if relevant, a formula sheet, a self-assessment checklist, practice problems with answers, and "the essence in N lines". Chapter 2 (`chapters/02-rotations`) is the reference for tone, depth and layout.
 
@@ -42,6 +45,7 @@ Close each chapter with a summary section: a comparison table if relevant, a for
 - **Prose first.** Lists only for genuinely parallel items. British spelling (parameterise, optimisation), as in chapter 2.
 - **Honest.** If a slide's claim is wrong, imprecise, or uses a different convention, write the correct version and add a `noteb` box mapping the slide's notation or statement to ours. Mention it in the report. If something is uncertain (e.g. a library's current convention), say so or check it, never guess.
 - **Beyond the slides.** Sparse slides should be filled in from standard references (Lynch & Park, Siciliano et al., Barfoot, Murray-Li-Sastry, Corke, Thrun et al., Hartley & Zisserman), so each section stands alone.
+- **Tools.** When a topic has a standard ROS 2 counterpart (tf2 for frames, `nav_msgs/Odometry` for odometry, Nav2 for planning/localisation, `robot_state_publisher` for kinematics), give it its own section or subsection in the chapter where the theory lives, built from that chapter's derivations. Chapter 2's tf2 section is the model.
 - **Notation.** Use the book's notation (`frontmatter/notation.tex`), even when the slides differ. New notation goes into `notation.tex` first. New macros used in more than one chapter go in `notes.sty`. Chapter-only macros go at the top of that chapter's `chapter.tex`.
 - **Boxes.** Use only `keyidea`, `deriv`, `example`, `pitfall`, `noteb`.
 - **Labels.** Always `sec:<KEY>:<slug>`, `eq:<KEY>:<slug>`, `fig:<KEY>:<slug>`, where KEY is the chapter key (chapter 1 is `pl`, chapter 2 is `rot`). **Never hard-code a section, equation or figure number**: always `\ref`/`\eqref`/`\figref`.

@@ -1,0 +1,29 @@
+\subsection{A robot is a tree of frames}\label{sec:rot:tf-tree}
+
+Take every frame on the robot and in the world as a node: \texttt{map}, the vehicle body, each wheel axle, each sensor, each camera's optical frame. Draw an edge from a frame to another whenever someone knows their relative pose: a static mount measured from CAD, a joint angle, a localisation estimate. tf2 restricts this graph to a \emph{tree}. REP~105 states the rule directly: ``each coordinate frame has one parent coordinate frame, and any number of child coordinate frames.''
+
+\begin{deriv}{why a tree, and what that buys}
+In a tree there is exactly one path between any two frames, so the relative pose of any pair is \emph{defined uniquely}: compose the edges along that path. If the graph had a cycle, say two different chains from \texttt{map} to the lidar, the two compositions would almost never agree exactly (every edge is measured or estimated with error). The lookup would then depend on which path was taken. Resolving such disagreements is an \emph{estimation} problem, and that is precisely what a pose graph is (\S\ref{sec:pl:pose-graphs}): many relative measurements, cycles allowed, an optimiser to make them consistent. tf2 deliberately leaves that job to SLAM and localisation nodes and only \emph{distributes} the result. The tree is the output format of estimation, not a place where estimation happens.
+\end{deriv}
+
+\subsubsection{What one edge means}
+An edge is published as a \texttt{geometry\_msgs/TransformStamped}:
+\begin{center}\small
+\begin{tabular}{@{}lll@{}}\toprule
+message field & meaning & in this book\\\midrule
+\texttt{header.frame\_id} & parent frame & $A$\\
+\texttt{child\_frame\_id} & child frame & $B$\\
+\texttt{transform.translation} & origin of child, in parent coordinates & $t_{AB}$\\
+\texttt{transform.rotation} $(x,y,z,w)$ & child axes relative to parent & $q_{AB}$, i.e.\ $R_{AB}$\\
+\texttt{header.stamp} & time at which this was true & $T_{AB}(t)$\\\bottomrule
+\end{tabular}
+\end{center}
+So a \texttt{TransformStamped} with \texttt{frame\_id=A}, \texttt{child\_frame\_id=B} \emph{is} $T_{AB}$ in this book's notation: the pose of $B$ in $A$, which maps $B$-coordinates to $A$-coordinates, $\pre{A}{p}=T_{AB}\,\pre{B}{p}$ (\S\ref{sec:rot:homogeneous-coordinates-transformation}).
+
+\begin{noteb}{``A transform from \texttt{frame\_id} to \texttt{child\_frame\_id}''}
+That is the wording in the message definition, and it is the active/passive ambiguity of \S\ref{sec:rot:active-passive-matrix} in one sentence. It is ``from parent to child'' in the \emph{active} sense: the motion that carries the parent's axes onto the child's. As a \emph{coordinate map} it goes the other way, child $\to$ parent. When in doubt, use the table above, or the lookup API, which is unambiguous: \texttt{lookup\_transform(target, source)} returns the matrix that takes data \emph{in source} to data \emph{in target}, i.e.\ $T_{\text{target},\text{source}}$.
+\end{noteb}
+
+\begin{pitfall}[: quaternion order]
+ROS messages store quaternions as $(x,y,z,w)$, scalar \emph{last}; this book, Eigen's constructor and Hamilton's notation write $(w,x,y,z)$. Copying \texttt{msg.rotation} into a scalar-first function silently produces a different, valid-looking rotation: the identity $(0,0,0,1)$ becomes a $180^\circ$ turn about $z$. The cure is to convert in exactly one place, as \texttt{from\_ros} does in the book's \texttt{code/tf\_mini.py}.
+\end{pitfall}

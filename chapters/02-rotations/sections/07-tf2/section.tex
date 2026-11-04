@@ -1,0 +1,15 @@
+\section{Frames in practice: tf2 in ROS 2}\label{sec:rot:tf2}
+
+Every running robot answers the same question thousands of times per second: \emph{where is this measurement, expressed in that frame, at that time?} A lidar point arrives in the lidar frame, the planner wants it in the map frame, and the vehicle has moved since the scan started. ROS~2 answers it with one library, tf2. tf2 has no new mathematics. It is this chapter's machinery (homogeneous transforms, index cancellation, quaternions, SLERP) together with a data structure and a clock. This section rebuilds tf2 from the theory, checks each design decision against its source code (\texttt{ros2/geometry2}), and then reads a real tree: the FreiCAR/CARLA stack.
+
+\begin{keyidea}
+tf2 stores a \emph{tree} of frames. Each edge is a time-stamped pose $T_{\text{parent},\text{child}}(t)$, published as a \texttt{TransformStamped}. A lookup $T_{\text{target},\text{source}}(t)$ walks both frames up to their common ancestor and returns $T_{\text{anc},\text{target}}^{-1}\,T_{\text{anc},\text{source}}$: index cancellation, plus one inverse. Between stamps it interpolates translation linearly and rotation by SLERP. Most tf bugs are therefore one of four things, and each maps to a section of this chapter: a transposed or inverted edge, a quaternion-order mix-up, a timing error, or two frames meaning the same physical thing.
+\end{keyidea}
+
+\input{\subfix{sections/07-tf2/01-tree}}
+\input{\subfix{sections/07-tf2/02-lookup}}
+\input{\subfix{sections/07-tf2/03-time}}
+\input{\subfix{sections/07-tf2/04-edges-from-urdf}}
+\input{\subfix{sections/07-tf2/05-map-odom}}
+\input{\subfix{sections/07-tf2/06-freicar}}
+\input{\subfix{sections/07-tf2/07-debugging}}

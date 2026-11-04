@@ -493,3 +493,45 @@ if __name__ == "__main__":
     for f in [f_frames, f_active_passive, f_noncommute, f_zyx_seq, f_gimbal, f_rodrigues, f_manifold, f_gyro,
               f_quat_cover, f_slerp, f_chain, f_screw, f_arm]:
         f(); print("ok", f.__name__)
+
+
+# ---------------------------------------------------------------- F14 map / odom / base_link (REP 105)
+def f_map_odom():
+    import rigid as rg
+    dt, Tend, fix_every = 0.1, 80.0, 8.0
+    n = int(Tend / dt); t = np.arange(n + 1) * dt
+    v, w = 0.5, 0.0785 * (1 + 0.6 * np.sin(2 * np.pi * t / 80))       # a wobbly loop
+    Tt = np.eye(3); To = np.eye(3); Tmo = np.eye(3)
+    true, odo, mapb, mo_hist, err_o, err_m = [], [], [], [], [], []
+    rng = np.random.default_rng(4)
+    for k in range(n + 1):
+        if k > 0:
+            Tt = Tt @ rg.ExpSE2([v * dt, 0, w[k - 1] * dt])
+            To = To @ rg.ExpSE2([1.02 * v * dt, 0, (w[k - 1] + 0.005) * dt])   # odometry: scale + yaw-rate bias
+        if k > 0 and abs((t[k] % fix_every)) < 1e-9:                          # localiser fix (map -> base_link)
+            fix = Tt @ rg.ExpSE2(np.r_[rng.normal(0, 0.03, 2), rng.normal(0, 0.005)])
+            Tmo = fix @ rg.T2inv(To)                                           # publish map -> odom
+        Tmb = Tmo @ To
+        true.append(Tt[:2, 2]); odo.append(To[:2, 2]); mapb.append(Tmb[:2, 2])
+        mo_hist.append([Tmo[0, 2], Tmo[1, 2], np.degrees(np.arctan2(Tmo[1, 0], Tmo[0, 0]))])
+        err_o.append(np.linalg.norm(To[:2, 2] - Tt[:2, 2])); err_m.append(np.linalg.norm(Tmb[:2, 2] - Tt[:2, 2]))
+    true, odo, mapb, mo_hist = map(np.array, (true, odo, mapb, mo_hist))
+    fig, axs = plt.subplots(1, 3, figsize=(6.6, 2.35), gridspec_kw=dict(width_ratios=[1.15, 1, 1]))
+    ax = axs[0]
+    ax.plot(true[:, 0], true[:, 1], color=GRY, lw=3, alpha=0.5, label="true path")
+    ax.plot(odo[:, 0], odo[:, 1], color=ORA, lw=1.2, label="base_link in odom")
+    ax.plot(mapb[:, 0], mapb[:, 1], color=CZ, lw=1.0, label="base_link in map")
+    ax.set_aspect("equal"); ax.legend(frameon=False, fontsize=6.5, loc="upper right", bbox_to_anchor=(1.08, 1.0)); ax.tick_params(labelsize=7)
+    ax.set_ylim(-10.5, 13.5); ax.set_title("(a) odom drifts smoothly; map jumps back", fontsize=8.5); ax.set_xlabel("x [m]", fontsize=8)
+    ax = axs[1]
+    ax.plot(t, err_o, color=ORA, lw=1.2, label="odom error"); ax.plot(t, err_m, color=CZ, lw=1.0, label="map error")
+    ax.set_xlabel("time [s]", fontsize=8); ax.set_ylabel("position error [m]", fontsize=8); ax.tick_params(labelsize=7)
+    ax.legend(frameon=False, fontsize=6.5); ax.grid(alpha=0.25, lw=0.4); ax.set_title("(b) error vs. truth", fontsize=8.5)
+    ax = axs[2]
+    ax.step(t, mo_hist[:, 0], where="post", color=CX, lw=1.1, label="$x$ [m]")
+    ax.step(t, mo_hist[:, 1], where="post", color=CY, lw=1.1, label="$y$ [m]")
+    ax.step(t, np.radians(mo_hist[:, 2]), where="post", color=CZ, lw=1.1, label="yaw [rad]")
+    ax.set_xlabel("time [s]", fontsize=8); ax.tick_params(labelsize=7); ax.legend(frameon=False, fontsize=6.5)
+    ax.grid(alpha=0.25, lw=0.4); ax.set_title("(c) $T_{\\mathrm{map,odom}}$: piecewise constant", fontsize=8.5)
+    fig.tight_layout(w_pad=0.6); fig.savefig(OUT + "map_odom.pdf"); plt.close(fig)
+    print("map_odom: final odom err %.2f m, max map err %.2f m" % (err_o[-1], max(err_m)))

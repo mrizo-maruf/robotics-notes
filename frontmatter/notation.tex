@@ -28,6 +28,13 @@ These conventions hold in every chapter. When a chapter needs new notation, it i
 \item Planar poses $T=\bmat{R(\theta)&t\\0&1}\in\SEtwo$. Planar twists are linear-first like 3-D ones: $S=(v_x,v_y,\omega)$, $[S]=\bmat{\omega J&v\\0&0}\in\setwo$; $\vexa$ is the inverse of $[\cdot]$. A unit twist $\hat S$ is scaled by a motion amount $\lambda$ (an angle or a distance): $T=\exp(\lambda[\hat S])$.
 \end{itemize}
 
+\section*{ROS 2 and tf2 (section~\ref{sec:rot:tf2})}
+\begin{itemize}
+\item A \texttt{TransformStamped} with \texttt{header.frame\_id=A}, \texttt{child\_frame\_id=B} is $T_{AB}$: the pose of $B$ in $A$, mapping $B$-coordinates to $A$-coordinates. \texttt{lookup\_transform(target, source)} returns $T_{\text{target},\text{source}}$; \texttt{tf2\_echo A B} prints $T_{AB}$.
+\item ROS quaternions are $(x,y,z,w)$; this book writes $(w,x,y,z)$. ROS twists (\texttt{geometry\_msgs/Twist}) are linear-first, like ours.
+\item REP~103: body frames $x$ forward, $y$ left, $z$ up; \texttt{\_optical} frames $z$ forward, $x$ right, $y$ down. REP~105: \texttt{map}$\to$\texttt{odom}$\to$\texttt{base\_link}.
+\end{itemize}
+
 \section*{Rigid-body motion}
 \begin{itemize}
 \item Twists are ordered linear-first, $\xi=(v,\omega)\in\RR^6$, as in Murray--Li--Sastry, Barfoot and Sophus. Lynch \& Park (\emph{Modern Robotics}) and GTSAM use $(\omega,v)$; the adjoint blocks swap accordingly.
