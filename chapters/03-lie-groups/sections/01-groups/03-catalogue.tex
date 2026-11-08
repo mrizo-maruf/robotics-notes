@@ -1,0 +1,21 @@
+\subsection{The Lie groups of robotics}\label{sec:lie:catalogue}
+
+\begin{center}\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{@{}l l c >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}\toprule
+group & representation & dof $m$ & acts on & where in this book\\\midrule
+$(\RR^n,+)$ & vectors & $n$ & $\RR^n$ (translation) & positions, velocities, biases\\
+$S^1\cong\SOtwo$ & unit complex / $2\times2$ rotation & 1 & $\RR^2$ & \S\ref{sec:pl:rotation-exp}\\
+$\SEtwo$ & $3\times3$ homogeneous & 3 & $\RR^2$ points & \S\ref{sec:pl:exp-twists}\\
+$\SO$ & $3\times3$ rotation & 3 & $\RR^3$ & \S\S\ref{sec:rot:orientation}--\ref{sec:rot:exponential-coordinates}\\
+$S^3$ & unit quaternion & 3 & $\RR^3$ (sandwich) & \S\ref{sec:rot:quaternions}\\
+$\SE$ & $4\times4$ homogeneous & 6 & $\RR^3$ points & \S\ref{sec:rot:pose-and-screws}\\
+$\mathrm{Sim}(3)$ & $\SE$ plus a scale $s>0$ & 7 & $\RR^3$ points ($sRp+t$) & monocular SLAM, below\\
+$SE_2(3)$ & rotation, velocity, position & 9 & IMU state & preintegration, below\\\bottomrule
+\end{tabularx}
+\end{center}
+$(\RR^n,+)$ is a (flat, commutative) Lie group too, with $\mathcal E=0$, $\mathcal X^{-1}=-\mathcal X$, and $\Exp$ the identity map. This lets one formalism treat mixed states such as ``pose $\times$ velocity $\times$ bias'' (composite groups, \S\ref{sec:lie:robotics}).
+
+\begin{noteb}{$\SE$ versus $\RR^3\times\SO$: same set, different group}
+A pose can also be treated as a \emph{pair} $(t,R)$ with componentwise composition $(t_1,R_1)\circ(t_2,R_2)=(t_1+t_2,\,R_1R_2)$. That is the group $\RR^3\times\SO$. It has the same elements as $\SE$, but a different composition (in $\SE$ the second translation is rotated first, $t_1+R_1t_2$), so its tangent increments mean different things. $\SE$'s increments are body-frame twists, coupled through $V(\theta)$ (\S\ref{sec:rot:exponential-twist}). $\RR^3\times\SO$'s increments perturb position in the world frame and orientation separately. Both are legitimate choices for an estimator. Solà et al.\ (Example 7) discuss when each is preferable, and many VIO systems use the decoupled one. The choice must be consistent between the state update and the Jacobians.
+\end{noteb}

@@ -1,0 +1,7 @@
+\subsection{In practice: getting Jacobians right}\label{sec:lie:jacobians-in-practice}
+
+There are three ways to obtain these Jacobians in a real system, and all three appear in current tools. \emph{Analytic, from the elementary blocks}: manif's C++ operations accept optional Jacobian outputs (e.g.\ \texttt{X.rplus(tau, J\_out\_X, J\_out\_tau)}), and its Python bindings expose \texttt{rjac}/\texttt{ljac} on tangent vectors. GTSAM factors return Jacobians by the same chain rule. \emph{Automatic differentiation through $\oplus$}: Ceres differentiates residuals with respect to ambient parameters and composes with the manifold's \texttt{PlusJacobian}; PyPose, Theseus and lietorch differentiate through $\Exp$/$\Log$ in PyTorch, which is how learned SLAM systems such as DROID-SLAM back-propagate through bundle adjustment. \emph{Numerical}: \texttt{num\_rjac} in \texttt{code/rigid.py}, which is only for testing.
+
+\begin{pitfall}[: test every hand-derived Jacobian numerically]
+A sign error in a Jacobian rarely crashes anything. The filter simply becomes overconfident or diverges, or the optimiser converges slowly. While writing this chapter, the ESKF measurement Jacobian below had one wrong sign in its rotation column. The filter's mean NEES (normalised estimation error squared, a consistency measure whose ideal value is 3) was $6\times10^5$; after the one-character fix it was $2.2$. The finite-difference check flagged it immediately (error 3.9 instead of $10^{-6}$). Make a numerical Jacobian test part of every new residual.
+\end{pitfall}

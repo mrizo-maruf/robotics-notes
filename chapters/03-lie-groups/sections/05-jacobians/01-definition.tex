@@ -1,0 +1,21 @@
+\subsection{The definition, and the chain rule}\label{sec:lie:jacobian-definition}
+
+For $f:\mathcal M\to\mathcal N$ between Lie groups (either may be $\RR^n$, where $\oplus,\ominus$ are $+,-$), the \emph{right Jacobian} is
+\[
+\frac{{}^{\mathcal X}Df(\mathcal X)}{D\mathcal X}=\lim_{\tau\to0}\frac{f(\mathcal X\oplus\tau)\ominus f(\mathcal X)}{\tau}\in\RR^{n\times m},
+\]
+with right plus and minus: perturb the input by a local increment, and measure the output change as a local increment at $f(\mathcal X)$. It is the matrix $J$ in the first-order expansion
+\[
+f(\mathcal X\oplus\tau)\approx f(\mathcal X)\oplus J\tau,
+\]
+the exact analogue of $f(x+h)\approx f(x)+J h$. Using left $\oplus,\ominus$ instead gives the \emph{left} (global) Jacobian. The two are related by adjoints, $J^{\text{left}}=\Ad_{f(\mathcal X)}\,J^{\text{right}}\,\Ad_{\mathcal X}^{-1}$, because each converts its own increments to the other side (\S\ref{sec:lie:adjoint}).
+
+\begin{deriv}{the chain rule survives}
+For $\mathcal Z=g(f(\mathcal X))$: $g(f(\mathcal X\oplus\tau))\approx g(f(\mathcal X)\oplus J_f\tau)\approx g(f(\mathcal X))\oplus J_gJ_f\tau$. So
+\[
+\frac{D\mathcal Z}{D\mathcal X}=\frac{D\mathcal Z}{D\mathcal Y}\,\frac{D\mathcal Y}{D\mathcal X},\qquad\mathcal Y=f(\mathcal X).
+\]
+This is the property that makes the theory practical. Learn the Jacobians of a handful of elementary operations (inverse, compose, $\Exp$, $\Log$, act), and every Jacobian in a SLAM, VIO or calibration system is a product of them.
+\end{deriv}
+
+How to check any such Jacobian numerically: perturb the input by $\varepsilon e_i$ with $\oplus$, apply $f$, take $\ominus$ against $f(\mathcal X)$, divide by $\varepsilon$. That gives column $i$. All Jacobians in this chapter were checked this way (\texttt{num\_rjac} in \texttt{code/rigid.py}).

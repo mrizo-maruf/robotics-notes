@@ -10,3 +10,7 @@ Both have the form $[\xi]=\bmat{\skw{\omega}&v\\0&0}\in\se$, the Lie algebra of 
 \item \textbf{Spatial twist} $\xi_s$: $\omega_s$ and $v_s=\dot t-\omega_s\times t$. $v_s$ is the velocity of the (imaginary) body point that is currently passing through the world origin. Strange, but it makes $\xi_s$ independent of where the body frame is attached.
 \end{itemize}
 \textbf{Screw axis $\to$ twist.} A unit-speed screw with direction $\nh$, a point $q$ on the axis and pitch $h$ has $\omega=\nh$ and $v=-\nh\times q+h\nh$. The term $-\nh\times q=\nh\times(0-q)$ is the velocity of the origin caused by spinning about an axis through $q$; $h\nh$ is the slide along the axis. For a revolute joint $h=0$; for a prismatic joint $\omega=0$, $v=\nh$.
+
+\begin{noteb}{Twists as a Lie algebra}
+Body and spatial twists are the local and global velocities of the Lie group $\SE$, and $\se$ is its Lie algebra; chapter~\ref{ch:lie} (\S\ref{sec:lie:local-global}) treats them for all groups at once.
+\end{noteb}

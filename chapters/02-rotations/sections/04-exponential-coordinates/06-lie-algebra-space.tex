@@ -10,3 +10,7 @@ $\so$ is a genuine vector space: you can add, scale and average elements of it. 
 \Log\big(\Exp(a)\Exp(b)\big)=a+b+\tfrac12\,a\times b+O(\|a\|,\|b\|)^3\qquad\text{(BCH formula).}\label{eq:rot:bch}
 \end{equation}
 Example: $a=(0.3,0,0)$, $b=(0,0.4,0)$ gives $\Log(\Exp a\,\Exp b)=(0.296,\,0.397,\,0.060)$, while $a+b=(0.3,0.4,0)$ and $a+b+\tfrac12a\times b=(0.3,0.4,0.06)$.
+
+\begin{noteb}{Lie theory, systematically}
+The Lie algebra, $\Exp/\Log$, the bracket, and the Jacobians $J_r,J_l$ that this section uses for $\SO$ are the special case of a general toolkit that every Lie group has. Chapter~\ref{ch:lie} builds it from zero and connects it to filters, pose graphs and current SLAM/VIO systems.
+\end{noteb}

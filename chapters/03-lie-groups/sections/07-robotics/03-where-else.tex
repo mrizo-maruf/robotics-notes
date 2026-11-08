@@ -1,0 +1,19 @@
+\subsection{Where else robotics relies on Lie theory}\label{sec:lie:where-else}
+
+\begin{center}\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{3.3cm}@{}}\toprule
+area & what Lie theory provides & representative work\\\midrule
+Filtering & error state in the tangent space; the \emph{invariant} EKF chooses left or right errors so that, for group-affine dynamics, the error evolves independently of the estimate, giving consistency and convergence guarantees the standard EKF lacks & Barrau \& Bonnabel, IEEE TAC 2017\\
+Visual-inertial odometry & on-manifold IMU preintegration with $\Exp$, $J_r$ and bias Jacobians; extended poses $SE_2(3)$ & Forster et al., IEEE T-RO 2017\\
+SLAM and bundle adjustment & $\oplus$-updates and Lie Jacobians in every residual; $\mathrm{Sim}(3)$ for scale drift & GTSAM, g2o; Strasdat et al., RSS 2010\\
+Calibration & hand--eye $AX=XB$ solved by taking logarithms, which linearises the rotation part & Park \& Martin, IEEE T-RA 1994\\
+Control & tracking controllers defined directly on $\SE$, avoiding the singularities of Euler-angle errors & Lee, Leok \& McClamroch, CDC 2010\\
+Kinematics & product-of-exponentials forward kinematics and screw-axis Jacobians (\S\ref{sec:rot:forward-kinematics-product}) & Brockett 1984; Lynch \& Park\\
+Planning and interpolation & geodesics $\mathcal X_0\Exp(s\,\Log(\mathcal X_0^{-1}\mathcal X_1))$: SLERP, screw motion, Dubins primitives (\S\ref{sec:pl:in-practice}) & \\
+Learning & networks equivariant to rotations and translations; diffusion models whose noise is added in the Lie algebra & Fuchs et al.\ (SE(3)-Transformers), NeurIPS 2020; Urain et al.\ (SE(3)-DiffusionFields), ICRA 2023\\\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsubsection{Why the invariant EKF works}
+It is the most striking recent application, and it rests only on this chapter. For a robot whose dynamics are ``group-affine'' (rigid-body kinematics and IMU kinematics both are), Barrau and Bonnabel showed that a suitably chosen error ($\eta=\hat{\mathcal X}^{-1}\mathcal X$ or $\mathcal X\hat{\mathcal X}^{-1}$) obeys a differential equation that does not involve the estimate at all. Its linearisation, hence the Kalman gain's accuracy, does not depend on how wrong the estimate is. A standard EKF linearises around a possibly wrong estimate and can become overconfident. The difference is precisely the left/right distinction of \S\ref{sec:lie:plus-minus}, applied to the error definition.

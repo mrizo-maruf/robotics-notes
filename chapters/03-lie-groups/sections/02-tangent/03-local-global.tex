@@ -1,0 +1,14 @@
+\subsection{Local and global tangent vectors}\label{sec:lie:local-global}
+
+There are two ways to bring a velocity $\dot{\mathcal X}$ back to the identity: multiply by $\mathcal X^{-1}$ on the left or on the right.
+\[
+{}^{\mathcal X}v^\wedge=\mathcal X^{-1}\dot{\mathcal X}\quad\text{(local, ``right'' or body velocity)},\qquad
+{}^{\mathcal E}v^\wedge=\dot{\mathcal X}\mathcal X^{-1}\quad\text{(global, ``left'' or spatial velocity)}.
+\]
+Both live in the same Lie algebra but express the motion in different frames. The local one is measured \emph{in the moving frame}: what a gyro bolted to the body reads ($\omega_b$ in \S\ref{sec:rot:angular-velocity-kinematics}), or the twist in a \texttt{nav\_msgs/Odometry} message's \texttt{child\_frame\_id} (\S\ref{sec:pl:in-practice}). The global one is expressed in the reference frame. They are related by $\dot{\mathcal X}=\mathcal X\,{}^{\mathcal X}v^\wedge={}^{\mathcal E}v^\wedge\,\mathcal X$, so ${}^{\mathcal E}v^\wedge=\mathcal X\,{}^{\mathcal X}v^\wedge\,\mathcal X^{-1}$. That conjugation is the \emph{adjoint} (\S\ref{sec:lie:adjoint}).
+
+\begin{example}{gyro rate versus world rate}
+For $R_0=\Exp(0.2,-0.4,1.0)$ and body rate $(0.1,0,0.5)$\,rad/s, the global rate from $\dot RR\T$ is $(-0.0696,\,-0.0940,\,0.4963)$\,rad/s, which equals $R_0\,\omega_b$, as \S\ref{sec:rot:angular-velocity-kinematics} showed. Same motion, same magnitude ($0.510$\,rad/s), different coordinates.
+\end{example}
+
+In general the tangent space at $\mathcal X$ itself, $T_{\mathcal X}\mathcal M$, is where $\dot{\mathcal X}$ lives. Multiplying by $\mathcal X^{-1}$ identifies it with $T_{\mathcal E}\mathcal M$. This is why one Lie algebra and one $\RR^m$ suffice for the whole group: every local tangent space is a translated copy of it (\figref{fig:lie:circle}b).

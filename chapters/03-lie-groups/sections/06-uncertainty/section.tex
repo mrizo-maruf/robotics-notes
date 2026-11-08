@@ -1,0 +1,8 @@
+\section{Uncertainty on Lie groups}\label{sec:lie:uncertainty}
+
+A Kalman filter or a SLAM back-end must say not only where the robot is but how sure it is. On a vector space that is a mean and a covariance matrix. On a curved group a ``covariance of a rotation matrix'' makes no sense (nine correlated entries, six constraints). Lie theory gives the natural answer: a mean on the group, and a covariance on the tangent space at that mean.
+
+\input{\subfix{sections/06-uncertainty/01-covariance}}
+\input{\subfix{sections/06-uncertainty/02-propagation}}
+\input{\subfix{sections/06-uncertainty/03-banana}}
+\input{\subfix{sections/06-uncertainty/04-in-practice}}

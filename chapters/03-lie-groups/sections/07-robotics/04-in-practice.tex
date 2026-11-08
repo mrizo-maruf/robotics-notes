@@ -1,0 +1,19 @@
+\subsection{In practice: the ESKF in a dozen lines}\label{sec:lie:robotics-in-practice}
+
+The whole filter of \S\ref{sec:lie:eskf}, with the book's \texttt{rigid.py} (the full version with simulation is in \texttt{code/examples.py}):
+\begin{verbatim}
+from rigid import ExpSE2, Ad_SE2, Jr_SE2, T2inv, J2
+import numpy as np
+
+def predict(X, P, u, Q):                 # X in SE(2), u = (dx, dy, dtheta) in body frame
+    F, G = Ad_SE2(ExpSE2(-u)), Jr_SE2(u)
+    return X @ ExpSE2(u), F @ P @ F.T + G @ Q @ G.T
+
+def update(X, P, y, b, Rn):              # y = X^-1 * b + noise  (beacon b in world frame)
+    R, t = X[:2, :2], X[:2, 2]
+    h = R.T @ (b - t)
+    H = np.column_stack([-np.eye(2), -J2 @ h])
+    K = P @ H.T @ np.linalg.inv(H @ P @ H.T + Rn)
+    return X @ ExpSE2(K @ (y - h)), (np.eye(3) - K @ H) @ P
+\end{verbatim}
+In manif the same filter reads \texttt{X = X.rplus(u)}, \texttt{F = ExpU.inverse().adj()}, \texttt{G = u.rjac()}, and the update uses \texttt{X.inverse().act(b)} with its optional Jacobian. manif's repository ships this exact problem, 2-D localisation with fixed beacons, as \texttt{examples/se2\_localization.py} (and \texttt{.cpp}). It also ships the pose-graph version (\texttt{se2\_sam.py}) and a 3-D invariant-EKF variant (\texttt{se3\_localization\_iekf.cpp}), all good references to compare against. For pose graphs, \texttt{gtsam.Pose2} with \texttt{BetweenFactorPose2} implements \S\ref{sec:lie:pose-graph}: GTSAM's between-factor residual is the same $\Log(Z^{-1}\mathcal X_i^{-1}\mathcal X_j)$, and it computes the Jacobians with the same blocks.

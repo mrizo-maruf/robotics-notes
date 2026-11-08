@@ -1,0 +1,18 @@
+\subsection{Velocities: differentiate the constraint}\label{sec:lie:velocities}
+
+Let $\mathcal X(t)$ be a smooth path in the group. Its derivative $\dot{\mathcal X}$ is a velocity, but it is a messy object: it has the ambient size (4 numbers for a quaternion, 9 for a rotation matrix) and its allowed values change from point to point. The trick is to pull it back to the identity by multiplying with $\mathcal X^{-1}$.
+
+\begin{deriv}{$\mathcal X^{-1}\dot{\mathcal X}$ always has a fixed, simple structure}
+Every element satisfies $\mathcal X^{-1}\mathcal X=\mathcal E$. Differentiating this identity in $t$ gives a constraint on $\mathcal X^{-1}\dot{\mathcal X}$ that does \emph{not} depend on where $\mathcal X$ is:
+\begin{itemize}
+\item $S^1$: $z^*z=1\ \Rightarrow\ \dot z^*z+z^*\dot z=0$, i.e.\ $z^*\dot z$ plus its conjugate is zero: $z^*\dot z=i\omega$ is purely \emph{imaginary}.
+\item $\SO$: $R\T R=I\ \Rightarrow\ \dot R\T R+R\T\dot R=0$: $R\T\dot R$ is \emph{skew-symmetric}, $R\T\dot R=\skw{\omega}$ (\S\ref{sec:rot:lie-algebra-space}).
+\item $S^3$: $q^*q=1\ \Rightarrow\ q^*\dot q$ has zero real part: a \emph{pure} quaternion, $q^*\dot q=(0,\tfrac12\omega)$.
+\item $\SE$: $T^{-1}\dot T=\bmat{R\T\dot R&R\T\dot t\\0&0}=\bmat{\skw{\omega}&v\\0&0}$ (\S\ref{sec:rot:twists-velocity-rigid}).
+\end{itemize}
+In every case $\mathcal X^{-1}\dot{\mathcal X}$ lives in a fixed vector space of dimension $m$, the number of degrees of freedom: 1, 3, 3, 6. For quaternions the factor $\frac12$ is the half-angle of \S\ref{sec:rot:unit-quaternion-rotates} again.
+\end{deriv}
+
+\begin{example}{checking the recipe numerically}
+Take $R_0=\Exp(0.2,-0.4,1.0)$ and move with body rate $\omega_b=(0.1,0,0.5)$\,rad/s, $R(t)=R_0\Exp(\omega_bt)$. A finite-difference $\dot R$ gives $R\T\dot R$ skew-symmetric with $\vee$-components $(0.1000,\,0.0000,\,0.5000)$: the body rate. The quaternion version gives $q\cdot\dot q=-3\times10^{-8}$, i.e.\ zero up to finite-difference error. $\dot q$ is orthogonal to $q$, tangent to the sphere $S^3$, exactly as the constraint predicts.
+\end{example}

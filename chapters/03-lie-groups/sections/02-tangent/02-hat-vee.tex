@@ -1,0 +1,22 @@
+\subsection{The Lie algebra, hat and vee}\label{sec:lie:hat-vee}
+
+The vector space of all values of $\mathcal X^{-1}\dot{\mathcal X}$ is the tangent space at the identity, $T_{\mathcal E}\mathcal M$, called the \emph{Lie algebra} $\mathfrak m$ of the group. Its elements are matrices (or imaginary/pure quaternions), but they are determined by $m$ numbers. We always work with those numbers, the \emph{Cartesian} tangent vector $\tau\in\RR^m$, and convert with two linear maps:
+\[
+\text{hat: }\RR^m\to\mathfrak m,\ \ \tau\mapsto\tau^\wedge,\qquad\text{vee: }\mathfrak m\to\RR^m,\ \ \tau^\wedge\mapsto(\tau^\wedge)^\vee=\tau .
+\]
+\begin{center}\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}llll@{}}\toprule
+group & $\tau\in\RR^m$ & $\tau^\wedge\in\mathfrak m$ & name in this book\\\midrule
+$S^1$ & $\theta$ & $i\theta$ & \\
+$\SOtwo$ & $\theta$ & $\theta J$ & $\sotwo$, \S\ref{sec:pl:logarithms}\\
+$\SEtwo$ & $(\rho_x,\rho_y,\theta)$ & $\bmat{\theta J&\rho\\0&0}$ & $[S]\in\setwo$, $\vexa$ = vee, \S\ref{sec:pl:twists}\\
+$\SO$ & $\theta\in\RR^3$ & $\skw{\theta}$ & $\so$, \S\ref{sec:rot:lie-algebra-space}\\
+$S^3$ & $\theta\in\RR^3$ & $(0,\theta/2)$ & pure quaternion\\
+$\SE$ & $(\rho,\theta)\in\RR^6$ & $\bmat{\skw{\theta}&\rho\\0&0}$ & $[\xi]\in\se$, \S\ref{sec:rot:twists-velocity-rigid}\\\bottomrule
+\end{tabular}
+\end{center}
+So the ``twists'' of chapter~\ref{ch:pl}, the ``rotation vectors'' and ``skew matrices'' of chapter~\ref{ch:rot}, and the ``exponential coordinates'' are all one thing: \emph{the Lie algebra of the respective group, in Cartesian coordinates}.
+
+\subsubsection{The algebra part of ``Lie algebra''}
+The tangent space carries one extra operation, the \emph{Lie bracket} $[\tau_1^\wedge,\tau_2^\wedge]=\tau_1^\wedge\tau_2^\wedge-\tau_2^\wedge\tau_1^\wedge$, which is again in $\mathfrak m$. It measures non-commutativity at the infinitesimal level. In $\so$ it is the cross product, $[\skw a,\skw b]=\skw{a\times b}$ (\S\ref{sec:rot:lie-algebra-space}); in $\setwo$ it turned forward-and-turn into sideways motion (\S\ref{sec:pl:lie-bracket}). For estimation one rarely needs it explicitly. It hides inside the Jacobians of \S\ref{sec:lie:jacobians}, which differ from the identity precisely because the bracket is non-zero.

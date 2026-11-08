@@ -1,0 +1,21 @@
+\subsection{Worked example: the banana distribution}\label{sec:lie:banana}
+
+A differential-drive robot drives straight for 2\,m in 20 steps of 10\,cm. Its odometry is good in distance ($\sigma=5$\,mm per step) but its heading is noisy ($\sigma_\omega$ per step). Where can it end up? Each sample path turns randomly, so the end points spread along an \emph{arc}: a banana (\figref{fig:lie:banana}a), the classical example of Long, Wolfe, Mashner and Chirikjian (\emph{The Banana Distribution is Gaussian: A Localization Study with Exponential Coordinates}, RSS 2012).
+
+Two filters propagate a Gaussian through the same 20 steps. The \emph{Lie} filter uses \S\ref{sec:lie:propagation} with right plus on $\SEtwo$. The \emph{Euclidean} filter uses the textbook odometry EKF in $(x,y,\theta)$. Both are first-order. 4000 Monte Carlo paths provide the truth. A good uncertainty model should contain 95\% of the samples in its 95\% region ($\chi^2_3$ threshold 7.81):
+\begin{center}\small
+\begin{tabular}{@{}cccc@{}}\toprule
+$\sigma_\omega$ per step & final heading std & inside Lie 95\% region & inside Euclidean 95\% region\\\midrule
+0.03\,rad & $7.7^\circ$ & 94.4\% & 91.6\%\\
+0.06\,rad & $15.4^\circ$ & 89.3\% & 73.1\%\\
+0.10\,rad & $25.6^\circ$ & 72.7\% & 47.5\%\\\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{figure}[h]
+\centering\includegraphics[width=\linewidth]{banana.pdf}
+\caption{End positions after driving 2\,m straight with heading noise (final heading std $25.6^\circ$). (a) The true distribution is a banana. (b) A Gaussian in the tangent space of $\SEtwo$, wrapped onto the group by $\Exp$, is a banana too. (c) A Gaussian in $(x,y,\theta)$ is an ellipse: it puts probability where the robot cannot be (straight ahead at full lateral offset) and misses the bent tails.}
+\label{fig:lie:banana}
+\end{figure}
+
+\emph{What the numbers say.} For small heading uncertainty both models are fine, because a short banana looks like an ellipse. As heading uncertainty grows, the Euclidean ellipse fails much faster: at $26^\circ$ it contains less than half of the real outcomes in its ``95\%'' region, and an EKF using it would reject correct measurements as outliers. The Lie model is far better but not perfect (73\%), because first-order propagation still neglects curvature. That remaining gap is why particle filters, unscented transforms on groups, and second-order corrections exist. The lesson of Long et al.'s title holds: the banana is Gaussian, \emph{in the right coordinates}.

@@ -1,0 +1,24 @@
+\documentclass[../../notes.tex]{subfiles}
+\begin{document}
+\chapterfigs{03-lie-groups}
+
+\chapter{Lie Groups: the Structure Behind Rotations and Poses}\label{ch:lie}
+
+Chapters~\ref{ch:pl} and~\ref{ch:rot} kept meeting the same handful of moves, once for every new kind of object. For planar rotations, planar poses, 3-D rotations, quaternions and 3-D poses, we composed by multiplication, inverted in closed form, and mapped a vector of ``motion amounts'' to the object with an exponential and back with a logarithm. We applied small corrections as $X\,\Exp(\delta)$, moved velocities between frames with an adjoint, and linearised with skew matrices. That is not a coincidence. All five objects are \emph{Lie groups}, and these moves are the general toolkit that every Lie group comes with. This chapter builds that toolkit from zero, assuming no prior knowledge of group theory or differential geometry, and maps each piece onto what the earlier chapters derived by hand. It follows the notation and selection of Solà, Deray and Atchuthan, \emph{A micro Lie theory for state estimation in robotics} (2018), which is the best short companion to it.
+
+\begin{keyidea}[: the one sentence behind the whole chapter]
+A Lie group is a set of transformations that compose and invert smoothly, and whose elements fill a smooth curved surface (a manifold). Its tangent space at the identity, the Lie algebra, is an ordinary vector space of \emph{velocities}. The exponential map turns a velocity held constant for unit time into a group element, and $\oplus$/$\ominus$ turn ``add a small vector'' and ``subtract two elements'' into operations that never leave the group. Jacobians, covariances and Gauss--Newton then work in the flat tangent space exactly as in $\RR^n$, while the state stays exact on the curved group. That is all an estimator, a controller or a planner needs.
+\end{keyidea}
+
+\textbf{Roadmap.} \S\ref{sec:lie:groups} defines groups, manifolds and Lie groups, and lists those that robotics uses. \S\ref{sec:lie:tangent} derives the tangent space and the Lie algebra from ``differentiate the constraint''. \S\ref{sec:lie:exp-plus} builds $\Exp$, $\Log$, $\oplus$, $\ominus$ for every group at once. \S\ref{sec:lie:adjoint} explains the adjoint, which converts between local and global increments. \S\ref{sec:lie:jacobians} defines derivatives on a group and derives the handful of Jacobian blocks from which all others follow by the chain rule. \S\ref{sec:lie:uncertainty} puts covariances on groups. \S\ref{sec:lie:robotics} assembles an error-state Kalman filter and a pose-graph optimiser on $\SEtwo$ from these parts, and surveys where else Lie theory carries robotics. \S\ref{sec:lie:summary} collects the formulas.
+
+\input{\subfix{sections/01-groups/section}}
+\input{\subfix{sections/02-tangent/section}}
+\input{\subfix{sections/03-exp-plus/section}}
+\input{\subfix{sections/04-adjoint/section}}
+\input{\subfix{sections/05-jacobians/section}}
+\input{\subfix{sections/06-uncertainty/section}}
+\input{\subfix{sections/07-robotics/section}}
+\input{\subfix{sections/08-summary/section}}
+
+\end{document}

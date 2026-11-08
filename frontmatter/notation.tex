@@ -28,6 +28,13 @@ These conventions hold in every chapter. When a chapter needs new notation, it i
 \item Planar poses $T=\bmat{R(\theta)&t\\0&1}\in\SEtwo$. Planar twists are linear-first like 3-D ones: $S=(v_x,v_y,\omega)$, $[S]=\bmat{\omega J&v\\0&0}\in\setwo$; $\vexa$ is the inverse of $[\cdot]$. A unit twist $\hat S$ is scaled by a motion amount $\lambda$ (an angle or a distance): $T=\exp(\lambda[\hat S])$.
 \end{itemize}
 
+\section*{Lie groups (chapter~\ref{ch:lie})}
+\begin{itemize}
+\item A generic group element is $\mathcal X$, the identity $\mathcal E$; $m$ = degrees of freedom. Tangent vectors $\tau\in\RR^m$, hat $\tau^\wedge$ into the Lie algebra, vee back. $\Exp(\tau)=\exp(\tau^\wedge)$, $\Log$ its inverse near $\mathcal E$.
+\item Right (local) plus/minus by default: $\mathcal X\oplus\tau=\mathcal X\Exp(\tau)$, $\mathcal Y\ominus\mathcal X=\Log(\mathcal X^{-1}\mathcal Y)$. Left (global) versions are stated explicitly.
+\item $\Ad_{\mathcal X}$: adjoint matrix. $J_r(\tau)$, $J_l(\tau)$: right and left Jacobians of $\Exp$. Jacobians of functions are right Jacobians unless stated. Notation follows Solà, Deray and Atchuthan (2018).
+\end{itemize}
+
 \section*{ROS 2 and tf2 (section~\ref{sec:rot:tf2})}
 \begin{itemize}
 \item A \texttt{TransformStamped} with \texttt{header.frame\_id=A}, \texttt{child\_frame\_id=B} is $T_{AB}$: the pose of $B$ in $A$, mapping $B$-coordinates to $A$-coordinates. \texttt{lookup\_transform(target, source)} returns $T_{\text{target},\text{source}}$; \texttt{tf2\_echo A B} prints $T_{AB}$.

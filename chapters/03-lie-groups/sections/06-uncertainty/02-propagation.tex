@@ -1,0 +1,17 @@
+\subsection{Propagating covariance through functions and motion}\label{sec:lie:propagation}
+
+\begin{deriv}{first-order propagation}
+If $\mathcal Y=f(\mathcal X)$ and $\mathcal X=\bar{\mathcal X}\oplus\tau$, then by the definition of the Jacobian (\S\ref{sec:lie:jacobian-definition}) $\mathcal Y\approx f(\bar{\mathcal X})\oplus J\tau$. So $\bar{\mathcal Y}\approx f(\bar{\mathcal X})$ and the output error $J\tau$ has covariance
+\[
+\Sigma_{\mathcal Y}\approx J\,\Sigma_{\mathcal X}\,J\T,\qquad J=\frac{{}^{\mathcal X}Df}{D\mathcal X}.
+\]
+It is the familiar EKF formula, with Lie Jacobians in place of ordinary ones.
+\end{deriv}
+
+\begin{deriv}{the motion model $\mathcal X_{k+1}=\mathcal X_k\oplus(u_k+w_k)$}
+A robot integrates a measured increment $u_k$ (odometry, IMU) corrupted by noise $w_k\sim\mathcal N(0,Q)$. Both inputs of $\oplus$ are uncertain, and by the $\oplus$ row of the Jacobian table (\S\ref{sec:lie:elementary}),
+\[
+\Sigma_{k+1}=F\,\Sigma_k\,F\T+G\,Q\,G\T,\qquad F=\Ad_{\Exp(u_k)}^{-1},\quad G=J_r(u_k).
+\]
+$F$ re-expresses the old uncertainty in the new body frame: it rotates it and adds a lever arm. $G$ maps the increment's noise into the group. Notice what is \emph{absent}: the absolute pose $\mathcal X_k$ never appears. In local coordinates, dead-reckoning uncertainty grows the same way wherever the robot is and whichever way it faces. With $(x,y,\theta)$ coordinates the Jacobian depends on the heading, which is one reason Euclidean filters are less consistent.
+\end{deriv}

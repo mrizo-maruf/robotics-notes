@@ -1,0 +1,29 @@
+\subsection{Plus and minus: vector-space arithmetic that stays on the group}\label{sec:lie:plus-minus}
+
+Estimation needs two operations that a vector space gives for free: ``move from $\mathcal X$ by a small increment $\tau$'' and ``what increment takes $\mathcal X$ to $\mathcal Y$''. On a Lie group they become
+\begin{align*}
+\text{right:}\quad \mathcal X\oplus\tau&=\mathcal X\,\Exp(\tau), & \mathcal Y\ominus\mathcal X&=\Log(\mathcal X^{-1}\mathcal Y),\\
+\text{left:}\quad \tau\oplus\mathcal X&=\Exp(\tau)\,\mathcal X, & \mathcal Y\ominus\mathcal X&=\Log(\mathcal Y\mathcal X^{-1}).
+\end{align*}
+By construction $(\mathcal X\oplus\tau)\ominus\mathcal X=\tau$ (for small enough $\tau$), and $\mathcal X\oplus(\mathcal Y\ominus\mathcal X)=\mathcal Y$. These are the $\boxplus$/$\boxminus$ of many SLAM papers, and the ``retract''/``local coordinates'' of GTSAM.
+
+\begin{deriv}{right plus is local, left plus is global}
+In the right version, $\mathcal X\Exp(\tau)$ is a frame chain $T_{W\mathcal X}\,T_{\mathcal X\mathcal X'}$: the increment is a motion expressed in the frame of $\mathcal X$ itself, so $\tau$ lives in the local tangent space $T_{\mathcal X}\mathcal M$. In the left version, $\Exp(\tau)\mathcal X$ applies the motion in the reference frame, before $\mathcal X$, so $\tau$ is a global increment in $T_{\mathcal E}\mathcal M$. This is the pre/post-multiplication rule of \S\ref{sec:rot:composition-order-multiplication}, now for any group.
+\end{deriv}
+
+\begin{figure}[h]
+\centering
+\begin{minipage}{0.47\linewidth}\centering\includegraphics[width=\linewidth]{plus_left_right.pdf}\end{minipage}\hfill
+\begin{minipage}{0.5\linewidth}
+\caption{The same increment $\tau=(1,0,0.5)$ applied to the robot pose $\mathcal X=(2,1,30^\circ)$ on the right (blue: drive 1\,m while turning $0.5$\,rad, as seen by the robot, about a turn centre 2\,m to its left) and on the left (orange dashed: the same twist applied about the \emph{world} origin, so the robot swings around the point $(0,2)$). Both end with heading $58.65^\circ$, but at $(2.708,1.692)$ and $(2.235,2.081)$.}
+\label{fig:lie:plus}
+\end{minipage}
+\end{figure}
+
+\begin{example}{one increment, two meanings}
+With $\mathcal X=(2,1,30^\circ)$ and $\tau=(1,0,0.5)$: $\mathcal X\oplus\tau$ is at $(2.708,\,1.692)$ and $\tau\oplus\mathcal X$ at $(2.235,\,2.081)$, both at $58.65^\circ$ (in the plane the rotation parts commute). To get the right-plus result with a left plus, the increment must be re-expressed in the global frame: $\Ad_{\mathcal X}\tau=(1.366,\,-0.500,\,0.500)$, and indeed $\Exp(\Ad_{\mathcal X}\tau)\mathcal X=\mathcal X\Exp(\tau)$ exactly (\S\ref{sec:lie:adjoint}). The round trip $(\mathcal X\oplus\tau)\ominus\mathcal X$ returns $(1,0,0.5)$.
+\end{example}
+
+\begin{pitfall}[: the side of the perturbation is a convention you must match]
+An estimator that applies corrections with $\mathcal X\oplus\delta$ needs Jacobians with respect to right increments. If it is fed left Jacobians, it converges slowly or to the wrong point, and covariances describe the wrong frame. This book and GTSAM use right plus by default; Ceres' \texttt{QuaternionManifold} uses left plus (\S\ref{sec:lie:exp-in-practice}). Pick one per project and write it at the top of the code.
+\end{pitfall}

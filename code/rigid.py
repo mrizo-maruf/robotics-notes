@@ -202,3 +202,79 @@ def T2inv(M):
     out[:2, :2] = R.T
     out[:2, 2] = -R.T @ t
     return out
+
+
+# ===================================================================== Lie-group calculus
+# Conventions (Sola, Deray, Atchuthan 2018, and this book):
+#   right plus   X (+) tau = X Exp(tau)        right minus  Y (-) X = Log(X^-1 Y)
+#   left  plus   tau (+) X = Exp(tau) X        left  minus  Y (-) X = Log(Y X^-1)
+#   right Jacobian of f:  lim [ f(X (+) tau) (-) f(X) ] / tau
+# Tangent vectors are linear-first: SE(2) (rho_x, rho_y, theta), SE(3) (rho, phi).
+
+def Jr_SO3(phi):
+    """Right Jacobian of Exp on SO(3)."""
+    th = np.linalg.norm(phi); K = skew(phi)
+    if th < 1e-8:
+        return np.eye(3) - 0.5 * K + K @ K / 6
+    return np.eye(3) - (1 - np.cos(th)) / th**2 * K + (th - np.sin(th)) / th**3 * K @ K
+
+
+def Jl_SO3(phi):
+    """Left Jacobian of Exp on SO(3); equals V_mat(phi) of the SE(3) exponential."""
+    return Jr_SO3(-np.asarray(phi, float))
+
+
+def Jr_SO3_inv(phi):
+    th = np.linalg.norm(phi); K = skew(phi)
+    if th < 1e-8:
+        return np.eye(3) + 0.5 * K + K @ K / 12
+    return np.eye(3) + 0.5 * K + (1 / th**2 - (1 + np.cos(th)) / (2 * th * np.sin(th))) * K @ K
+
+
+def Ad_SE2(M):
+    """Adjoint of SE(2) for tau = (rho_x, rho_y, theta):  [[R, -J t], [0, 1]]."""
+    A = np.eye(3)
+    A[:2, :2] = M[:2, :2]
+    A[:2, 2] = -J2 @ M[:2, 2]
+    return A
+
+
+def Jr_SE2(tau):
+    """Right Jacobian of Exp on SE(2) (closed form, Sola et al. eq. 163)."""
+    r1, r2, th = tau
+    if abs(th) < 1e-8:
+        return np.array([[1, th / 2, -r2 / 2], [-th / 2, 1, r1 / 2], [0, 0, 1.0]])
+    s, c = np.sin(th), np.cos(th)
+    return np.array([[s / th, (1 - c) / th, (th * r1 - r2 + r2 * c - r1 * s) / th**2],
+                     [(c - 1) / th, s / th, (r1 + th * r2 - r1 * c - r2 * s) / th**2],
+                     [0, 0, 1.0]])
+
+
+def Jl_SE2(tau):
+    return Jr_SE2(-np.asarray(tau, float))
+
+
+# generic plus / minus for the matrix groups used in the book
+GROUPS = {
+    "SO3": dict(Exp=Exp, Log=Log, inv=lambda R: R.T),
+    "SE2": dict(Exp=ExpSE2, Log=LogSE2, inv=T2inv),
+    "SE3": dict(Exp=ExpSE3, Log=LogSE3, inv=Tinv),
+}
+
+
+def rplus(G, X, tau):  return X @ GROUPS[G]["Exp"](tau)
+def lplus(G, X, tau):  return GROUPS[G]["Exp"](tau) @ X
+def rminus(G, Y, X):   return GROUPS[G]["Log"](GROUPS[G]["inv"](X) @ Y)
+def lminus(G, Y, X):   return GROUPS[G]["Log"](Y @ GROUPS[G]["inv"](X))
+
+
+def num_rjac(f, X, G_in, G_out=None, eps=1e-6):
+    """Numerical right Jacobian of f: G_in -> G_out (or R^n if G_out is None)."""
+    m = len(GROUPS[G_in]["Log"](X)) if G_in in GROUPS else len(X)
+    fX = f(X); cols = []
+    for i in range(m):
+        d = np.zeros(m); d[i] = eps
+        Xp = rplus(G_in, X, d) if G_in in GROUPS else X + d
+        fp = f(Xp)
+        cols.append((rminus(G_out, fp, fX) if G_out else (fp - fX)) / eps)
+    return np.column_stack(cols)

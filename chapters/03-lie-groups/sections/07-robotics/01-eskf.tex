@@ -1,0 +1,17 @@
+\subsection{An error-state Kalman filter on SE(2)}\label{sec:lie:eskf}
+
+A robot with pose $\mathcal X\in\SEtwo$ integrates noisy odometry increments $u_k$ and measures the positions $y=\mathcal X^{-1}\cdot b+n$ of known beacons $b$ in its own frame. The filter keeps a mean $\hat{\mathcal X}$ on the group and a $3\times3$ covariance $P$ of the local error $\delta=\mathcal X\ominus\hat{\mathcal X}$.
+
+\begin{deriv}{the three steps, each one line of Lie calculus}
+\emph{Predict.} $\hat{\mathcal X}\leftarrow\hat{\mathcal X}\oplus u_k$, and $P\leftarrow FPF\T+GQG\T$ with $F=\Ad_{\Exp(u_k)}^{-1}$, $G=J_r(u_k)$ (\S\ref{sec:lie:propagation}).
+
+\emph{Measurement Jacobian.} For $h(\mathcal X)=\mathcal X^{-1}\cdot b=R\T(b-t)$, perturb $\mathcal X\oplus\delta$ with $\delta=(\rho,\theta)$: $(\mathcal X\Exp\delta)^{-1}b\approx(I-\theta J)\big(R\T(b-t)-\rho\big)\approx h-\rho-\theta JR\T(b-t)$. So
+\[
+H=\bmat{-I_2&-J\,R\T(b-t)}.
+\]
+\emph{Update.} Innovation $z=y-h(\hat{\mathcal X})$ (the measurement lives in $\RR^2$, so $\ominus$ is $-$); $S=HPH\T+R_n$, $K=PH\T S^{-1}$; correct $\hat{\mathcal X}\leftarrow\hat{\mathcal X}\oplus Kz$, $P\leftarrow(I-KH)P$. The correction is a tangent vector applied with $\oplus$, so the estimate is always a valid pose.
+\end{deriv}
+
+\begin{example}{beacon localisation}
+The robot drives a circle (1\,m/s, 0.2\,rad/s) for 30\,s with odometry noise $0.1$\,m/s and $0.08$\,rad/s, and sees three beacons near $(2,0)$ with $\sigma=0.1$\,m. Dead reckoning ends 1.03\,m off; the ESKF ends 1.2\,cm off, with a mean error of 3.4\,cm over the run (\figref{fig:lie:robotics}a). Its mean NEES is 2.2 against an ideal 3 (slightly conservative, i.e.\ consistent). Note that the ellipses in the figure are aligned with the robot's motion: they are the local covariance rotated into the world.
+\end{example}

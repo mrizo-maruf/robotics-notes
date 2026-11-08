@@ -1,0 +1,18 @@
+\subsection{Formula sheet}\label{sec:lie:formula-sheet}
+
+\begin{center}\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{3.3cm}X@{}}\toprule
+Lie algebra & $\mathcal X^{-1}\dot{\mathcal X}=v^\wedge$ (local), $\dot{\mathcal X}\mathcal X^{-1}=v^\wedge$ (global); $\tau\in\RR^m\leftrightarrow\tau^\wedge$ by hat/vee\\
+Exp, Log & $\Exp(\tau)=\exp(\tau^\wedge)$; $\Log=\Exp^{-1}$ near $\mathcal E$; $\Exp((t+s)\tau)=\Exp(t\tau)\Exp(s\tau)$\\
+plus, minus (right) & $\mathcal X\oplus\tau=\mathcal X\Exp(\tau)$,\ \ $\mathcal Y\ominus\mathcal X=\Log(\mathcal X^{-1}\mathcal Y)$\\
+plus, minus (left) & $\tau\oplus\mathcal X=\Exp(\tau)\mathcal X$,\ \ $\mathcal Y\ominus\mathcal X=\Log(\mathcal Y\mathcal X^{-1})$\\
+adjoint & $\Ad_{\mathcal X}\tau=(\mathcal X\tau^\wedge\mathcal X^{-1})^\vee$;\ \ $\SO$: $R$;\ \ $\SEtwo$: $\bmat{R&-Jt\\0&1}$;\ \ $\SE$: $\bmat{R&\skw tR\\0&R}$\\
+right Jacobian & $J=\lim\big(f(\mathcal X\oplus\tau)\ominus f(\mathcal X)\big)/\tau$;\ \ chain rule holds\\
+elementary blocks & $J^{\mathcal X^{-1}}_{\mathcal X}=-\Ad_{\mathcal X}$;\ \ $J^{\mathcal X\mathcal Y}_{\mathcal X}=\Ad_{\mathcal Y}^{-1}$, $J^{\mathcal X\mathcal Y}_{\mathcal Y}=I$;\ \ $J^{\Exp\tau}_\tau=J_r(\tau)$;\ \ $J^{\Log\mathcal X}_{\mathcal X}=J_r^{-1}$;\ \ $J^{Rp}_R=-R\skw p$\\
+$J_r$ of $\SO$ & $I-\frac{1-\cos\theta}{\theta^2}\skw\theta+\frac{\theta-\sin\theta}{\theta^3}\skw\theta^2$;\ \ $J_l(\theta)=J_r(-\theta)=\Exp(\theta)J_r(\theta)$\\
+uncertainty & $\mathcal X=\bar{\mathcal X}\oplus\tau$, $\tau\sim\mathcal N(0,\Sigma)$;\ \ $\Sigma_{\mathcal Y}=J\Sigma J\T$;\ \ $\Sigma_{\text{glob}}=\Ad\,\Sigma_{\text{loc}}\Ad\T$\\
+motion model & $\mathcal X'=\mathcal X\oplus u$:\ \ $F=\Ad_{\Exp u}^{-1}$, $G=J_r(u)$\\
+pose-graph edge & $r=\Log(Z^{-1}\mathcal X_i^{-1}\mathcal X_j)$;\ \ $\partial r/\partial\mathcal X_i=-J_r^{-1}(r)\Ad_{\mathcal X_j^{-1}\mathcal X_i}$, $\partial r/\partial\mathcal X_j=J_r^{-1}(r)$\\\bottomrule
+\end{tabularx}
+\end{center}

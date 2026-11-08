@@ -1,0 +1,9 @@
+\subsection{In practice: where the adjoint is used}\label{sec:lie:adjoint-in-practice}
+
+The adjoint appears whenever an increment, velocity, or covariance must change frames.
+\begin{itemize}
+\item \emph{Sensor-to-body velocity.} A twist measured at a camera or IMU is moved to the body with $\Ad_{T_{BC}}$ (the lever arm of \S\ref{sec:rot:changing-frame-twist}); a VIO filter that forgets the off-diagonal block interprets rotation as translation.
+\item \emph{Covariances.} A local covariance becomes a global one by $\Sigma_{\mathcal E}=\Ad_{\mathcal X}\Sigma_{\mathcal X}\Ad_{\mathcal X}\T$ (\S\ref{sec:lie:covariance}).
+\item \emph{Jacobians.} The Jacobians of inversion and composition are adjoints (\S\ref{sec:lie:elementary}), and manipulator Jacobians are columns of screw axes moved by adjoints (\S\ref{sec:rot:forward-kinematics-product}).
+\end{itemize}
+In manif it is \texttt{X.adj()}. Its $\SEtwo$ implementation sets the top-right column to $(y,-x)$, i.e.\ $-Jt$ as derived above. In GTSAM it is \texttt{AdjointMap()}, with blocks arranged for GTSAM's rotation-first ordering.

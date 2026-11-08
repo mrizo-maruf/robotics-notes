@@ -1,0 +1,22 @@
+\subsection{The elementary Jacobian blocks}\label{sec:lie:elementary}
+
+\begin{deriv}{inverse, composition, group action}
+\emph{Inverse}, $f(\mathcal X)=\mathcal X^{-1}$. Perturb: $(\mathcal X\Exp\tau)^{-1}=\Exp(-\tau)\mathcal X^{-1}$. A left increment $-\tau$ equals the right increment $-\Ad_{\mathcal X}\tau$ at $\mathcal X^{-1}$ (because $\Ad_{\mathcal X^{-1}}^{-1}=\Ad_{\mathcal X}$). So $J^{\mathcal X^{-1}}_{\mathcal X}=-\Ad_{\mathcal X}$.
+
+\emph{Composition}, $f(\mathcal X,\mathcal Y)=\mathcal X\mathcal Y$. Perturbing $\mathcal Y$: $\mathcal X\mathcal Y\Exp(\tau)$, a right increment $\tau$ of the output, so $J_{\mathcal Y}=I$. Perturbing $\mathcal X$: $\mathcal X\Exp(\tau)\mathcal Y=\mathcal X\mathcal Y\,\Exp(\Ad_{\mathcal Y^{-1}}\tau)$, so $J_{\mathcal X}=\Ad_{\mathcal Y}^{-1}$.
+
+\emph{Action on a point}, $f(\mathcal X)=\mathcal X\cdot p$. For $\SO$: $R\Exp(\theta)p\approx R(p+\theta\times p)=Rp-R\skw{p}\theta$, so $J_R=-R\skw p$ and $J_p=R$. For $\SEtwo$: $J_{\mathcal X}=\bmat{R&RJp}$. For $\SE$: $J_{\mathcal X}=R\bmat{I&-\skw p}$ (\S\ref{sec:rot:pose-optimisation-version}). For the \emph{inverse} action $R\T p$ (``where is this world vector in the body frame''): $J_R=\skw{R\T p}$.
+\end{deriv}
+
+\begin{center}\small
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{@{}lll@{}}\toprule
+operation & right Jacobian(s) & numerical check (max error, 200 random cases)\\\midrule
+$\mathcal X^{-1}$ & $-\Ad_{\mathcal X}$ & $9\times10^{-10}$ ($\SEtwo$)\\
+$\mathcal X\mathcal Y$ & $J_{\mathcal X}=\Ad_{\mathcal Y}^{-1}$,\ \ $J_{\mathcal Y}=I$ & $8\times10^{-10}$, $9\times10^{-10}$\\
+$\mathcal X\oplus\tau$ & $J_{\mathcal X}=\Ad_{\Exp\tau}^{-1}$,\ \ $J_\tau=J_r(\tau)$ & $1\times10^{-9}$\\
+$\Exp(\tau)$, $\Log(\mathcal X)$ & $J_r(\tau)$, $J_r^{-1}(\Log\mathcal X)$ & $2\times10^{-7}$, $3\times10^{-7}$\\
+$R\,p$, $R\T p$ & $-R\skw p$, $\skw{R\T p}$ & $2\times10^{-6}$ (finite-difference limited)\\\bottomrule
+\end{tabular}
+\end{center}
+The $\oplus$ row follows from the composition row and the $\Exp$ row by the chain rule. The $\ominus$ Jacobians follow the same way: for $\mathcal Y\ominus\mathcal X=\Log(\mathcal X^{-1}\mathcal Y)$, $J_{\mathcal Y}=J_r^{-1}(\tau)$ and $J_{\mathcal X}=-J_l^{-1}(\tau)$, with $\tau=\mathcal Y\ominus\mathcal X$. Section~\ref{sec:lie:pose-graph} derives a pose-graph residual's Jacobians exactly like this.

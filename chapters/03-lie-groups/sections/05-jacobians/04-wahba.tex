@@ -1,0 +1,23 @@
+\subsection{Worked example: attitude from vector observations by Gauss--Newton on SO(3)}\label{sec:lie:wahba}
+
+An IMU or star tracker observes known world directions in its own frame: gravity from the accelerometer, magnetic north from a magnetometer, star or landmark bearings from a camera. With world vectors $a_i$ and body-frame measurements $y_i=R\T a_i+n_i$, find $R$:
+\[
+\min_{R\in\SO}\ \sum_i\|y_i-R\T a_i\|^2 .
+\]
+\emph{Model.} Residual $r_i(R)=y_i-R\T a_i$. By the inverse-action block of \S\ref{sec:lie:elementary}, $\partial(R\T a_i)/\partial R=\skw{R\T a_i}$, so the residual Jacobian is $-\skw{R\T a_i}$. \emph{Gauss--Newton step}: stack the residuals, solve $(J\T J)\delta=-J\T r$ for $\delta\in\RR^3$, and update $R\leftarrow R\oplus\delta$. The state never leaves $\SO$, and no constraint has to be enforced.
+
+\begin{example}{four directions, 0.01 noise, started 107$^\circ$ away}
+Four unit directions (gravity, a tilted magnetic field, two landmark bearings), true attitude $\Exp(0.4,-0.9,2.2)$, noise $\sigma=0.01$, initial guess $R=I$:
+\begin{center}\small
+\begin{tabular}{@{}cccc@{}}\toprule
+iteration & error to truth & $\|\delta\|$ & cost before step\\\midrule
+1 & $106.66^\circ$ & 0.975 & 8.15\\
+2 & $53.81^\circ$ & 0.993 & 3.74\\
+3 & $8.11^\circ$ & 0.801 & 1.09\\
+4 & $0.384^\circ$ & 0.136 & $2.7\times10^{-2}$\\
+5 & $0.302^\circ$ & $1.8\times10^{-3}$ & $1.04\times10^{-3}$\\
+6 & $0.301^\circ$ & $9.6\times10^{-6}$ & $1.04\times10^{-3}$\\\bottomrule
+\end{tabular}
+\end{center}
+Five iterations reach the noise floor ($0.30^\circ$), with the quadratic convergence typical of Gauss--Newton near the optimum. The result agrees with the closed-form SVD (Wahba/Kabsch) solution to $3\times10^{-10}$ degrees. The SVD trick exists only for this particular cost. The Lie-group Gauss--Newton recipe (residual, chain-rule Jacobian, $\oplus$ update) works unchanged for any cost, which is why SLAM back-ends are built on it.
+\end{example}

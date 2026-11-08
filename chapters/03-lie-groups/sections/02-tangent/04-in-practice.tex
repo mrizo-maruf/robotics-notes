@@ -1,0 +1,5 @@
+\subsection{In practice: velocities in messages and libraries}\label{sec:lie:tangent-in-practice}
+
+Sensors and messages almost always deliver \emph{local} tangent vectors. A gyroscope measures ${}^{\mathcal X}\omega$ in the IMU frame; a \texttt{geometry\_msgs/Twist} on \texttt{/cmd\_vel} is a body twist; \texttt{nav\_msgs/Odometry} states that its twist is expressed in \texttt{child\_frame\_id} (\S\ref{sec:pl:in-practice}). Ordering conventions differ: this book, Solà et al., manif and Sophus write the $\SE$ tangent linear-first $(\rho,\theta)$, while GTSAM and Lynch \& Park write $(\theta,\rho)$ (frontmatter). Mixing them swaps the blocks of every adjoint and Jacobian.
+
+In code, hat and vee are one-liners; \texttt{rigid.py} has \texttt{skew}, \texttt{hat2}/\texttt{vee2} and \texttt{hat6}. manif exposes \texttt{tau.hat()} on every tangent type. Dimension checks catch most mistakes: a tangent vector for $\SE$ has 6 entries, never 7 (quaternion plus translation) or 12.

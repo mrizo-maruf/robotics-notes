@@ -1,0 +1,21 @@
+\subsection{The adjoint matrices of our groups}\label{sec:lie:adjoint-matrices}
+
+\begin{deriv}{$\SO$, $\SEtwo$ and $\SE$}
+\emph{$\SO$.} $R\skw{\theta}R\T=\skw{R\theta}$ (\eqref{eq:rot:conj}), so $\Ad_R=R$.\\
+\emph{$\SEtwo$} with $\tau=(\rho,\theta)$. Conjugate the hat matrix:
+\[
+\bmat{R&t\\0&1}\bmat{\theta J&\rho\\0&0}\bmat{R\T&-R\T t\\0&1}=\bmat{\theta RJR\T&R\rho-\theta RJR\T t\\0&0}=\bmat{\theta J&R\rho-\theta Jt\\0&0},
+\]
+using $RJ=JR$ in the plane. Reading off vee: $\Ad_{\mathcal X}=\bmat{R&-Jt\\0&1}$.\\
+\emph{$\SE$.} The same calculation with $R\skw{\theta}R\T=\skw{R\theta}$ and $-\skw{R\theta}t=t\times R\theta$ gives $\Ad_{\mathcal X}=\bmat{R&\skw{t}R\\0&R}$ (\S\ref{sec:rot:changing-frame-twist}).
+\end{deriv}
+
+The off-diagonal block is the \emph{lever arm}. Rotating about the reference origin with rate $\theta$ moves a point at $t$ with velocity $\theta\times t$, so a rotation expressed at the robot looks like rotation \emph{plus} translation when expressed at the origin. The pure rotation block just rotates the axes.
+
+\begin{example}{a body twist seen from the world}
+Robot at $\mathcal X=(2,1,30^\circ)$, driving with body twist $\xi_b=(0.6,0,0.4)$ (m/s, rad/s). Then
+\[
+\Ad_{\mathcal X}=\bmat{0.866&-0.5&1\\0.5&0.866&-2\\0&0&1},\qquad \xi_s=\Ad_{\mathcal X}\xi_b=(0.920,\,-0.500,\,0.400).
+\]
+The robot's origin moves at $R\,v_b=(0.520,0.300)$\,m/s in the world. The spatial linear velocity $(0.920,-0.500)$ is instead the velocity of the (imaginary) body point currently at the world origin, $v_{\text{origin}}-\omega Jt$, exactly as \S\ref{sec:rot:twists-velocity-rigid} described for $\SE$. Same physical motion, two coordinate descriptions.
+\end{example}

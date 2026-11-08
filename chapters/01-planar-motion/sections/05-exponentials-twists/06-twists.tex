@@ -43,3 +43,7 @@ The exponential is exact at every rate, because it \emph{is} the solution of the
 \caption{Odometry integration with identical encoder data. (a,b) At 2\,Hz, Euler (red) cuts the inside of every bend and drifts. RK2 (green dashed) is close. The exponential lands exactly on the true path at every sample. (c) Error relative to the exact solution: integrator error alone, with no slip or noise.}
 \label{fig:pl:odometry}
 \end{figure}
+
+\begin{noteb}{The general picture}
+$\setwo$ is the Lie algebra of the Lie group $\SEtwo$, $\exp$ and $\log$ are its exponential and logarithm maps, and ``appending a body-frame increment on the right'' is the right-plus operation $\oplus$. Chapter~\ref{ch:lie} develops this structure for all the groups of robotics.
+\end{noteb}

@@ -1,0 +1,17 @@
+\subsection{A Gaussian lives in the tangent space}\label{sec:lie:covariance}
+
+Model an uncertain element as a mean $\bar{\mathcal X}\in\mathcal M$ perturbed by a small random tangent vector:
+\[
+\mathcal X=\bar{\mathcal X}\oplus\tau,\qquad\tau\sim\mathcal N(0,\Sigma),\quad\Sigma=\mathbb E[\tau\tau\T]\in\RR^{m\times m}.
+\]
+Equivalently $\tau=\mathcal X\ominus\bar{\mathcal X}$: the covariance is the spread of the \emph{local errors}. It has exactly $m$ rows (3 for an orientation, 6 for a pose), no redundancy, and a clear meaning: with right plus, the errors are expressed in the frame of the mean itself (``the robot is uncertain by 5\,cm to \emph{its} left'').
+
+\begin{deriv}{local versus global covariance}
+With left plus, $\mathcal X=\tau_g\oplus\bar{\mathcal X}$, the error is expressed in the reference frame. Since $\tau_g=\Ad_{\bar{\mathcal X}}\tau$ (\S\ref{sec:lie:adjoint}), and covariances transform as $\mathrm{cov}(A\tau)=A\Sigma A\T$:
+\[
+\Sigma_{\text{global}}=\Ad_{\bar{\mathcal X}}\,\Sigma_{\text{local}}\,\Ad_{\bar{\mathcal X}}\T .
+\]
+For a pose this mixes the blocks. An orientation uncertainty in the local frame becomes position uncertainty in the global frame, scaled by the distance from the origin (the lever arm $\skw tR$).
+\end{deriv}
+
+The sampled distribution is generally \emph{not} Gaussian in any fixed coordinates on the group (e.g.\ $(x,y,\theta)$ of a planar pose). It is Gaussian in the tangent space and then wrapped onto the group by $\Exp$. That difference is the subject of \S\ref{sec:lie:banana}.

@@ -1,0 +1,17 @@
+\subsection{Definition from one requirement}\label{sec:lie:adjoint-definition}
+
+\begin{deriv}{the adjoint makes left and right increments agree}
+We want the global increment ${}^{\mathcal E}\tau$ that has the same effect as a local increment ${}^{\mathcal X}\tau$:
+\[
+\Exp({}^{\mathcal E}\tau)\,\mathcal X=\mathcal X\,\Exp({}^{\mathcal X}\tau)
+\ \Longrightarrow\
+\Exp({}^{\mathcal E}\tau)=\mathcal X\Exp({}^{\mathcal X}\tau)\mathcal X^{-1}=\exp\big(\mathcal X\,{}^{\mathcal X}\tau^\wedge\,\mathcal X^{-1}\big),
+\]
+using the last property of \S\ref{sec:lie:exp}. Taking $\Log$:
+\[
+{}^{\mathcal E}\tau^\wedge=\mathcal X\,{}^{\mathcal X}\tau^\wedge\,\mathcal X^{-1}\qquad\Longrightarrow\qquad {}^{\mathcal E}\tau=\Ad_{\mathcal X}\,{}^{\mathcal X}\tau,\quad \Ad_{\mathcal X}\tau=(\mathcal X\tau^\wedge\mathcal X^{-1})^\vee .
+\]
+Conjugation is linear in $\tau$, so $\Ad_{\mathcal X}$ is an $m\times m$ matrix: the adjoint matrix of $\mathcal X$. The same algebra applied to velocities gives ${}^{\mathcal E}v=\Ad_{\mathcal X}\,{}^{\mathcal X}v$ (\S\ref{sec:lie:local-global}).
+\end{deriv}
+
+Directly from the definition: $\Ad_{\mathcal X\mathcal Y}=\Ad_{\mathcal X}\Ad_{\mathcal Y}$ (conjugate by $\mathcal Y$, then by $\mathcal X$), $\Ad_{\mathcal X^{-1}}=\Ad_{\mathcal X}^{-1}$, and $\Ad_{\mathcal E}=I$. For a commutative group conjugation does nothing, so $\Ad=I$ and left and right increments coincide. That is why $S^1$, $\SOtwo$ and $\RR^n$ never forced us to think about the side. The adjoint is the precise measure of how much ``where you apply a motion'' matters.

@@ -1,0 +1,40 @@
+\subsection{Self-assessment, practice problems and the essence}\label{sec:lie:problems}
+
+You understand this chapter if you can, without notes:
+\begin{enumerate}[label=\arabic*.,itemsep=1pt]
+\item State the group axioms and say why $\SE$ and $\RR^3\times\SO$ are different groups on the same set (\S\ref{sec:lie:catalogue}).
+\item Derive the Lie algebra of $\SO$, $S^3$ and $\SE$ by differentiating the constraint (\S\ref{sec:lie:velocities}).
+\item Explain local versus global tangent vectors, and right versus left $\oplus$, with a picture (\S\S\ref{sec:lie:local-global}, \ref{sec:lie:plus-minus}).
+\item Derive $\Ad$ for $\SEtwo$ and interpret its off-diagonal block (\S\ref{sec:lie:adjoint-matrices}).
+\item Derive the Jacobians of inverse, composition and group action, and use the chain rule to get those of $\ominus$ (\S\ref{sec:lie:elementary}).
+\item Propagate a covariance through $\mathcal X\oplus u$ and say why $\mathcal X$ itself does not appear (\S\ref{sec:lie:propagation}).
+\item Explain the banana distribution and what ``Gaussian in the tangent space'' means (\S\ref{sec:lie:banana}).
+\item Derive the Jacobians of a pose-graph residual (\S\ref{sec:lie:pose-graph}).
+\end{enumerate}
+
+\textbf{Problems.}
+\begin{enumerate}[label=\textbf{P\arabic*.},itemsep=2pt]
+\item Show that $\Ad_{\mathcal X\mathcal Y}=\Ad_{\mathcal X}\Ad_{\mathcal Y}$ directly from the definition.
+\item For $\SOtwo$, what are $\Ad$, $J_r$ and $J_l$? Why?
+\item Derive $\partial(\mathcal X^{-1}\mathcal Y)/\partial\mathcal X$ and $\partial(\mathcal X^{-1}\mathcal Y)/\partial\mathcal Y$ (right Jacobians) from the elementary blocks.
+\item A robot's pose covariance is $\Sigma_{\text{loc}}=\mathrm{diag}(0,0,\sigma_\theta^2)$ (heading uncertainty only, in its own frame) and it stands at $t=(10,0)$, facing $+x$. What is its global position covariance?
+\item Why does the right Jacobian of $\Log$ blow up as $\|\theta\|\to\pi$ for $\SO$? What does that mean for a pose-graph residual?
+\end{enumerate}
+
+\textbf{Answers.}
+\begin{enumerate}[label=\textbf{P\arabic*.},itemsep=2pt]
+\item $(\mathcal X\mathcal Y)\tau^\wedge(\mathcal X\mathcal Y)^{-1}=\mathcal X(\mathcal Y\tau^\wedge\mathcal Y^{-1})\mathcal X^{-1}$, i.e.\ apply $\Ad_{\mathcal Y}$, then $\Ad_{\mathcal X}$.
+\item All equal $1$: $\SOtwo$ is commutative, so conjugation does nothing and the exponential turns sums into products exactly ($\Exp(\theta+\delta)=\Exp(\theta)\Exp(\delta)$).
+\item By the chain rule, with $\mathcal Z=\mathcal X^{-1}\mathcal Y$: $J_{\mathcal X}=J^{\mathcal Z}_{\mathcal X^{-1}}J^{\mathcal X^{-1}}_{\mathcal X}=\Ad_{\mathcal Y}^{-1}(-\Ad_{\mathcal X})=-\Ad_{\mathcal Y^{-1}\mathcal X}$, and $J_{\mathcal Y}=I$.
+\item $\Ad_{\mathcal X}=\bmat{I&-Jt\\0&1}$ with $-Jt=(0,-10)$. The global covariance has position block $\mathrm{diag}(0,\,100\,\sigma_\theta^2)$: heading uncertainty in the robot's frame is lateral position uncertainty of $10\sigma_\theta$ in the world, growing with distance from the origin.
+\item $J_r^{-1}$ contains $\frac{1+\cos\theta}{2\theta\sin\theta}$, i.e.\ $0/0$ approaching the cut locus, where two equally short generators exist and $\Log$ jumps (\S\ref{sec:lie:closed-forms}). A residual near $180^\circ$ is a bad linearisation point; it usually signals a wrong loop closure or a bad initial guess.
+\end{enumerate}
+
+\textbf{The essence, in five lines.}
+\begin{enumerate}[label=\arabic*.,itemsep=1pt]
+\item Rotations and poses form Lie groups: they compose and invert, and they fill smooth curved manifolds.
+\item The tangent space at the identity, the Lie algebra, is a flat $\RR^m$ of velocities; $\Exp$/$\Log$ connect it to the group.
+\item $\oplus$/$\ominus$ let every vector-space algorithm (Gauss--Newton, Kalman filtering, interpolation) run on the group: compute in $\RR^m$, apply on $\mathcal M$.
+\item The adjoint moves increments between frames, and right/left is a convention that Jacobians and covariances must match.
+\item A few elementary Jacobians and the chain rule give every derivative a SLAM, VIO, calibration or control system needs.
+\end{enumerate}

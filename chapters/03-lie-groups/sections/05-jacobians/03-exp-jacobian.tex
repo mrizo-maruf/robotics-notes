@@ -1,0 +1,33 @@
+\subsection{The Jacobian of the exponential}\label{sec:lie:exp-jacobian}
+
+The one non-trivial block is the derivative of $\Exp$ itself. It answers: if I change the tangent vector $\tau$ by a small $\delta\tau$ \emph{in $\RR^m$}, which local increment does the group element undergo?
+\[
+\Exp(\tau+\delta\tau)\approx\Exp(\tau)\,\Exp\big(J_r(\tau)\,\delta\tau\big)\approx\Exp\big(J_l(\tau)\,\delta\tau\big)\,\Exp(\tau).
+\]
+$J_r$ and $J_l$ are the \emph{right and left Jacobians of the group}. If the group were commutative they would be $I$ (adding in the tangent space would be the same as composing). They differ from $I$ by the Lie bracket, i.e.\ by exactly the non-commutativity that \eqref{eq:rot:bch} quantified.
+
+\begin{deriv}{$J_r$ for $\SO$, from the derivative of a matrix exponential}
+\emph{Step 1 (any matrices).} Write $e^{A+sB}$ as a product of many small factors and differentiate in $s$ at $0$. Each factor contributes once, giving
+\[
+\frac{d}{ds}e^{A+sB}\Big|_{0}=\int_0^1 e^{(1-u)A}\,B\,e^{uA}\,du=e^{A}\int_0^1 e^{-uA}Be^{uA}\,du .
+\]
+\emph{Step 2.} Conjugation by an exponential is the exponential of the bracket: $e^{-uA}Be^{uA}=\sum_k\frac{(-u)^k}{k!}\mathrm{ad}_A^kB$, with $\mathrm{ad}_AB=[A,B]$ (both sides solve $\frac{d}{du}X=[X,A]$ with $X(0)=B$). Integrating $u^k$ from 0 to 1 gives $\frac1{k+1}$:
+\[
+\frac{d}{ds}e^{A+sB}\Big|_{0}=e^{A}\sum_{k\ge0}\frac{(-\mathrm{ad}_A)^k}{(k+1)!}B .
+\]
+\emph{Step 3 ($\SO$).} Put $A=\skw\theta$, $B=\skw\delta$. Since $[\skw\theta,\skw\delta]=\skw{\theta\times\delta}$, the operator $\mathrm{ad}_{\skw\theta}$ acts on $\delta$ as the matrix $\skw\theta$. So $\Exp(\theta+s\delta)\approx\Exp(\theta)\Exp(sJ_r\delta)$ with
+\[
+J_r(\theta)=\sum_{k\ge0}\frac{(-\skw\theta)^k}{(k+1)!}=I-\frac{1-\cos\|\theta\|}{\|\theta\|^2}\skw\theta+\frac{\|\theta\|-\sin\|\theta\|}{\|\theta\|^3}\skw\theta^2 .
+\]
+The sum collapses with the cycling powers $\skw\theta^3=-\|\theta\|^2\skw\theta$ (\eqref{eq:rot:skewpow}): odd terms give $-\skw\theta(\frac1{2!}-\frac{\|\theta\|^2}{4!}+\dots)$, even terms give $\skw\theta^2(\frac1{3!}-\frac{\|\theta\|^2}{5!}+\dots)$, exactly as for Rodrigues' formula. The left Jacobian is $J_l(\theta)=J_r(-\theta)=\Exp(\theta)J_r(\theta)$.
+\end{deriv}
+
+Properties worth remembering: $J_r\to I-\frac12\skw\theta$ for small $\theta$ (checked: error $1.5\times10^{-7}$ at $\|\theta\|=10^{-3}$); $J_l$ is the $V$ matrix of the $\SE$ exponential (\S\ref{sec:lie:closed-forms}); the Jacobian of $\Log$ is $J_r^{-1}$ (invert the expansion), with closed form $J_r^{-1}=I+\frac12\skw\theta+\big(\frac1{\|\theta\|^2}-\frac{1+\cos\|\theta\|}{2\|\theta\|\sin\|\theta\|}\big)\skw\theta^2$. For $\theta=(0.3,-0.5,0.8)$,
+\[
+J_r(\theta)=\bmat{0.859&0.345&0.268\\-0.392&0.884&0.075\\-0.192&-0.202&0.946},
+\]
+which matches finite differences to $7\times10^{-8}$. The $\SEtwo$ and $\SE$ versions have similar closed forms (Solà et al., appendices), implemented in \texttt{Jr\_SE2} and checked to $2\times10^{-7}$.
+
+\begin{noteb}{Where $J_r$ shows up in practice}
+IMU preintegration (\S\ref{sec:rot:exp-in-practice}) corrects a preintegrated rotation for a small change of gyro bias using $J_r$ of each increment. The covariance of a noisy increment $\Exp(u+w)$ is $J_r(u)\,Q\,J_r(u)\T$ (\S\ref{sec:lie:propagation}). Optimisers that parameterise a rotation by $\theta$ directly (instead of using $\oplus$) need $J_r$ in every residual Jacobian.
+\end{noteb}

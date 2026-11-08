@@ -1,0 +1,20 @@
+\subsection{Groups: transformations that chain and undo}\label{sec:lie:group-axioms}
+
+A \emph{group} $(\mathcal M,\circ)$ is a set $\mathcal M$ with a composition $\circ$ such that, for all $\mathcal X,\mathcal Y,\mathcal Z\in\mathcal M$:
+\begin{center}\small
+\begin{tabular}{@{}lll@{}}\toprule
+axiom & statement & robotics meaning\\\midrule
+closure & $\mathcal X\circ\mathcal Y\in\mathcal M$ & chaining two poses gives a pose\\
+identity & there is $\mathcal E$ with $\mathcal E\circ\mathcal X=\mathcal X\circ\mathcal E=\mathcal X$ & ``do nothing'' is a transformation\\
+inverse & there is $\mathcal X^{-1}$ with $\mathcal X\circ\mathcal X^{-1}=\mathcal E$ & every motion can be undone\\
+associativity & $(\mathcal X\circ\mathcal Y)\circ\mathcal Z=\mathcal X\circ(\mathcal Y\circ\mathcal Z)$ & a frame chain can be evaluated in any grouping\\\bottomrule
+\end{tabular}
+\end{center}
+Commutativity, $\mathcal X\circ\mathcal Y=\mathcal Y\circ\mathcal X$, is \emph{not} required. Planar rotations commute ($R(0.7)R(1.1)=R(1.8)$); 3-D rotations do not ($\|R_x(90^\circ)R_z(90^\circ)-R_z(90^\circ)R_x(90^\circ)\|_F=2.45$, \S\ref{sec:rot:3-d-rotations}). All the groups in this book are \emph{matrix groups}: $\circ$ is matrix multiplication, $\mathcal E=I$, and $\mathcal X^{-1}$ is the matrix inverse. Checking the axioms is then reduced to checking that the defining constraints survive products and inverses, which is how $\SO$ and $\SE$ were shown to be groups in \S\ref{sec:rot:group} and \S\ref{sec:rot:homogeneous-coordinates-transformation}.
+
+\begin{deriv}{the unit complex numbers form a group, and it is $\SOtwo$}
+Let $S^1=\{z\in\mathbb C:|z|=1\}$ with ordinary complex multiplication. \emph{Closure:} $|z_1z_2|=|z_1||z_2|=1$. \emph{Identity:} $1$. \emph{Inverse:} $z^{-1}=z^*$, since $zz^*=|z|^2=1$. Associativity is inherited from $\mathbb C$. Writing $z=e^{i\theta}=\cos\theta+i\sin\theta$, the product is $e^{i\theta_1}e^{i\theta_2}=e^{i(\theta_1+\theta_2)}$: angles add. The map $e^{i\theta}\mapsto R(\theta)$ preserves products and is one-to-one, so $S^1$ and $\SOtwo$ are the \emph{same} group in two representations (``isomorphic''). This was the complex-number view of $J$ in \S\ref{sec:pl:rotation-exp}.
+\end{deriv}
+
+\subsubsection{Group actions}
+A group is interesting because its elements \emph{do} something to other objects. An \emph{action} of $\mathcal M$ on a set $\mathcal V$ is a map $(\mathcal X,v)\mapsto\mathcal X\cdot v$ with $\mathcal E\cdot v=v$ and $(\mathcal X\circ\mathcal Y)\cdot v=\mathcal X\cdot(\mathcal Y\cdot v)$. Examples: $R\cdot p=Rp$ rotates a vector; $T\cdot p=Rp+t$ transforms a point; the quaternion sandwich $q\cdot v=qvq^*$ (\S\ref{sec:rot:unit-quaternion-rotates}); $z\cdot v=zv$ for $v\in\mathbb C$. The second axiom is exactly ``chaining frames then transforming equals transforming twice''. tf2's lookups (\S\ref{sec:rot:tf-lookup}) are group actions on point clouds.

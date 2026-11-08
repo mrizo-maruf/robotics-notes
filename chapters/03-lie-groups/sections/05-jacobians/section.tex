@@ -1,0 +1,9 @@
+\section{Calculus on Lie groups: Jacobians}\label{sec:lie:jacobians}
+
+Gauss--Newton, Kalman filters and every gradient-based method need derivatives of functions whose inputs or outputs are poses and rotations. The usual definition, $\lim(f(x+h)-f(x))/h$, does not apply: $\mathcal X+h$ is not in the group, and $f(\mathcal X')-f(\mathcal X)$ may not be either. Replacing $+$ and $-$ by $\oplus$ and $\ominus$ fixes both problems at once, and gives Jacobians that are ordinary matrices of size (output dof) $\times$ (input dof).
+
+\input{\subfix{sections/05-jacobians/01-definition}}
+\input{\subfix{sections/05-jacobians/02-elementary}}
+\input{\subfix{sections/05-jacobians/03-exp-jacobian}}
+\input{\subfix{sections/05-jacobians/04-wahba}}
+\input{\subfix{sections/05-jacobians/05-in-practice}}

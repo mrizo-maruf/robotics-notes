@@ -1,0 +1,15 @@
+\subsection{Manifolds: curved surfaces that are flat up close}\label{sec:lie:manifolds}
+
+Groups describe the algebra. The geometry comes from the fact that our groups are \emph{constraint surfaces} inside an ambient space of numbers. $S^1$ is the curve $x^2+y^2=1$ in $\RR^2$. Unit quaternions $S^3$ are the 3-sphere $\|q\|=1$ in $\RR^4$. $\SO$ is the 3-dimensional surface $R\T R=I,\ \det R=1$ in $\RR^9$. In each case the constraints are smooth and independent, so the surface has no corners or self-intersections. Near any of its points it looks like a flat $\RR^m$, just as a small patch of the Earth looks flat. Such a surface is a smooth \emph{manifold} of dimension $m$ (= ambient dimension minus number of independent constraints), and $m$ is the number of degrees of freedom.
+
+Two consequences matter for robotics. First, the surface is \emph{curved}, so adding two elements, or adding a small vector to an element, leaves it: $z_1+z_2$ is not a unit complex number, $R+\delta$ is not a rotation (\figref{fig:lie:circle}b, and \figref{fig:rot:manifold} for the sphere). Second, it is \emph{locally flat}, so near any element there is a tangent space (a line, plane, or $m$-dimensional flat space touching the surface) where ordinary linear algebra applies. The whole of Lie theory in robotics is the art of doing the linear algebra in that tangent space and mapping the result back onto the surface exactly.
+
+\begin{keyidea}[: Lie group]
+A \emph{Lie group} is a smooth manifold that is also a group, with composition and inversion smooth maps. Smoothness lets us differentiate along the group. The group structure lets us carry the tangent space at the identity to \emph{every} element by composition, so a single vector space serves the whole manifold. A sphere $S^2$ is a manifold but not a group (there is no smooth way to ``multiply'' points of $S^2$). That is why the unit-vector directions of cameras and normals need extra care, while rotations and poses do not.
+\end{keyidea}
+
+\begin{figure}[h]
+\centering\includegraphics[width=\linewidth]{circle_group.pdf}
+\caption{The simplest Lie group, $S^1$. (a) Its tangent space at the identity is the vertical line $i\RR$. The exponential wraps that line onto the circle without stretching: the point $i\tau$ goes to $e^{i\tau}$, an arc of length $\tau$. (b) The same picture at any element $\mathcal X$: a local increment $\tau$ lives on the tangent line at $\mathcal X$ and is mapped to $\mathcal X\oplus\tau=\mathcal X e^{i\tau}$. Plain addition $z_1+z_2$ leaves the group.}
+\label{fig:lie:circle}
+\end{figure}

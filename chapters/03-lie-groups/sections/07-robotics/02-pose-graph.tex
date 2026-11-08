@@ -1,0 +1,24 @@
+\subsection{Pose-graph optimisation on SE(2)}\label{sec:lie:pose-graph}
+
+A pose graph (\S\ref{sec:pl:pose-graphs}) has poses $\mathcal X_i$ as nodes and relative measurements $Z_{ij}\approx\mathcal X_i^{-1}\mathcal X_j$ as edges: odometry between consecutive poses, and loop closures between distant ones. The estimate minimises $\sum\|r_{ij}\|^2_{\Omega}$ over all edges, with the residual of \S\ref{sec:pl:logarithms}
+\[
+r_{ij}=\Log\big(Z_{ij}^{-1}\mathcal X_i^{-1}\mathcal X_j\big)\in\RR^3 .
+\]
+
+\begin{deriv}{the residual Jacobians from the elementary blocks}
+Let $E=Z_{ij}^{-1}\mathcal X_i^{-1}\mathcal X_j$, so $r=\Log E$. \emph{Perturb $\mathcal X_j$}: $E\Exp(\delta)$, so by the $\Log$ block $\partial r/\partial\mathcal X_j=J_r^{-1}(r)$. \emph{Perturb $\mathcal X_i$}: $(\mathcal X_i\Exp\delta)^{-1}=\Exp(-\delta)\mathcal X_i^{-1}$, so $E$ becomes $Z_{ij}^{-1}\Exp(-\delta)Z_{ij}\,E$. Move the increment to the right of $E$ with two adjoints: $Z^{-1}\Exp(-\delta)Z=\Exp(-\Ad_{Z^{-1}}\delta)$, and $\Exp(a)E=E\,\Exp(\Ad_{E^{-1}}a)$. With $\Ad_{E^{-1}}\Ad_{Z^{-1}}=\Ad_{(ZE)^{-1}}=\Ad_{\mathcal X_j^{-1}\mathcal X_i}$:
+\[
+\frac{\partial r}{\partial\mathcal X_i}=-J_r^{-1}(r)\,\Ad_{\mathcal X_j^{-1}\mathcal X_i},\qquad\frac{\partial r}{\partial\mathcal X_j}=J_r^{-1}(r).
+\]
+Both match finite differences to $5\times10^{-9}$.
+\end{deriv}
+
+\begin{example}{closing a loop}
+A robot drives a $4\times4$\,m square: 16 odometry edges with noise $(3\,\text{cm},3\,\text{cm},0.02\,\text{rad})$ and one loop-closure edge back to the start. Chaining the odometry gives the initial guess: cost 90.7, position RMSE 14.2\,cm, end-point gap 21.8\,cm. Gauss--Newton (normal equations from the Jacobians above, first pose fixed to remove the gauge freedom, update $\mathcal X_k\leftarrow\mathcal X_k\oplus\delta_k$) gives cost 1.389 after one iteration and 1.387 after two, with RMSE 7.7\,cm (\figref{fig:lie:robotics}b). The remaining error is the measurement noise itself, now spread consistently around the loop instead of piling up at the end.
+\end{example}
+
+\begin{figure}[h]
+\centering\includegraphics[width=\linewidth]{lie_robotics.pdf}
+\caption{(a) Error-state Kalman filter on $\SEtwo$ with three beacons: dead reckoning drifts by a metre, while the filter tracks the truth. Ellipses are $3\sigma$ position bounds (scaled $\times5$) from the tangent-space covariance. (b) Pose graph of a square loop: the odometry chain does not close; one Gauss--Newton step with Lie Jacobians distributes the loop-closure correction around the loop.}
+\label{fig:lie:robotics}
+\end{figure}

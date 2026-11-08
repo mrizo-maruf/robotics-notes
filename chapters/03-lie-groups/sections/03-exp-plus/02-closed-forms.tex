@@ -1,0 +1,20 @@
+\subsection{Closed forms: what chapters 1 and 2 already derived}\label{sec:lie:closed-forms}
+
+For every group in this book the series sums in closed form. The reason is always the same: the powers of $\tau^\wedge$ repeat with a fixed pattern ($J^2=-I$; $\skw{\nh}^3=-\skw{\nh}$; the bottom row of zeros in homogeneous matrices), so even and odd terms collapse into sines and cosines.
+\begin{center}\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\linewidth}{@{}l>{\raggedright\arraybackslash}X l@{}}\toprule
+group & $\Exp(\tau)$ & derived in\\\midrule
+$S^1$ & $e^{i\theta}=\cos\theta+i\sin\theta$ & Euler's formula\\
+$\SOtwo$ & $R(\theta)=\cos\theta\,I+\sin\theta\,J$ & \S\ref{sec:pl:rotation-exp}\\
+$\SEtwo$ & $\bmat{R(\theta)&V(\theta)\rho\\0&1}$, $V=\frac{\sin\theta}\theta I+\frac{1-\cos\theta}\theta J$ & \S\ref{sec:pl:turn-centre}\\
+$\SO$ & $I+\frac{\sin\theta}\theta\skw{\theta}+\frac{1-\cos\theta}{\theta^2}\skw{\theta}^2$ (Rodrigues), $\theta=\|\theta\|$ & \S\ref{sec:rot:exponential-map-rotation}\\
+$S^3$ & $\big(\cos\frac\theta2,\ \sin\frac\theta2\,\frac{\theta}{\|\theta\|}\big)$ & \S\ref{sec:rot:unit-quaternion-rotates}\\
+$\SE$ & $\bmat{\Exp(\theta)&V(\theta)\rho\\0&1}$, $V=I+\frac{1-\cos\theta}{\theta^2}\skw{\theta}+\frac{\theta-\sin\theta}{\theta^3}\skw{\theta}^2$ & \S\ref{sec:rot:exponential-twist}\\\bottomrule
+\end{tabularx}
+\end{center}
+The logarithms invert these: read the angle from the rotation part ($\atantwo$ or the trace formula), then undo the coupling with $V^{-1}$. Near $\theta=0$ every formula needs its Taylor series (0/0). Near $\theta=\pm\pi$ the logarithm is ambiguous, because two equally short generators exist. These two places, the identity and the ``cut locus'' at half a turn, are where every Lie-group implementation needs care.
+
+\begin{noteb}{The $V$ matrix has a Lie-theoretic name}
+The matrix $V(\theta)$ that couples translation to rotation in $\Exp$ of $\SE$ is exactly the \emph{left Jacobian} $J_l(\theta)$ of $\SO$, defined in \S\ref{sec:lie:exp-jacobian}; numerically the two agree to the last bit. So the translation part of a screw motion is ``the rotation's left Jacobian applied to the linear velocity''. In chapter~\ref{ch:rot} this looked like an accident of summing a series; here it is a structural fact.
+\end{noteb}

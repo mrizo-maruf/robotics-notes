@@ -1,0 +1,44 @@
+\subsection{The exponential map, for every group at once}\label{sec:lie:exp}
+
+\begin{deriv}{constant local velocity $\Rightarrow$ matrix exponential}
+Let the local velocity be constant: $\mathcal X^{-1}\dot{\mathcal X}=v^\wedge$, i.e.\ $\dot{\mathcal X}=\mathcal X\,v^\wedge$, with $\mathcal X(0)=\mathcal E$. This is a linear matrix ODE with constant coefficients, and its unique solution is
+\[
+\mathcal X(t)=\exp(t\,v^\wedge)=\sum_{k\ge0}\frac{t^k(v^\wedge)^k}{k!},
+\]
+as one checks by differentiating the series term by term (this is route 2 of \S\ref{sec:pl:exponential-limit}, now for any group). Setting $\tau=vt$ (velocity times time = total motion), the element reached is $\exp(\tau^\wedge)$. Because the ODE never leaves the group, neither does $\exp$, for any $\tau$.
+\end{deriv}
+
+Three properties follow from the series or from the ODE, and each is used constantly:
+\begin{align*}
+\exp((t+s)\tau^\wedge)&=\exp(t\tau^\wedge)\exp(s\tau^\wedge) &&\text{(the same motion, continued)}\\
+\exp(-\tau^\wedge)&=\exp(\tau^\wedge)^{-1} &&\text{(run it backwards)}\\
+\exp(t\tau^\wedge)&=\exp(\tau^\wedge)^t &&\text{(e.g.\ checked for $t=3$ on $\SEtwo$)}\\
+\mathcal X\exp(\tau^\wedge)\mathcal X^{-1}&=\exp(\mathcal X\tau^\wedge\mathcal X^{-1}) &&\text{(insert $\mathcal X^{-1}\mathcal X$ between the series powers)}
+\end{align*}
+The first two say that $t\mapsto\exp(t\tau^\wedge)$ is a one-parameter subgroup. The last one becomes the adjoint (\S\ref{sec:lie:adjoint}). What does \emph{not} hold is $\exp(\tau_1^\wedge)\exp(\tau_2^\wedge)=\exp(\tau_1^\wedge+\tau_2^\wedge)$, unless the two commute (\S\ref{sec:pl:lie-bracket}).
+
+\subsubsection{Capital Exp and Log}
+In practice we skip the matrix step and go straight from $\RR^m$ to the group:
+\[
+\Exp:\RR^m\to\mathcal M,\ \ \tau\mapsto\exp(\tau^\wedge),\qquad \Log:\mathcal M\to\RR^m,\ \ \mathcal X\mapsto\log(\mathcal X)^\vee .
+\]
+This is the convention chapters~\ref{ch:pl}--\ref{ch:rot} already used for $\SO$ and $\SE$. $\Log$ is the inverse of $\Exp$ only on a neighbourhood of the identity: rotations by $\theta$ and $\theta+2\pi$ coincide, so $\Log$ must choose a branch (\S\ref{sec:pl:logarithms}, \S\ref{sec:rot:logarithm-matrix-back}).
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[node distance=2.9cm, every node/.style={font=\small},
+  box/.style={draw,rounded corners=2pt,align=center,minimum width=2.5cm,minimum height=0.85cm},
+  ar/.style={-{Stealth[length=2mm]},thick}]
+\node[box,fill=blue!6] (M) {group $\mathcal M$\\ \scriptsize curved, $\mathcal X$};
+\node[box,fill=orange!8,right=3.2cm of M] (m) {Lie algebra $\mathfrak m$\\ \scriptsize matrices $\tau^\wedge$};
+\node[box,fill=green!6,right=3.2cm of m] (R) {$\RR^m$\\ \scriptsize vectors $\tau$};
+\draw[ar] ([yshift=4pt]m.west) -- node[above]{$\exp$} ([yshift=4pt]M.east);
+\draw[ar] ([yshift=-4pt]M.east) -- node[below]{$\log$} ([yshift=-4pt]m.west);
+\draw[ar] ([yshift=4pt]R.west) -- node[above]{vee $^\vee$} ([yshift=4pt]m.east);
+\draw[ar] ([yshift=-4pt]m.east) -- node[below]{hat $^\wedge$} ([yshift=-4pt]R.west);
+\draw[ar,blue!60!black] (R.south) to[out=-150,in=-30] node[below]{$\Exp$} (M.south);
+\draw[ar,blue!60!black] (M.north) to[out=30,in=150] node[above]{$\Log$} (R.north);
+\end{tikzpicture}
+\caption{The maps between a Lie group, its Lie algebra and $\RR^m$. Estimation and optimisation work in $\RR^m$ (flat, unconstrained); the state lives in $\mathcal M$ (exact, constrained). $\Exp$ and $\Log$ connect the two.}
+\label{fig:lie:maps}
+\end{figure}

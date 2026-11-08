@@ -1,0 +1,19 @@
+\subsection{Dictionary: chapters 1--2 in Lie-theory language}\label{sec:lie:dictionary}
+
+\begin{center}\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{5.4cm}>{\raggedright\arraybackslash}X@{}}\toprule
+what earlier chapters called it & Lie-theory name\\\midrule
+rotation matrix, quaternion, pose matrix & element of the Lie group $\SO$, $S^3$, $\SE$, $\SEtwo$\\
+skew matrix $\skw\omega$, twist matrix $[S]$, $[\xi]$ & element of the Lie algebra (hat of a tangent vector)\\
+rotation vector, twist coordinates, exponential coordinates & Cartesian tangent vector $\tau\in\RR^m$\\
+body / spatial angular velocity, body / spatial twist & local (right) / global (left) velocity\\
+Rodrigues' formula, $\exp(\theta G)$, screw motion & $\Exp$\\
+``tangent update, group state'', $R\Exp(\delta)$ & right plus $\oplus$\\
+pose-graph residual $\vexa\log(Z^{-1}T_a^{-1}T_b)$ & $(\mathcal X_a^{-1}\mathcal X_b)\ominus Z$\\
+twist transformation, $\omega_s=R\omega_b$, $\Ad_T$ & adjoint\\
+the $V$ matrix of the $\SE$ exponential & left Jacobian $J_l$ of $\SO$\\
+BCH, Lie bracket, parallel parking & non-commutativity; why $J_r,J_l\neq I$\\
+$-R\skw p$ in SLAM Jacobians & Jacobian of the group action\\\bottomrule
+\end{tabularx}
+\end{center}

@@ -1,0 +1,17 @@
+\subsection{In practice: plus and minus in solvers and libraries}\label{sec:lie:exp-in-practice}
+
+Every nonlinear least-squares library has an interface for exactly these two operators, under different names.
+\begin{center}\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{@{}l>{\raggedright\arraybackslash}X@{}}\toprule
+library & $\oplus$ / $\ominus$\\\midrule
+manif & \texttt{X.rplus(tau)}, \texttt{X.lplus(tau)}, \texttt{Y.rminus(X)}, \texttt{Y.lminus(X)}; \texttt{plus}/\texttt{minus} default to right. In C++ each takes optional Jacobian outputs (\texttt{OptJacobianRef}), giving the blocks of \S\ref{sec:lie:jacobians} for free\\
+GTSAM & \texttt{retract}$(\delta)=\mathcal X\Exp(\delta)$ and \texttt{localCoordinates}: right plus/minus\\
+Ceres & \texttt{Manifold::Plus(x, delta)} and \texttt{Minus(y, x)}, with \texttt{PlusJacobian}/\texttt{MinusJacobian}\\
+tf2, Eigen & composition only (\texttt{T1 * T2}); $\oplus$ is composition with $\Exp$ of your increment\\\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{pitfall}[: Ceres' quaternion manifold uses a left plus and a half-angle]
+Reading \texttt{ceres/manifold.h}: \texttt{QuaternionManifold::Plus(x, delta)} is $[\cos|\delta|;\ \sin|\delta|\,\delta/|\delta|]\otimes x$. That is a \emph{left} plus, and $|\delta|$ enters where the quaternion exponential has $\theta/2$, so Ceres' $\delta$ is \emph{half} the rotation vector, in the global frame. The optimisation itself is unaffected: Ceres asks for residual Jacobians with respect to the four quaternion parameters and chains them with \texttt{PlusJacobian} internally. But any quantity read out \emph{in the tangent space}, such as a covariance block requested in tangent-space coordinates, is in Ceres' $\delta$. To compare it with a rotation-vector covariance in this book's right-plus convention, change the side with the adjoint (\S\ref{sec:lie:adjoint}) and multiply by $4$ (twice the angle, squared).
+\end{pitfall}
